@@ -1,0 +1,231 @@
+{% extends 'base.html' %}
+
+{% block title %}Collection - Dounia{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <h2 class="text-2xl font-bold text-gray-800 mb-4">Collection</h2>
+    
+    <!-- Barre de recherche avec filtres tags -->
+    <div class="mb-4 border bg-white p-4 rounded-sm">
+        <form method="GET" action="{% url 'collection' %}" id="filter-form">
+            <input id="tags-filter" placeholder="Filter par tags..." class="w-full">
+            <div id="hidden-tags-inputs"></div>
+
+            <div class="mt-4 flex gap-3">
+                <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium transition">
+                    Appliquer les filtres
+                </button>
+                {% if selected_tags %}
+                    <button type="button" onclick="clearAllTags()" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 font-medium transition">
+                        Effacer tous les filtres
+                    </button>
+                {% endif %}
+            </div>
+            <div class="mt-3 text-sm text-gray-600">
+                {% if selected_tags %}
+                    <span class="font-medium">{{ albums_count }}</span> cover{{ albums_count|pluralize }}
+                {% else %}
+                    <span class="font-medium">{{ albums_count }}</span> cover{{ albums_count|pluralize }}
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Grille d'albums -->
+    {% if albums %}
+        <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+            {% for album in albums %}
+                <div class="bg-white border rounded-sm shadow-xs overflow-hidden hover:shadow-sm transition-shadow group">
+                    <div class="aspect-square bg-gray-200 relative">
+                        {% if album.cover %}
+                            <img src="{{ album.cover.url }}" alt="{{ album.name }}" class="w-full h-full object-cover">
+                        {% else %}
+                            <div class="w-full h-full flex items-center justify-center text-gray-400">
+                                No cover
+                            </div>
+                        {% endif %}
+
+                        <!-- Trash icon - visible on hover -->
+                        <form method="POST" action="{% url 'delete_album' album.id %}" class="absolute top-2 right-2 opacity-0 group-hover:opacity-70 hover:opacity-80 transition-opacity" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet album ?');">
+                            {% csrf_token %}
+                            <button type="submit" class="bg-gray-100 hover:bg-gray-300 text-gray-500 hover:text-gray-800 p-2 rounded-full transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
+                    <div class="p-2">
+                        <h3 class="font-semibold text-gray-800 truncate">{{ album.name }}</h3>
+                        <p class="text-sm text-gray-600 truncate">{{ album.artist.name }}</p>
+                        {% if album.year %}
+                            <p class="text-xs text-gray-500">{{ album.year }}</p>
+                        {% endif %}
+                        <!-- Tags de l'album -->
+                        {% if album.tags.all %}
+                            <div class="mt-2 flex flex-wrap gap-1">
+                                <!-- Default view: show only first 2 tags -->
+                                <div class="flex flex-wrap gap-1 group-hover:hidden">
+                                    {% for tag in album.tags.all|slice:":2" %}
+                                        <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">
+                                            {{ tag.name }}
+                                        </span>
+                                    {% endfor %}
+                                    {% if album.tags.count > 2 %}
+                                        <span class="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded">
+                                            +{{ album.tags.count|add:"-2" }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                <!-- Hover view: show all tags -->
+                                <div class="hidden group-hover:flex flex-wrap gap-1">
+                                    {% for tag in album.tags.all %}
+                                        <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">
+                                            {{ tag.name }}
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-8">
+            <a href="{% url 'add_album' %}" class="mt-4 inline-block px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                Ajouter un album
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .tagify {
+        display: flex;
+        align-items: center;
+    }
+
+    .tagify__tag {
+        margin: 0.2rem 0.2rem 0.2rem 0;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .tagify__dropdown__wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 12px;
+    }
+
+    .tagify__dropdown__item {
+        display: inline-block !important;
+        width: auto !important;
+    }
+
+    .tagify__dropdown__item:hover {
+        background:#3B82F6 !important;
+        color: white !important;
+        {% comment %} transform: translateY(-1px); {% endcomment %}
+    }
+
+    .tagify__dropdown__item:hover span {
+        color: white !important;
+    }
+</style>
+
+<script>
+    // Initialiser Tagify pour le multi-select avec recherche
+    const input = document.querySelector('#tags-filter');
+    const form = document.getElementById('filter-form');
+    const hiddenInputsContainer = document.getElementById('hidden-tags-inputs');
+
+    // Préparer la liste de tous les tags disponibles
+    const allTagsWhitelist = [
+        {% for tag in all_tags %}
+            "{{ tag.id }}|{{ tag.name }}|{{ tag.get_category_display }}",
+        {% endfor %}
+    ];
+
+    const tagify = new Tagify(input, {
+        enforceWhitelist: true,
+        whitelist: allTagsWhitelist,
+        dropdown: {
+            enabled: 1,
+            maxItems: 50,
+            closeOnSelect: false,
+            highlightFirst: true,
+            searchKeys: ['value']
+        },
+        templates: {
+            tag: function(tagData) {
+                const parts = tagData.value.split('|');
+                const tagId = parts[0];
+                const tagName = parts[1];
+                const tagCategory = parts[2];
+                return `<tag title="${tagName} (${tagCategory})" contenteditable='false' spellcheck='false' class='tagify__tag' style='--tag-bg:#3B82F6; --tag-hover:#2563EB;' data-tag-id="${tagId}">
+                    <x title='Retirer ce tag' class='tagify__tag__removeBtn' role='button'></x>
+                    <div>
+                        <span class='tagify__tag-text'>${tagName}</span>
+                    </div>
+                </tag>`;
+            },
+            dropdownItem: function(tagData) {
+                const parts = (tagData.value || '').split('|');
+                const tagName = parts[1] || tagData.value;
+                const tagCategory = parts[2] || '';
+                return `<div ${this.getAttributes(tagData)} class='tagify__dropdown__item' tabindex="0" role="option" style='padding: 10px 10px; margin: 2px 4px; border-radius: 4px; background:rgb(184, 184, 184); transition: all 0.1s;'>
+                    <span><strong>${tagName}</strong> <span style='opacity: 0.6; font-size: 0.75em;'> (${tagCategory})</span></span>
+                </div>`;
+            }
+        },
+        transformTag: function(tagData) {
+            const parts = tagData.value.split('|');
+            tagData.id = parts[0];
+            tagData.name = parts[1];
+            tagData.category = parts[2];
+        }
+    });
+
+    // Function to update hidden inputs
+    function updateHiddenInputs() {
+        hiddenInputsContainer.innerHTML = '';
+        const tags = tagify.value;
+        tags.forEach(tag => {
+            const parts = tag.value.split('|');
+            const tagId = parts[0];
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'tags';
+            hiddenInput.value = tagId;
+            hiddenInputsContainer.appendChild(hiddenInput);
+        });
+    }
+
+    // Mettre à jour les inputs cachés quand on ajoute/supprime un tag
+    tagify.on('add', updateHiddenInputs);
+    tagify.on('remove', updateHiddenInputs);
+
+    // Initialiser avec les tags déjà sélectionnés
+    const selectedTags = {{ selected_tags|safe }};
+    if (selectedTags.length > 0) {
+        const selectedTagsData = [];
+        {% for tag in all_tags %}
+            {% if tag.id in selected_tags %}
+                selectedTagsData.push("{{ tag.id }}|{{ tag.name }}|{{ tag.get_category_display }}");
+            {% endif %}
+        {% endfor %}
+        tagify.addTags(selectedTagsData);
+        updateHiddenInputs();
+    }
+
+    // Fonction pour effacer tous les tags
+    function clearAllTags() {
+        tagify.removeAllTags();
+        updateHiddenInputs();
+        form.submit();
+    }
+</script>
+{% endblock %}

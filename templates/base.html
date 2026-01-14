@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dounia{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
+    <style>
+        .tags-input .tagify {
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+        }
+
+        /* Améliorer l'apparence de Tagify */
+        .tagify {
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            min-height: 50px;
+        }
+
+        .tagify__input {
+            margin: 0;
+            min-width: 120px;
+        }
+
+        .tagify__dropdown {
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            pointer-events: auto;
+        }
+
+        .tagify__dropdown__item {
+            padding: 0.75rem;
+            cursor: pointer;
+            color: #1F2937 !important;
+        }
+
+        .tagify__dropdown__item:hover {
+            background-color: #EFF6FF;
+            color: #1F2937 !important;
+        }
+
+        .tagify__dropdown__item--active {
+            background-color: #3B82F6;
+            color: white !important;
+        }
+
+        .tagify__dropdown__item:hover * {
+            color: inherit !important;
+        }
+    </style>
+    <script>
+        // Apply sidebar state immediately to prevent flash
+        (function() {
+            const sidebarState = localStorage.getItem('sidebarCollapsed');
+            if (sidebarState === 'true') {
+                document.documentElement.classList.add('sidebar-collapsed-initial');
+            }
+        })();
+    </script>
+    <style>
+        .sidebar-collapsed-initial #sidebar {
+            width: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        .sidebar-collapsed-initial #toggle-sidebar {
+            left: 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="w-64 bg-white shadow-lg transition-all duration-300">
+            <div class="p-4">
+                <div class="flex items-center justify-between mb-4">
+                    <h1 class="text-2xl font-bold text-gray-800">Dounia</h1>
+                </div>
+                <nav class="space-y-1">
+                    <a href="{% url 'collection' %}"
+                       class="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 {% if request.resolver_match.url_name == 'collection' %}bg-blue-50 text-blue-600{% endif %}">
+                        <span class="mr-3">📚</span>
+                        <span class="sidebar-text">Collection</span>
+                    </a>
+                    <a href="{% url 'add_album' %}"
+                       class="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 {% if request.resolver_match.url_name == 'add_album' %}bg-blue-50 text-blue-600{% endif %}">
+                        <span class="mr-3">➕</span>
+                        <span class="sidebar-text">Ajouter un album</span>
+                    </a>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-4">
+            <!-- Toggle Button -->
+            <button id="toggle-sidebar" class="fixed top-1/2 -translate-y-1/2 left-2 z-50 bg-white p-1.5 rounded-lg shadow-md hover:bg-gray-100 transition-colors">
+                <svg id="toggle-icon" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                </svg>
+            </button>
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <style>
+        #sidebar.collapsed {
+            width: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #sidebar.collapsed .sidebar-text {
+            display: none;
+        }
+
+        #toggle-sidebar {
+            transition: left 0.3s ease;
+        }
+
+        body.sidebar-collapsed #toggle-sidebar {
+            left: 0.8rem;
+        }
+
+        body:not(.sidebar-collapsed) #toggle-sidebar {
+            left: 15rem;
+        }
+    </style>
+
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.getElementById('toggle-sidebar');
+        const toggleIcon = document.getElementById('toggle-icon');
+
+        // Remove initial class and apply proper state management
+        document.documentElement.classList.remove('sidebar-collapsed-initial');
+
+        // Charger l'état de la sidebar depuis le localStorage
+        const sidebarState = localStorage.getItem('sidebarCollapsed');
+        if (sidebarState === 'true') {
+            sidebar.classList.add('collapsed');
+            document.body.classList.add('sidebar-collapsed');
+            toggleIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />';
+        }
+
+        // Toggle sidebar
+        toggleBtn.addEventListener('click', function() {
+            sidebar.classList.toggle('collapsed');
+            document.body.classList.toggle('sidebar-collapsed');
+
+            const isCollapsed = sidebar.classList.contains('collapsed');
+            localStorage.setItem('sidebarCollapsed', isCollapsed);
+
+            // Changer l'icône
+            if (isCollapsed) {
+                toggleIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />';
+            } else {
+                toggleIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />';
+            }
+        });
+    </script>
+</body>
+</html>

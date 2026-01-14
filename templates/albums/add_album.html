@@ -1,0 +1,340 @@
+{% extends 'base.html' %}
+
+{% block title %}Ajouter un album - Dounia{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <h2 class="text-3xl font-bold text-gray-800 mb-6">Ajouter un album</h2>
+    
+    <!-- Toggle entre les 2 modes -->
+    <div class="bg-white p-2 rounded-lg shadow mb-6 flex gap-2">
+        <button id="btn-mode-deezer" class="flex-1 px-4 py-3 rounded-lg font-medium transition bg-blue-600 text-white">
+            🎵 Import Deezer
+        </button>
+        <button id="btn-mode-manual" class="flex-1 px-4 py-3 rounded-lg font-medium transition bg-gray-100 text-gray-700 hover:bg-gray-200">
+            ✍️ Saisie manuelle
+        </button>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" id="album-form" class="bg-white p-8 rounded-lg shadow-md space-y-6">
+        {% csrf_token %}
+        
+        <!-- MODE DEEZER -->
+        <div id="mode-deezer" class="space-y-6">
+            <!-- Lien Deezer -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Lien Deezer *
+                </label>
+                <div class="flex gap-2">
+                    <input type="text" id="deezer-url-input" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="https://www.deezer.com/album/302127">
+                    <button type="button" id="btn-fetch-deezer" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition">
+                        Importer
+                    </button>
+                </div>
+                <p class="mt-1 text-sm text-gray-500">Collez le lien d'un album Deezer et cliquez sur Importer</p>
+                <div id="deezer-error" class="mt-2 text-sm text-red-600 hidden"></div>
+                <div id="deezer-loading" class="mt-2 text-sm text-blue-600 hidden">⏳ Chargement...</div>
+            </div>
+
+            <!-- Preview des infos récupérées -->
+            <div id="deezer-preview" class="hidden border-2 border-blue-200 rounded-lg p-6 bg-blue-50">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">✅ Album trouvé !</h3>
+                <div class="flex gap-4">
+                    <img id="preview-cover" src="" alt="Cover" class="w-32 h-32 object-cover rounded">
+                    <div class="flex-1">
+                        <p class="text-sm text-gray-600">Album</p>
+                        <p id="preview-name" class="font-bold text-lg text-gray-800"></p>
+                        <p class="text-sm text-gray-600 mt-2">Artiste</p>
+                        <p id="preview-artist" class="font-semibold text-gray-800"></p>
+                        <p class="text-sm text-gray-600 mt-2">Année</p>
+                        <p id="preview-year" class="text-gray-800"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODE MANUEL -->
+        <div id="mode-manual" class="space-y-6 hidden">
+            <!-- Nom de l'album -->
+            <div>
+                <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.name.label }} *
+                </label>
+                {{ form.name }}
+            </div>
+
+            <!-- Artiste -->
+            <div>
+                <label for="{{ form.artist_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.artist_name.label }} *
+                </label>
+                {{ form.artist_name }}
+            </div>
+
+            <!-- Cover -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.cover.label }} *
+                </label>
+                
+                <div id="drop-zone" class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-blue-500 transition">
+                    <div id="drop-zone-content">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <p class="mt-2 text-sm text-gray-600">
+                            <span class="font-medium text-blue-600">Cliquez pour choisir</span> ou glissez-déposez une image
+                        </p>
+                        <p class="text-xs text-gray-500 mt-1">PNG, JPG, WebP jusqu'à 10MB</p>
+                    </div>
+                    
+                    <div id="preview-container" class="hidden">
+                        <img id="preview-image" src="" alt="Preview" class="max-h-64 mx-auto rounded">
+                        <button type="button" id="remove-image" class="mt-4 px-4 py-2 bg-red-100 text-red-700 rounded hover:bg-red-200">
+                            Supprimer l'image
+                        </button>
+                    </div>
+                </div>
+                
+                {{ form.cover }}
+                <style>
+                    #id_cover { display: none; }
+                </style>
+            </div>
+
+            <!-- Année -->
+            <div>
+                <label for="{{ form.year.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.year.label }}
+                </label>
+                {{ form.year }}
+            </div>
+        </div>
+
+        <!-- Champs cachés pour le mode Deezer -->
+        <input type="hidden" name="artist_name" id="hidden-artist">
+        <input type="hidden" name="cover_url" id="hidden-cover-url">
+
+        <!-- Tags (commun aux 2 modes) -->
+        <div>
+            <label for="tags-input" class="block text-sm font-medium text-gray-700 mb-2">
+                Tags
+            </label>
+            <input type="text" id="tags-input" name="tags_display" class="w-full" placeholder="Ajouter des tags...">
+            <input type="hidden" name="tags_input" id="tags-input-hidden">
+            <p class="mt-1 text-sm text-gray-500">Tapez pour chercher un tag existant ou créez-en un nouveau</p>
+        </div>
+
+        <!-- Notes (commun aux 2 modes) -->
+        <div>
+            <label for="{{ form.notes.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                {{ form.notes.label }}
+            </label>
+            {{ form.notes }}
+        </div>
+
+        <!-- Boutons -->
+        <div class="flex gap-4">
+            <button type="submit" class="flex-1 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">
+                Ajouter l'album
+            </button>
+            <a href="{% url 'collection' %}" class="px-6 py-3 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300 transition">
+                Annuler
+            </a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .tagify {
+        display: flex;
+        align-items: center;
+    }
+
+    .tagify__tag {
+        margin: 0.2rem 0.2rem 0.2rem 0;
+        display: inline-flex;
+        align-items: center;
+    }
+</style>
+
+<script>
+    // === Variables globales ===
+    let currentMode = 'deezer';
+    let deezerData = null;
+
+    // === Toggle entre les modes ===
+    const btnModeDeezer = document.getElementById('btn-mode-deezer');
+    const btnModeManual = document.getElementById('btn-mode-manual');
+    const modeDeezer = document.getElementById('mode-deezer');
+    const modeManual = document.getElementById('mode-manual');
+
+    btnModeDeezer.addEventListener('click', () => {
+        currentMode = 'deezer';
+        btnModeDeezer.className = 'flex-1 px-4 py-3 rounded-lg font-medium transition bg-blue-600 text-white';
+        btnModeManual.className = 'flex-1 px-4 py-3 rounded-lg font-medium transition bg-gray-100 text-gray-700 hover:bg-gray-200';
+        modeDeezer.classList.remove('hidden');
+        modeManual.classList.add('hidden');
+    });
+
+    btnModeManual.addEventListener('click', () => {
+        currentMode = 'manual';
+        btnModeManual.className = 'flex-1 px-4 py-3 rounded-lg font-medium transition bg-blue-600 text-white';
+        btnModeDeezer.className = 'flex-1 px-4 py-3 rounded-lg font-medium transition bg-gray-100 text-gray-700 hover:bg-gray-200';
+        modeManual.classList.remove('hidden');
+        modeDeezer.classList.add('hidden');
+    });
+
+    // === Fetch Deezer Album ===
+    const btnFetchDeezer = document.getElementById('btn-fetch-deezer');
+    const deezerUrlInput = document.getElementById('deezer-url-input');
+    const deezerError = document.getElementById('deezer-error');
+    const deezerLoading = document.getElementById('deezer-loading');
+    const deezerPreview = document.getElementById('deezer-preview');
+
+    btnFetchDeezer.addEventListener('click', async () => {
+        const url = deezerUrlInput.value.trim();
+        
+        if (!url) {
+            deezerError.textContent = 'Veuillez entrer un lien Deezer';
+            deezerError.classList.remove('hidden');
+            return;
+        }
+
+        // Reset
+        deezerError.classList.add('hidden');
+        deezerPreview.classList.add('hidden');
+        deezerLoading.classList.remove('hidden');
+
+        try {
+            const response = await fetch(`{% url 'fetch_deezer_album' %}?url=${encodeURIComponent(url)}`);
+            const data = await response.json();
+
+            deezerLoading.classList.add('hidden');
+
+            if (data.error) {
+                deezerError.textContent = data.error;
+                deezerError.classList.remove('hidden');
+                return;
+            }
+
+            // Stocker les données
+            deezerData = data;
+
+            // Afficher la preview
+            document.getElementById('preview-cover').src = data.cover_url;
+            document.getElementById('preview-name').textContent = data.name;
+            document.getElementById('preview-artist').textContent = data.artist;
+            document.getElementById('preview-year').textContent = data.year || 'Non spécifiée';
+            deezerPreview.classList.remove('hidden');
+
+            // Remplir les champs cachés
+            document.getElementById('id_name').value = data.name;
+            document.getElementById('hidden-artist').value = data.artist;
+            document.getElementById('id_year').value = data.year || '';
+            document.getElementById('hidden-cover-url').value = data.cover_url;
+
+        } catch (error) {
+            deezerLoading.classList.add('hidden');
+            deezerError.textContent = 'Erreur de connexion à Deezer';
+            deezerError.classList.remove('hidden');
+        }
+    });
+
+    // === Gestion upload manuel (mode manual) ===
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('id_cover');
+    const dropZoneContent = document.getElementById('drop-zone-content');
+    const previewContainer = document.getElementById('preview-container');
+    const previewImage = document.getElementById('preview-image');
+    const removeImageBtn = document.getElementById('remove-image');
+
+    dropZone.addEventListener('click', (e) => {
+        if (e.target.id !== 'remove-image' && !e.target.closest('#remove-image')) {
+            fileInput.click();
+        }
+    });
+
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('border-blue-500', 'bg-blue-50');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('border-blue-500', 'bg-blue-50');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('border-blue-500', 'bg-blue-50');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            showPreview(files[0]);
+        }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            showPreview(e.target.files[0]);
+        }
+    });
+
+    function showPreview(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            previewImage.src = e.target.result;
+            dropZoneContent.classList.add('hidden');
+            previewContainer.classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    removeImageBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        fileInput.value = '';
+        previewImage.src = '';
+        dropZoneContent.classList.remove('hidden');
+        previewContainer.classList.add('hidden');
+    });
+    
+    // === Tagify ===
+    const tagsInput = document.querySelector('#tags-input');
+    const tagsHidden = document.querySelector('#tags-input-hidden');
+    
+    const allTags = {{ all_tags|safe }};
+    
+    const tagify = new Tagify(tagsInput, {
+        whitelist: allTags.map(tag => tag.name),
+        dropdown: {
+            maxItems: 20,
+            enabled: 0,
+            closeOnSelect: false,
+            highlightFirst: true
+        },
+        enforceWhitelist: false,
+        maxTags: 20,
+        templates: {
+            dropdownItem: function(tagData) {
+                const existingTag = allTags.find(t => t.name === tagData.value);
+                const category = existingTag ? existingTag.category : '';
+                
+                return `<div ${this.getAttributes(tagData)} class='tagify__dropdown__item' tabindex="0" role="option">
+                    <strong>${tagData.value}</strong>
+                    ${category ? `<span style='opacity: 0.6; font-size: 0.85em'> (${category})</span>` : '<span style="opacity: 0.5; font-size: 0.85em;"> (nouveau)</span>'}
+                </div>`;
+            }
+        }
+    });
+
+    tagify.on('add', () => {
+        tagsHidden.value = JSON.stringify(tagify.value);
+    });
+    
+    tagify.on('remove', () => {
+        tagsHidden.value = JSON.stringify(tagify.value);
+    });
+</script>
+{% endblock %}
