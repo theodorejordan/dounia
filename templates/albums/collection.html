@@ -35,18 +35,8 @@
         </button>
       </div>
       <div id="hidden-tags-inputs"></div>
-      
-      <div class="mt-4 flex gap-2">
-        <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium transition">
-          Appliquer les filtres
-        </button>
-        {% if selected_tags or artist_search %}
-        <button type="button" onclick="clearAllFilters()" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 font-medium transition">
-          Effacer tous les filtres
-        </button>
-        {% endif %}
-      </div>
-      <div class="mt-2 text-sm text-gray-600">
+
+      <div class="mt-3 text-sm text-gray-600">
         {% if selected_tags %}
         <span class="font-medium">{{ albums_count }}</span> cover{{ albums_count|pluralize }}
         {% else %}
@@ -230,7 +220,24 @@
   // Mettre à jour les inputs cachés quand on ajoute/supprime un tag
   tagify.on('add', updateHiddenInputs);
   tagify.on('remove', updateHiddenInputs);
-  
+
+  // Flag to prevent form submission during initialization
+  let isInitializing = true;
+
+  // Submit form when tag is added or removed (after initialization)
+  tagify.on('add', function() {
+    if (!isInitializing) {
+      updateHiddenInputs();
+      form.submit();
+    }
+  });
+  tagify.on('remove', function() {
+    if (!isInitializing) {
+      updateHiddenInputs();
+      form.submit();
+    }
+  });
+
   // Initialiser avec les tags déjà sélectionnés
   const selectedTags = {{ selected_tags|safe }};
   if (selectedTags.length > 0) {
@@ -243,6 +250,9 @@
     tagify.addTags(selectedTagsData);
     updateHiddenInputs();
   }
+
+  // Initialization complete, enable auto-submit
+  isInitializing = false;
   
   // Fonction pour effacer tous les filtres
   function clearAllFilters() {
@@ -298,6 +308,8 @@
       option.addEventListener('click', function() {
         artistInput.value = this.dataset.name;
         hideDropdown();
+        updateHiddenInputs();
+        form.submit();
       });
     });
   }
@@ -324,6 +336,8 @@
       e.preventDefault();
       artistInput.value = options[selectedIndex].dataset.name;
       hideDropdown();
+      updateHiddenInputs();
+      form.submit();
     } else if (e.key === 'Escape') {
       hideDropdown();
     }
