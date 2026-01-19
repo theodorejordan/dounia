@@ -32,10 +32,6 @@
       padding: 0;
     }
 
-    .tagify__tag:hover {
-      transform: none;
-    }
-
     .tagify__tag > div {
       padding: 0.25rem 0.5rem;
     }
@@ -52,8 +48,8 @@
 
     /* Dropdown styling */
     .tagify__dropdown {
-      border: 1px solid #e5e7eb;
-      border-radius: 0.375rem;
+      {% comment %} border: 0px solid #e5e7eb; {% endcomment %}
+      border-radius: 0.4rem;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
       z-index: 1000;
       background: white;
@@ -74,7 +70,7 @@
 
     .tagify__dropdown__item:hover {
       background-color: #F3F4F6;
-      color: #374151;
+      color:rgb(88, 113, 152);
     }
 
     .tagify__dropdown__item--active {
