@@ -27,7 +27,7 @@
         <div id="artist-dropdown" class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1 hidden max-h-60 overflow-y-auto"></div>
       </div>
       <div class="relative mb-3">
-        <input id="tags-filter" placeholder="Filter par tags..." class="h-10 w-full">
+        <input id="tags-filter" placeholder="Filter par tags..." class="12 w-full">
         <button type="button" id="clear-tags" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 hidden z-10">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
@@ -134,32 +134,24 @@
     display: flex;
     align-items: center;
   }
-  
+
   .tagify__tag {
     margin: 0.2rem 0.2rem 0.2rem 0;
     display: inline-flex;
     align-items: center;
   }
-  
+
+  /* Dropdown as inline chips */
   .tagify__dropdown__wrapper {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-    padding: 12px;
+    gap: 6px;
+    padding: 10px;
   }
-  
+
   .tagify__dropdown__item {
     display: inline-block !important;
     width: auto !important;
-  }
-  
-  .tagify__dropdown__item:hover {
-    {% comment %} background:#3B82F6 !important; {% endcomment %}
-    color: white !important;
-  }
-  
-  .tagify__dropdown__item:hover span {
-    color: white !important;
   }
 </style>
 
@@ -192,10 +184,10 @@
         const tagId = parts[0];
         const tagName = parts[1];
         const tagCategory = parts[2];
-        return `<tag title="${tagName} (${tagCategory})" contenteditable='false' spellcheck='false' class='tagify__tag' style='--tag-bg:#3B82F6;' data-tag-id="${tagId}">
+        return `<tag title="${tagName} (${tagCategory})" contenteditable='false' spellcheck='false' class='tagify__tag' data-tag-id="${tagId}">
                     <x title='Retirer ce tag' class='tagify__tag__removeBtn' role='button'></x>
                     <div>
-                        <span class='tagify__tag-text'>${tagName}</span>
+                        <span style='font-size: 1rem;'>${tagName}</span>
                     </div>
                 </tag>`;
       },
@@ -203,8 +195,9 @@
         const parts = (tagData.value || '').split('|');
         const tagName = parts[1] || tagData.value;
         const tagCategory = parts[2] || '';
-        return `<div ${this.getAttributes(tagData)} class='tagify__dropdown__item' tabindex="0" role="option" style='padding: 10px 10px; margin: 2px 4px; border-radius: 4px; background:rgb(184, 184, 184); transition: all 0.05s;'>
-                    <span><strong>${tagName}</strong> <span style='opacity: 0.6; font-size: 0.75em;'> (${tagCategory})</span></span>
+        return `<div ${this.getAttributes(tagData)} class='tagify__dropdown__item' tabindex="0" role="option" style='padding: 6px 10px; border-radius: 4px; background: #DBEAFE; color: #1E40AF;'>
+                    <span style='font-size: 0.75rem;'>${tagName}</span>
+                    <span style='opacity: 0.6; font-size: 0.65rem; margin-left: 4px;'>${tagCategory}</span>
                 </div>`;
       }
     },

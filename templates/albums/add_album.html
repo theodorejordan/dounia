@@ -151,11 +151,24 @@
     display: flex;
     align-items: center;
   }
-  
+
   .tagify__tag {
     margin: 0.2rem 0.2rem 0.2rem 0;
     display: inline-flex;
     align-items: center;
+  }
+
+  /* Dropdown as inline chips */
+  .tagify__dropdown__wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 10px;
+  }
+
+  .tagify__dropdown__item {
+    display: inline-block !important;
+    width: auto !important;
   }
 </style>
 
@@ -320,10 +333,10 @@
       dropdownItem: function(tagData) {
         const existingTag = allTags.find(t => t.name === tagData.value);
         const category = existingTag ? existingTag.category : '';
-        
-        return `<div ${this.getAttributes(tagData)} class='tagify__dropdown__item' tabindex="0" role="option">
-                    <strong>${tagData.value}</strong>
-                    ${category ? `<span style='opacity: 0.6; font-size: 0.85em'> (${category})</span>` : '<span style="opacity: 0.5; font-size: 0.85em;"> (nouveau)</span>'}
+
+        return `<div ${this.getAttributes(tagData)} class='tagify__dropdown__item' tabindex="0" role="option" style='padding: 6px 10px; border-radius: 4px; background: #DBEAFE; color: #1E40AF;'>
+                    <span style='font-size: 0.75rem;'>${tagData.value}</span>
+                    ${category ? `<span style='opacity: 0.6; font-size: 0.65rem; margin-left: 4px;'>${category}</span>` : '<span style="opacity: 0.5; font-size: 0.65rem; margin-left: 4px;">nouveau</span>'}
                 </div>`;
       }
     }

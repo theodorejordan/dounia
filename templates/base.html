@@ -8,50 +8,83 @@
   <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
   <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
   <style>
-    .tags-input .tagify {
-      border: 1px solid #d1d5db;
-      border-radius: 0.5rem;
-      padding: 0.5rem;
-    }
-    
-    /* Améliorer l'apparence de Tagify */
+    /* Tagify base styling */
     .tagify {
       border: 1px solid #d1d5db;
-      border-radius: 0.5rem;
-      padding: 0.5rem;
-      min-height: 50px;
+      border-radius: 0.375rem;
+      padding: 0.375rem;
+      min-height: 42px;
+      background: white;
     }
-    
+
     .tagify__input {
       margin: 0;
       min-width: 120px;
     }
-    
+
+    /* Tags inside input - match album collection style */
+    .tagify__tag {
+      --tag-bg: #DBEAFE;
+      --tag-text-color: #1E40AF;
+      --tag-remove-btn-color: #1E40AF;
+      margin: 0.125rem;
+      border-radius: 0.25rem;
+      padding: 0;
+    }
+
+    .tagify__tag:hover {
+      transform: none;
+    }
+
+    .tagify__tag > div {
+      padding: 0.25rem 0.5rem;
+    }
+
+    .tagify__tag-text {
+      font-size: 0.75rem;
+    }
+
+    .tagify__tag__removeBtn {
+      width: 14px;
+      height: 14px;
+      margin-right: 0.25rem;
+    }
+
+    /* Dropdown styling */
     .tagify__dropdown {
-      border-radius: 0.5rem;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e5e7eb;
+      border-radius: 0.375rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
       z-index: 1000;
-      pointer-events: auto;
+      background: white;
     }
-    
+
+    .tagify__dropdown__wrapper {
+      padding: 0.25rem;
+    }
+
     .tagify__dropdown__item {
-      padding: 0.75rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.25rem;
+      margin: 0.125rem 0;
       cursor: pointer;
-      color: #1F2937 !important;
+      font-size: 0.875rem;
+      color: #374151;
     }
-    
+
     .tagify__dropdown__item:hover {
-      background-color: #EFF6FF;
-      color: #1F2937 !important;
+      background-color: #F3F4F6;
+      color: #374151;
     }
-    
+
     .tagify__dropdown__item--active {
-      background-color: #3B82F6;
-      color: white !important;
+      background-color: #DBEAFE;
+      color: #1E40AF;
     }
-    
-    .tagify__dropdown__item:hover * {
-      color: inherit !important;
+
+    .tagify__dropdown__item--active:hover {
+      background-color: #BFDBFE;
+      color: #1E40AF;
     }
   </style>
   <script>
