@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.db.models import Q, Count
-from .models import Album, Artist, Tag
+from .models import Album, Artist, Tag, Tag as TagModel
 from .forms import AlbumForm
 from .deezer_api import extract_deezer_album_id, fetch_album_from_deezer
 
@@ -16,6 +16,13 @@ def collection_view(request):
     # Filtrer par nom d'artiste si présent
     if artist_search:
         albums = albums.filter(artist__name__icontains=artist_search)
+
+    # Récupérer la catégorie sélectionnée
+    selected_category = request.GET.get('category', '').strip()
+
+    # Filtrer par catégorie de tags si présente
+    if selected_category:
+        albums = albums.filter(tags__category=selected_category).distinct()
 
     # Récupérer les tags sélectionnés depuis l'URL
     selected_tags = request.GET.getlist('tags')
@@ -35,6 +42,8 @@ def collection_view(request):
         'selected_tags': [int(t) for t in selected_tags if t.isdigit()],
         'albums_count': albums.count(),
         'artist_search': artist_search,
+        'selected_category': selected_category,
+        'tag_categories': TagModel.CATEGORY_CHOICES,
     }
     
     return render(request, 'albums/collection.html', context)
