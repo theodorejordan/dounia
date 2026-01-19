@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
-from django.db.models import Q
-from .models import Album, Tag
+from django.db.models import Q, Count
+from .models import Album, Artist, Tag
 from .forms import AlbumForm
 from .deezer_api import extract_deezer_album_id, fetch_album_from_deezer
 
@@ -9,10 +9,17 @@ from .deezer_api import extract_deezer_album_id, fetch_album_from_deezer
 def collection_view(request):
     """Vue de la collection avec filtres"""
     albums = Album.objects.select_related('artist').prefetch_related('tags').all()
-    
+
+    # Récupérer la recherche par artiste
+    artist_search = request.GET.get('artist', '').strip()
+
+    # Filtrer par nom d'artiste si présent
+    if artist_search:
+        albums = albums.filter(artist__name__icontains=artist_search)
+
     # Récupérer les tags sélectionnés depuis l'URL
     selected_tags = request.GET.getlist('tags')
-    
+
     # Filtrer par tags si présents
     if selected_tags:
         for tag_id in selected_tags:
@@ -27,6 +34,7 @@ def collection_view(request):
         'all_tags': all_tags,
         'selected_tags': [int(t) for t in selected_tags if t.isdigit()],
         'albums_count': albums.count(),
+        'artist_search': artist_search,
     }
     
     return render(request, 'albums/collection.html', context)
@@ -97,3 +105,22 @@ def delete_album_view(request, album_id):
         album.delete()
         return redirect('collection')
     return redirect('collection')
+
+
+def artists_autocomplete(request):
+    """API pour l'autocomplétion des artistes avec nombre d'albums"""
+    query = request.GET.get('q', '').strip()
+
+    artists = Artist.objects.annotate(album_count=Count('albums'))
+
+    if query:
+        artists = artists.filter(name__icontains=query)
+
+    artists = artists.order_by('-album_count', 'name')[:15]
+
+    result = [
+        {'name': artist.name, 'album_count': artist.album_count}
+        for artist in artists
+    ]
+
+    return JsonResponse(result, safe=False)

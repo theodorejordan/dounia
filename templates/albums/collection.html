@@ -9,6 +9,18 @@
   <!-- Barre de recherche avec filtres tags -->
   <div class="mb-4 border bg-white p-4 rounded-md">
     <form method="GET" action="{% url 'collection' %}" id="filter-form">
+      <div class="relative mb-3">
+        <input
+          type="text"
+          name="artist"
+          id="artist-search"
+          placeholder="Rechercher par artiste..."
+          value="{{ artist_search }}"
+          autocomplete="off"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
+        <div id="artist-dropdown" class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1 hidden max-h-60 overflow-y-auto"></div>
+      </div>
       <input id="tags-filter" placeholder="Filter par tags..." class="w-full">
       <div id="hidden-tags-inputs"></div>
       
@@ -16,8 +28,8 @@
         <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium transition">
           Appliquer les filtres
         </button>
-        {% if selected_tags %}
-        <button type="button" onclick="clearAllTags()" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 font-medium transition">
+        {% if selected_tags or artist_search %}
+        <button type="button" onclick="clearAllFilters()" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 font-medium transition">
           Effacer tous les filtres
         </button>
         {% endif %}
@@ -220,11 +232,107 @@
     updateHiddenInputs();
   }
   
-  // Fonction pour effacer tous les tags
-  function clearAllTags() {
+  // Fonction pour effacer tous les filtres
+  function clearAllFilters() {
     tagify.removeAllTags();
     updateHiddenInputs();
+    document.getElementById('artist-search').value = '';
     form.submit();
   }
+
+  // Autocomplete pour la recherche d'artistes
+  const artistInput = document.getElementById('artist-search');
+  const artistDropdown = document.getElementById('artist-dropdown');
+  let debounceTimer;
+  let selectedIndex = -1;
+
+  artistInput.addEventListener('input', function() {
+    clearTimeout(debounceTimer);
+    const query = this.value.trim();
+
+    debounceTimer = setTimeout(() => {
+      if (query.length >= 1) {
+        fetchArtists(query);
+      } else {
+        hideDropdown();
+      }
+    }, 200);
+  });
+
+  function fetchArtists(query) {
+    fetch(`{% url 'artists_autocomplete' %}?q=${encodeURIComponent(query)}`)
+      .then(response => response.json())
+      .then(artists => {
+        if (artists.length > 0) {
+          renderDropdown(artists);
+        } else {
+          hideDropdown();
+        }
+      });
+  }
+
+  function renderDropdown(artists) {
+    selectedIndex = -1;
+    artistDropdown.innerHTML = artists.map((artist, index) => `
+      <div class="artist-option px-3 py-2 cursor-pointer hover:bg-blue-50 flex items-center" data-index="${index}" data-name="${artist.name}">
+        <span class="font-medium text-gray-800">${artist.name}</span>
+        <span class="text-xs text-gray-500 ml-2">(${artist.album_count} album${artist.album_count > 1 ? 's' : ''})</span>
+      </div>
+    `).join('');
+    artistDropdown.classList.remove('hidden');
+
+    // Add click handlers
+    artistDropdown.querySelectorAll('.artist-option').forEach(option => {
+      option.addEventListener('click', function() {
+        artistInput.value = this.dataset.name;
+        hideDropdown();
+      });
+    });
+  }
+
+  function hideDropdown() {
+    artistDropdown.classList.add('hidden');
+    selectedIndex = -1;
+  }
+
+  // Keyboard navigation
+  artistInput.addEventListener('keydown', function(e) {
+    const options = artistDropdown.querySelectorAll('.artist-option');
+    if (options.length === 0 || artistDropdown.classList.contains('hidden')) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      selectedIndex = Math.min(selectedIndex + 1, options.length - 1);
+      updateSelection(options);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      selectedIndex = Math.max(selectedIndex - 1, 0);
+      updateSelection(options);
+    } else if (e.key === 'Enter' && selectedIndex >= 0) {
+      e.preventDefault();
+      artistInput.value = options[selectedIndex].dataset.name;
+      hideDropdown();
+    } else if (e.key === 'Escape') {
+      hideDropdown();
+    }
+  });
+
+  function updateSelection(options) {
+    options.forEach((opt, i) => {
+      if (i === selectedIndex) {
+        opt.classList.add('bg-blue-100');
+        opt.scrollIntoView({ block: 'nearest' });
+      } else {
+        opt.classList.remove('bg-blue-100');
+      }
+    });
+  }
+
+  // Hide dropdown when clicking outside
+  document.addEventListener('click', function(e) {
+    if (!artistInput.contains(e.target) && !artistDropdown.contains(e.target)) {
+      hideDropdown();
+    }
+  });
 </script>
 {% endblock %}
