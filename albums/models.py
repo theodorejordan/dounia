@@ -5,11 +5,16 @@ from django.utils.text import slugify
 class Tag(models.Model):
     """Tag pour catégoriser les albums"""
     CATEGORY_CHOICES = [
-        ('shape', 'Formes'),
-        ('human', 'Humains'),
-        ('animal', 'Animaux'),
-        ('landscape', 'Paysage'),
-        ('object', 'Objet'),
+        ('color', 'Colors'),
+        ('colorType', 'Color Types'),
+        ('disposition', 'Dispositions'),
+        ('shape', 'Shapes'),
+        ('human', 'Humans'),
+        ('animal', 'Animals'),
+        ('landscape', 'Environments'),
+        ('vehicules', 'Vehicles'),
+        ('object', 'Objects'),
+        ('style', 'Styles'),
     ]
     
     name = models.CharField(max_length=100, unique=True)
