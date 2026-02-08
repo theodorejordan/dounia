@@ -8,5 +8,5 @@ urlpatterns = [
     path('', include('albums.urls')),
 ]
 
-# Serve media files
+# Always serve media files (WhiteNoise will handle them)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
