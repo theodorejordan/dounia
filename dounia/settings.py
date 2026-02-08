@@ -79,10 +79,22 @@ WSGI_APPLICATION = 'dounia.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-# Database configuration
-DATABASE_URL = config('DATABASE_URL', default='sqlite:///db.sqlite3')
+# Set default values for the environment variables if they’re not already set
+os.environ.setdefault("PGDATABASE", "railway")
+os.environ.setdefault("PGUSER", "postgres")
+os.environ.setdefault("PGPASSWORD", "SSkvnMZNciinnHuQXIWqSgNGLTBZRFmr")
+os.environ.setdefault("PGHOST", "nozomi.proxy.rlwy.net")
+os.environ.setdefault("PGPORT", "27907")
+
 DATABASES = {
-    'default': dj_database_url.parse(DATABASE_URL)
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ["PGDATABASE"],
+        'USER': os.environ["PGUSER"],
+        'PASSWORD': os.environ["PGPASSWORD"],
+        'HOST': os.environ["PGHOST"],
+        'PORT': os.environ["PGPORT"],
+    }
 }
 
 
@@ -120,9 +132,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
 # Media files (uploads)
