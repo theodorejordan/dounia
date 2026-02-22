@@ -8,20 +8,22 @@
   
   <!-- Toggle entre les 2 modes -->
   <div class="bg-white p-2 rounded-lg shadow mb-6 flex gap-2">
-    <button id="btn-mode-deezer" class="flex-1 px-4 py-3 rounded-lg font-medium transition bg-blue-600 text-white">
+    <button id="btn-mode-deezer" type="button" class="flex-1 px-4 py-3 rounded-lg font-medium transition bg-blue-600 text-white">
       🎵 Import Deezer
     </button>
-    <button id="btn-mode-manual" class="flex-1 px-4 py-3 rounded-lg font-medium transition bg-gray-100 text-gray-700 hover:bg-gray-200">
+    <button id="btn-mode-manual" type="button" class="flex-1 px-4 py-3 rounded-lg font-medium transition bg-gray-100 text-gray-700 hover:bg-gray-200">
       ✍️ Saisie manuelle
     </button>
   </div>
   
   <form method="POST" enctype="multipart/form-data" id="album-form" class="bg-white p-8 rounded-lg shadow-md space-y-6">
     {% csrf_token %}
+
+    <!-- Champ caché pour indiquer le mode au backend -->
+    <input type="hidden" name="mode" id="hidden-mode" value="deezer">
     
     <!-- MODE DEEZER -->
     <div id="mode-deezer" class="space-y-6">
-      <!-- Lien Deezer -->
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">
           Lien Deezer *
@@ -111,10 +113,15 @@
         {{ form.year }}
       </div>
     </div>
-    
+
     <!-- Champs cachés pour le mode Deezer -->
-    <input type="hidden" name="artist_name" id="hidden-artist">
-    <input type="hidden" name="cover_url" id="hidden-cover-url">
+    <!-- NOTE: pas de name="artist_name" ici car le champ existe déjà dans le form Django -->
+    <!-- On utilise directement id_artist_name et id_name via JS -->
+    {{ form.cover_url }}  {# HiddenInput, génère <input type="hidden" name="cover_url" id="id_cover_url"> #}
+
+    <!-- Champs name/artist_name/year cachés utilisés par le mode Deezer -->
+    <!-- Ils sont dans mode-manual mais soumis quand même car le DOM les inclut toujours -->
+    <!-- La clé : on NE duplique plus name="artist_name" avec un second hidden -->
     
     <!-- Tags (commun aux 2 modes) -->
     <div>
@@ -151,21 +158,17 @@
     display: flex;
     align-items: center;
   }
-
   .tagify__tag {
     margin: 0.2rem 0.2rem 0.2rem 0;
     display: inline-flex;
     align-items: center;
   }
-
-  /* Dropdown as inline chips */
   .tagify__dropdown__wrapper {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
     padding: 10px;
   }
-
   .tagify__dropdown__item {
     display: inline-block !important;
     width: auto !important;
@@ -176,125 +179,125 @@
   // === Variables globales ===
   let currentMode = 'deezer';
   let deezerData = null;
-  
+
   // === Toggle entre les modes ===
   const btnModeDeezer = document.getElementById('btn-mode-deezer');
   const btnModeManual = document.getElementById('btn-mode-manual');
   const modeDeezer = document.getElementById('mode-deezer');
   const modeManual = document.getElementById('mode-manual');
-  
+  const hiddenMode = document.getElementById('hidden-mode');
+
   btnModeDeezer.addEventListener('click', () => {
     currentMode = 'deezer';
+    hiddenMode.value = 'deezer';
     btnModeDeezer.className = 'flex-1 px-4 py-3 rounded-lg font-medium transition bg-blue-600 text-white';
     btnModeManual.className = 'flex-1 px-4 py-3 rounded-lg font-medium transition bg-gray-100 text-gray-700 hover:bg-gray-200';
     modeDeezer.classList.remove('hidden');
     modeManual.classList.add('hidden');
   });
-  
+
   btnModeManual.addEventListener('click', () => {
     currentMode = 'manual';
+    hiddenMode.value = 'manual';
     btnModeManual.className = 'flex-1 px-4 py-3 rounded-lg font-medium transition bg-blue-600 text-white';
     btnModeDeezer.className = 'flex-1 px-4 py-3 rounded-lg font-medium transition bg-gray-100 text-gray-700 hover:bg-gray-200';
     modeManual.classList.remove('hidden');
     modeDeezer.classList.add('hidden');
   });
-  
+
   // === Fetch Deezer Album ===
   const btnFetchDeezer = document.getElementById('btn-fetch-deezer');
   const deezerUrlInput = document.getElementById('deezer-url-input');
   const deezerError = document.getElementById('deezer-error');
   const deezerLoading = document.getElementById('deezer-loading');
   const deezerPreview = document.getElementById('deezer-preview');
-  
+
   btnFetchDeezer.addEventListener('click', async () => {
     const url = deezerUrlInput.value.trim();
-    
+
     if (!url) {
       deezerError.textContent = 'Veuillez entrer un lien Deezer';
       deezerError.classList.remove('hidden');
       return;
     }
-    
-    // Reset
+
     deezerError.classList.add('hidden');
     deezerPreview.classList.add('hidden');
     deezerLoading.classList.remove('hidden');
-    
+
     try {
       const response = await fetch(`{% url 'fetch_deezer_album' %}?url=${encodeURIComponent(url)}`);
       const data = await response.json();
-      
+
       deezerLoading.classList.add('hidden');
-      
+
       if (data.error) {
         deezerError.textContent = data.error;
         deezerError.classList.remove('hidden');
         return;
       }
-      
-      // Stocker les données
+
       deezerData = data;
-      
+
       // Afficher la preview
       document.getElementById('preview-cover').src = data.cover_url;
       document.getElementById('preview-name').textContent = data.name;
       document.getElementById('preview-artist').textContent = data.artist;
       document.getElementById('preview-year').textContent = data.year || 'Non spécifiée';
       deezerPreview.classList.remove('hidden');
-      
-      // Remplir les champs cachés
+
+      // Remplir les champs du form Django (ils sont dans le DOM même si cachés par CSS/hidden)
       document.getElementById('id_name').value = data.name;
-      document.getElementById('hidden-artist').value = data.artist;
+      document.getElementById('id_artist_name').value = data.artist;
       document.getElementById('id_year').value = data.year || '';
-      document.getElementById('hidden-cover-url').value = data.cover_url;
-      
+      document.getElementById('id_cover_url').value = data.cover_url;  // ← le vrai champ hidden du form
+
     } catch (error) {
       deezerLoading.classList.add('hidden');
       deezerError.textContent = 'Erreur de connexion à Deezer';
       deezerError.classList.remove('hidden');
     }
   });
-  
-  // === Gestion upload manuel (mode manual) ===
+
+  // === Gestion upload manuel ===
   const dropZone = document.getElementById('drop-zone');
   const fileInput = document.getElementById('id_cover');
   const dropZoneContent = document.getElementById('drop-zone-content');
   const previewContainer = document.getElementById('preview-container');
   const previewImage = document.getElementById('preview-image');
   const removeImageBtn = document.getElementById('remove-image');
-  
+
   dropZone.addEventListener('click', (e) => {
     if (e.target.id !== 'remove-image' && !e.target.closest('#remove-image')) {
       fileInput.click();
     }
   });
-  
+
   dropZone.addEventListener('dragover', (e) => {
     e.preventDefault();
     dropZone.classList.add('border-blue-500', 'bg-blue-50');
   });
-  
+
   dropZone.addEventListener('dragleave', () => {
     dropZone.classList.remove('border-blue-500', 'bg-blue-50');
   });
-  
+
   dropZone.addEventListener('drop', (e) => {
     e.preventDefault();
     dropZone.classList.remove('border-blue-500', 'bg-blue-50');
-    
     const files = e.dataTransfer.files;
     if (files.length > 0) {
       fileInput.files = files;
       showPreview(files[0]);
     }
   });
-  
+
   fileInput.addEventListener('change', (e) => {
     if (e.target.files.length > 0) {
       showPreview(e.target.files[0]);
     }
   });
-  
+
   function showPreview(file) {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -304,7 +307,7 @@
     };
     reader.readAsDataURL(file);
   }
-  
+
   removeImageBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     fileInput.value = '';
@@ -312,13 +315,13 @@
     dropZoneContent.classList.remove('hidden');
     previewContainer.classList.add('hidden');
   });
-  
+
   // === Tagify ===
   const tagsInput = document.querySelector('#tags-input');
   const tagsHidden = document.querySelector('#tags-input-hidden');
-  
+
   const allTags = {{ all_tags|safe }};
-  
+
   const tagify = new Tagify(tagsInput, {
     whitelist: allTags.map(tag => tag.name),
     dropdown: {
@@ -333,7 +336,6 @@
       dropdownItem: function(tagData) {
         const existingTag = allTags.find(t => t.name === tagData.value);
         const category = existingTag ? existingTag.category : '';
-
         return `<div ${this.getAttributes(tagData)} class='tagify__dropdown__item' tabindex="0" role="option" style='padding: 6px 10px; border-radius: 4px; background: #DBEAFE; color: #1E40AF;'>
                     <span style='font-size: 0.75rem;'>${tagData.value}</span>
                     ${category ? `<span style='opacity: 0.6; font-size: 0.65rem; margin-left: 4px;'>${category}</span>` : '<span style="opacity: 0.5; font-size: 0.65rem; margin-left: 4px;">nouveau</span>'}
@@ -341,13 +343,8 @@
       }
     }
   });
-  
-  tagify.on('add', () => {
-    tagsHidden.value = JSON.stringify(tagify.value);
-  });
-  
-  tagify.on('remove', () => {
-    tagsHidden.value = JSON.stringify(tagify.value);
-  });
+
+  tagify.on('add', () => { tagsHidden.value = JSON.stringify(tagify.value); });
+  tagify.on('remove', () => { tagsHidden.value = JSON.stringify(tagify.value); });
 </script>
 {% endblock %}
