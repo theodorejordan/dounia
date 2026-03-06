@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.db.models import Q, Count
+from django.core.paginator import Paginator
 from .models import Album, Artist, Tag, Tag as TagModel
 from .forms import AlbumForm
 from .deezer_api import extract_deezer_album_id, fetch_album_from_deezer
@@ -32,20 +33,26 @@ def collection_view(request):
         for tag_id in selected_tags:
             albums = albums.filter(tags__id=tag_id)
         albums = albums.distinct()
-    
+
+    # Paginate: show only first 50 albums
+    total_count = albums.count()
+    paginator = Paginator(albums, 50)
+    page_obj = paginator.get_page(1)  # Always load page 1 on initial view
+
     # Récupérer tous les tags pour les filtres
     all_tags = Tag.objects.all().order_by('category', 'name')
-    
+
     context = {
-        'albums': albums,
+        'albums': page_obj,
         'all_tags': all_tags,
         'selected_tags': [int(t) for t in selected_tags if t.isdigit()],
-        'albums_count': albums.count(),
+        'albums_count': total_count,
+        'has_more': page_obj.has_next(),
         'artist_search': artist_search,
         'selected_category': selected_category,
         'tag_categories': TagModel.CATEGORY_CHOICES,
     }
-    
+
     return render(request, 'albums/collection.html', context)
 
 
@@ -133,3 +140,51 @@ def artists_autocomplete(request):
     ]
 
     return JsonResponse(result, safe=False)
+
+
+def albums_paginated_api(request):
+    """API endpoint for paginated albums (returns JSON)"""
+    # Start with all albums, optimized query
+    albums = Album.objects.select_related('artist').prefetch_related('tags').all()
+
+    # Apply the same filters as collection_view
+    artist_search = request.GET.get('artist', '').strip()
+    if artist_search:
+        albums = albums.filter(artist__name__icontains=artist_search)
+
+    selected_category = request.GET.get('category', '').strip()
+    if selected_category:
+        albums = albums.filter(tags__category=selected_category).distinct()
+
+    selected_tags = request.GET.getlist('tags')
+    if selected_tags:
+        for tag_id in selected_tags:
+            albums = albums.filter(tags__id=tag_id)
+        albums = albums.distinct()
+
+    # Paginate the results (50 per page)
+    page_number = request.GET.get('page', 1)
+    paginator = Paginator(albums, 50)
+    page_obj = paginator.get_page(page_number)
+
+    # Build the JSON response
+    albums_data = []
+    for album in page_obj:
+        albums_data.append({
+            'id': album.id,
+            'name': album.name,
+            'artist': {'name': album.artist.name},
+            'year': album.year,
+            'cover_url': album.cover.url if album.cover else None,
+            'tags': [
+                {'id': tag.id, 'name': tag.name, 'category': tag.category}
+                for tag in album.tags.all()
+            ]
+        })
+
+    return JsonResponse({
+        'albums': albums_data,
+        'page': page_obj.number,
+        'total': paginator.count,
+        'has_more': page_obj.has_next()
+    })
