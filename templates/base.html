@@ -163,37 +163,9 @@
   }
 </style>
 
-<script>
-  const sidebar = document.getElementById('sidebar');
-  const toggleBtn = document.getElementById('toggle-sidebar');
-  const toggleIcon = document.getElementById('toggle-icon');
-  
-  // Remove initial class and apply proper state management
-  document.documentElement.classList.remove('sidebar-collapsed-initial');
-  
-  // Charger l'état de la sidebar depuis le localStorage
-  const sidebarState = localStorage.getItem('sidebarCollapsed');
-  if (sidebarState === 'true') {
-    sidebar.classList.add('collapsed');
-    document.body.classList.add('sidebar-collapsed');
-    toggleIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />';
-  }
-  
-  // Toggle sidebar
-  toggleBtn.addEventListener('click', function() {
-    sidebar.classList.toggle('collapsed');
-    document.body.classList.toggle('sidebar-collapsed');
-    
-    const isCollapsed = sidebar.classList.contains('collapsed');
-    localStorage.setItem('sidebarCollapsed', isCollapsed);
-    
-    // Changer l'icône
-    if (isCollapsed) {
-      toggleIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />';
-    } else {
-      toggleIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />';
-    }
-  });
+<script type="module">
+  import { initSidebar } from "{% static 'js/core/sidebar.js' %}";
+  initSidebar();
 </script>
 </body>
 </html>

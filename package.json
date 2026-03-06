@@ -1,0 +1,27 @@
+{
+  "name": "dounia",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/theodorejordan/dounia.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/theodorejordan/dounia/issues"
+  },
+  "homepage": "https://github.com/theodorejordan/dounia#readme",
+  "devDependencies": {
+    "esbuild": "^0.27.3",
+    "typescript": "^5.9.3"
+  }
+}

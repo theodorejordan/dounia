@@ -31,3 +31,8 @@ db.sqlite3-journal
 # OS
 .DS_Store
 Thumbs.db
+
+# Node/TypeScript
+node_modules/
+*.js.map
+*.d.ts
