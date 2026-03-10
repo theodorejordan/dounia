@@ -142,6 +142,25 @@ def artists_autocomplete(request):
     return JsonResponse(result, safe=False)
 
 
+def check_duplicate_album(request):
+    """API to check if an album with the same name and artist already exists"""
+    name = request.GET.get('name', '').strip()
+    artist = request.GET.get('artist', '').strip()
+
+    match = Album.objects.filter(
+        name__iexact=name,
+        artist__name__iexact=artist
+    ).select_related('artist').first()
+
+    if match:
+        return JsonResponse({
+            'exists': True,
+            'album': {'id': match.id, 'name': match.name, 'artist': match.artist.name}
+        })
+
+    return JsonResponse({'exists': False})
+
+
 def albums_paginated_api(request):
     """API endpoint for paginated albums (returns JSON)"""
     # Start with all albums, optimized query
