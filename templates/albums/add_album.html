@@ -1,29 +1,31 @@
 {% extends 'base.html' %}
+{% load hi %}
 
 {% block title %}Ajouter un album - Dounia{% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto">
-  <h2 class="text-3xl font-bold text-gray-800 mb-6">Ajouter un album</h2>
-  
+<div class="max-w-2xl mx-auto flex flex-col justify-center min-h-screen -mt-4 py-8">
+
   <!-- Toggle entre les 2 modes -->
-  <div class="bg-white p-2 rounded-md shadow mb-6 flex gap-2">
-    <button id="btn-mode-deezer" type="button" class="flex-1 px-4 py-3 rounded-md font-medium transition bg-blue-600 text-white">
-      🎵 Import Deezer
+  <div class="bg-white border p-2 rounded-md mb-6 flex gap-2">
+    <button id="btn-mode-deezer" type="button" class="flex-1 px-4 py-3 rounded-md font-medium transition bg-blue-600 text-white hover:bg-blue-700 flex items-center justify-center gap-2">
+      {% hi "cloud-download" css_class="h-4 w-4" %}
+      Import Deezer
     </button>
-    <button id="btn-mode-manual" type="button" class="flex-1 px-4 py-3 rounded-md font-medium transition bg-gray-100 text-gray-700 hover:bg-gray-200">
-      ✍️ Saisie manuelle
+    <button id="btn-mode-manual" type="button" class="flex-1 px-4 py-3 rounded-md font-medium transition bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center justify-center gap-2">
+      {% hi "pencil-alt" css_class="h-4 w-4" %}
+      Saisie manuelle
     </button>
   </div>
   
-  <form method="POST" enctype="multipart/form-data" id="album-form" class="bg-white p-8 rounded-md shadow-md space-y-6">
+  <form method="POST" enctype="multipart/form-data" id="album-form" class="bg-white border p-8 rounded-md space-y-6">
     {% csrf_token %}
 
     <!-- Champ caché pour indiquer le mode au backend -->
     <input type="hidden" name="mode" id="hidden-mode" value="deezer">
     
     <!-- MODE DEEZER -->
-    <div id="mode-deezer" class="space-y-6">
+    <div id="mode-deezer" class="!mt-0">
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">
           Lien Deezer *
@@ -36,12 +38,18 @@
         </div>
         <p class="mt-1 text-sm text-gray-500">Collez le lien d'un album Deezer et cliquez sur Importer</p>
         <div id="deezer-error" class="mt-2 text-sm text-red-600 hidden"></div>
-        <div id="deezer-loading" class="mt-2 text-sm text-blue-600 hidden">⏳ Chargement...</div>
+        <div id="deezer-loading" class="mt-2 text-sm text-blue-600 hidden flex items-center gap-1">
+          {% hi "refresh" css_class="h-4 w-4 animate-spin" %}
+          Chargement...
+        </div>
       </div>
       
       <!-- Preview des infos récupérées -->
       <div id="deezer-preview" class="hidden border-2 border-blue-200 rounded-md p-6 bg-blue-50">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4">✅ Album trouvé !</h3>
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          {% hi "check" css_class="h-5 w-5 text-green-600" %}
+          Album trouvé !
+        </h3>
         <div class="flex gap-4">
           <img id="preview-cover" src="" alt="Cover" class="w-32 h-32 object-cover rounded">
           <div class="flex-1">
@@ -57,7 +65,7 @@
     </div>
     
     <!-- MODE MANUEL -->
-    <div id="mode-manual" class="space-y-6 hidden">
+    <div id="mode-manual" class="space-y-6 hidden !mt-0">
       <!-- Nom de l'album -->
       <div>
         <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
@@ -155,9 +163,9 @@
 
 <!-- Duplicate album modal -->
 <div id="duplicate-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-  <div class="bg-white rounded-xl shadow-xl p-8 max-w-sm w-full mx-4">
+  <div class="bg-white rounded-xl p-8 max-w-sm w-full mx-4">
     <div class="flex items-center gap-3 mb-4">
-      <span class="text-xl">⚠️</span>
+      {% hi "exclamation" css_class="h-5 w-5 text-amber-500 flex-shrink-0" %}
       <h3 class="text-lg font-bold text-gray-800">Album déjà présent</h3>
     </div>
     <p class="text-gray-600 mb-6">Cet album est déjà dans votre collection.</p>
