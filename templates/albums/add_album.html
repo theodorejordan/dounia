@@ -217,8 +217,8 @@
   btnModeDeezer.addEventListener('click', () => {
     currentMode = 'deezer';
     hiddenMode.value = 'deezer';
-    btnModeDeezer.className = 'flex-1 px-4 py-3 rounded-md font-medium transition bg-blue-600 text-white';
-    btnModeManual.className = 'flex-1 px-4 py-3 rounded-md font-medium transition bg-gray-100 text-gray-700 hover:bg-gray-200';
+    btnModeDeezer.className = 'flex-1 px-4 py-3 rounded-md font-medium transition bg-blue-600 text-white flex items-center justify-center gap-2';
+    btnModeManual.className = 'flex-1 px-4 py-3 rounded-md font-medium transition bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center justify-center gap-2';
     modeDeezer.classList.remove('hidden');
     modeManual.classList.add('hidden');
   });
@@ -226,8 +226,8 @@
   btnModeManual.addEventListener('click', () => {
     currentMode = 'manual';
     hiddenMode.value = 'manual';
-    btnModeManual.className = 'flex-1 px-4 py-3 rounded-md font-medium transition bg-blue-600 text-white';
-    btnModeDeezer.className = 'flex-1 px-4 py-3 rounded-md font-medium transition bg-gray-100 text-gray-700 hover:bg-gray-200';
+    btnModeManual.className = 'flex-1 px-4 py-3 rounded-md font-medium transition bg-blue-600 text-white flex items-center justify-center gap-2';
+    btnModeDeezer.className = 'flex-1 px-4 py-3 rounded-md font-medium transition bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center justify-center gap-2';
     modeManual.classList.remove('hidden');
     modeDeezer.classList.add('hidden');
   });
