@@ -94,7 +94,10 @@
           <!-- Default view: show only first 2 tags -->
           <div class="flex flex-wrap gap-1 group-hover:hidden">
             {% for tag in album.tags.all|slice:":4" %}
-            <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">
+            <span class="tag-clickable text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded cursor-pointer hover:bg-blue-200 transition-colors"
+                  data-tag-id="{{ tag.id }}"
+                  data-tag-name="{{ tag.name }}"
+                  data-tag-category="{{ tag.get_category_display }}">
               {{ tag.name }}
             </span>
             {% endfor %}
@@ -107,7 +110,10 @@
           <!-- Hover view: show all tags -->
           <div class="hidden group-hover:flex flex-wrap gap-1">
             {% for tag in album.tags.all %}
-            <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">
+            <span class="tag-clickable text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded cursor-pointer hover:bg-blue-200 transition-colors"
+                  data-tag-id="{{ tag.id }}"
+                  data-tag-name="{{ tag.name }}"
+                  data-tag-category="{{ tag.get_category_display }}">
               {{ tag.name }}
             </span>
             {% endfor %}
@@ -278,6 +284,32 @@
 
   // Initialization complete, enable auto-submit
   isInitializing = false;
+
+  // ====== CLICKABLE TAGS IN GRID ======
+  // Use event delegation to handle clicks on tags (both initial and dynamically loaded)
+  document.addEventListener('click', function(e) {
+    const tagElement = e.target.closest('.tag-clickable');
+    if (!tagElement) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const tagId = tagElement.dataset.tagId;
+    const tagName = tagElement.dataset.tagName;
+    const tagCategory = tagElement.dataset.tagCategory;
+
+    // Format: "id|name|category" (same as Tagify whitelist)
+    const tagValue = `${tagId}|${tagName}|${tagCategory}`;
+
+    // Check if tag is already in Tagify
+    const existingTags = tagify.value;
+    const isAlreadyAdded = existingTags.some(tag => tag.value === tagValue);
+
+    if (!isAlreadyAdded) {
+      tagify.addTags([tagValue]);
+      // Form submission happens automatically via Tagify's 'add' event listener
+    }
+  });
 
   // Autocomplete pour la recherche d'artistes
   const artistInput = document.getElementById('artist-search');
@@ -537,11 +569,11 @@
 
       tagsHtml = `<div class="mt-2 flex flex-wrap gap-1">
         <div class="flex flex-wrap gap-1 group-hover:hidden">
-          ${visibleTags.map(tag => `<span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">${escapeHtml(tag.name)}</span>`).join('')}
+          ${visibleTags.map(tag => `<span class="tag-clickable text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded cursor-pointer hover:bg-blue-200 transition-colors" data-tag-id="${tag.id}" data-tag-name="${escapeHtml(tag.name)}" data-tag-category="${escapeHtml(tag.category)}">${escapeHtml(tag.name)}</span>`).join('')}
           ${remainingCount > 0 ? `<span class="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded">+${remainingCount}</span>` : ''}
         </div>
         <div class="hidden group-hover:flex flex-wrap gap-1">
-          ${album.tags.map(tag => `<span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">${escapeHtml(tag.name)}</span>`).join('')}
+          ${album.tags.map(tag => `<span class="tag-clickable text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded cursor-pointer hover:bg-blue-200 transition-colors" data-tag-id="${tag.id}" data-tag-name="${escapeHtml(tag.name)}" data-tag-category="${escapeHtml(tag.category)}">${escapeHtml(tag.name)}</span>`).join('')}
         </div>
       </div>`;
     }
