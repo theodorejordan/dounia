@@ -132,6 +132,32 @@ def fetch_bandcamp_album(request):
     return JsonResponse(result)
 
 
+def fetch_album_from_link(request):
+    """Unified endpoint — detects platform from URL and routes to the right API"""
+    url = request.GET.get('url', '').strip()
+    if not url:
+        return JsonResponse({'error': 'Lien manquant'}, status=400)
+
+    if 'deezer.com' in url:
+        album_id = extract_deezer_album_id(url)
+        if not album_id:
+            return JsonResponse({'error': 'URL Deezer invalide'}, status=400)
+        result = fetch_album_from_deezer(album_id)
+    elif 'discogs.com' in url:
+        release_id = extract_discogs_release_id(url)
+        if not release_id:
+            return JsonResponse({'error': 'URL Discogs invalide'}, status=400)
+        result = fetch_release_from_discogs(release_id)
+    elif 'bandcamp.com' in url:
+        result = fetch_album_from_bandcamp(url)
+    else:
+        return JsonResponse({'error': 'Lien non reconnu — collez un lien Deezer, Discogs ou Bandcamp'}, status=400)
+
+    if 'error' in result:
+        return JsonResponse(result, status=400)
+    return JsonResponse(result)
+
+
 def tags_autocomplete(request):
     """API pour l'autocomplétion des tags"""
     query = request.GET.get('q', '')
