@@ -9,6 +9,7 @@ urlpatterns = [
     path('api/artists/', views.artists_autocomplete, name='artists_autocomplete'),
     path('api/deezer/', views.fetch_deezer_album, name='fetch_deezer_album'),
     path('api/discogs/', views.fetch_discogs_release, name='fetch_discogs_release'),
+    path('api/bandcamp/', views.fetch_bandcamp_album, name='fetch_bandcamp_album'),
     path('api/albums/', views.albums_paginated_api, name='albums_api'),
     path('api/check-duplicate/', views.check_duplicate_album, name='check_duplicate_album'),
 ]

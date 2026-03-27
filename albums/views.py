@@ -6,6 +6,7 @@ from .models import Album, Artist, Tag, Tag as TagModel
 from .forms import AlbumForm
 from .deezer_api import extract_deezer_album_id, fetch_album_from_deezer
 from .discogs_api import extract_discogs_release_id, fetch_release_from_discogs
+from .bandcamp_api import fetch_album_from_bandcamp
 
 
 def collection_view(request):
@@ -114,6 +115,18 @@ def fetch_discogs_release(request):
         return JsonResponse({'error': 'URL Discogs invalide'}, status=400)
 
     result = fetch_release_from_discogs(release_id)
+    if 'error' in result:
+        return JsonResponse(result, status=400)
+    return JsonResponse(result)
+
+
+def fetch_bandcamp_album(request):
+    """API endpoint to fetch album info from a Bandcamp URL"""
+    url = request.GET.get('url', '').strip()
+    if not url:
+        return JsonResponse({'error': 'URL Bandcamp manquante'}, status=400)
+
+    result = fetch_album_from_bandcamp(url)
     if 'error' in result:
         return JsonResponse(result, status=400)
     return JsonResponse(result)

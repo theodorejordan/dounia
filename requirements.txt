@@ -16,3 +16,4 @@ typing_extensions==4.15.0
 urllib3==2.6.3
 whitenoise==6.6.0
 django-heroicons==0.0.8
+beautifulsoup4==4.13.3
