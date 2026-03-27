@@ -6,11 +6,15 @@
 {% block content %}
 <div class="max-w-2xl mx-auto flex flex-col justify-center min-h-screen -mt-4 py-8">
 
-  <!-- Toggle entre les 2 modes -->
+  <!-- Toggle entre les 3 modes -->
   <div class="bg-white border p-2 rounded-md mb-6 flex gap-2">
-    <button id="btn-mode-deezer" type="button" class="flex-1 px-4 py-3 rounded-md font-medium transition bg-blue-600 text-white hover:bg-blue-700 flex items-center justify-center gap-2">
+    <button id="btn-mode-deezer" type="button" class="flex-1 px-4 py-3 rounded-md font-medium transition bg-blue-600 text-white flex items-center justify-center gap-2">
       {% hi "cloud-download" css_class="h-4 w-4" %}
       Import Deezer
+    </button>
+    <button id="btn-mode-discogs" type="button" class="flex-1 px-4 py-3 rounded-md font-medium transition bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center justify-center gap-2">
+      {% hi "search" css_class="h-4 w-4" %}
+      Import Discogs
     </button>
     <button id="btn-mode-manual" type="button" class="flex-1 px-4 py-3 rounded-md font-medium transition bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center justify-center gap-2">
       {% hi "pencil-alt" css_class="h-4 w-4" %}
@@ -64,6 +68,46 @@
       </div>
     </div>
     
+    <!-- MODE DISCOGS -->
+    <div id="mode-discogs" class="hidden !mt-0">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Lien Discogs *
+        </label>
+        <div class="flex gap-2">
+          <input type="text" id="discogs-url-input" class="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="https://www.discogs.com/release/1234567">
+          <button type="button" id="btn-fetch-discogs" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium transition">
+            Importer
+          </button>
+        </div>
+        <p class="mt-1 text-sm text-gray-500">Collez le lien d'une release Discogs et cliquez sur Importer</p>
+        <div id="discogs-error" class="mt-2 text-sm text-red-600 hidden"></div>
+        <div id="discogs-loading" class="mt-2 text-sm text-blue-600 hidden flex items-center gap-1">
+          {% hi "refresh" css_class="h-4 w-4 animate-spin" %}
+          Chargement...
+        </div>
+      </div>
+
+      <!-- Preview après import -->
+      <div id="discogs-preview" class="hidden border-2 border-blue-200 rounded-md p-6 bg-blue-50 mt-4">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          {% hi "check" css_class="h-5 w-5 text-green-600" %}
+          Album trouvé !
+        </h3>
+        <div class="flex gap-4">
+          <img id="discogs-preview-cover" src="" alt="Cover" class="w-32 h-32 object-cover rounded">
+          <div class="flex-1">
+            <p class="text-sm text-gray-600">Album</p>
+            <p id="discogs-preview-name" class="font-bold text-lg text-gray-800"></p>
+            <p class="text-sm text-gray-600 mt-2">Artiste</p>
+            <p id="discogs-preview-artist" class="font-semibold text-gray-800"></p>
+            <p class="text-sm text-gray-600 mt-2">Année</p>
+            <p id="discogs-preview-year" class="text-gray-800"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- MODE MANUEL -->
     <div id="mode-manual" class="space-y-6 hidden !mt-0">
       <!-- Nom de l'album -->
@@ -209,28 +253,30 @@
 
   // === Toggle entre les modes ===
   const btnModeDeezer = document.getElementById('btn-mode-deezer');
+  const btnModeDiscogs = document.getElementById('btn-mode-discogs');
   const btnModeManual = document.getElementById('btn-mode-manual');
   const modeDeezer = document.getElementById('mode-deezer');
+  const modeDiscogs = document.getElementById('mode-discogs');
   const modeManual = document.getElementById('mode-manual');
   const hiddenMode = document.getElementById('hidden-mode');
 
-  btnModeDeezer.addEventListener('click', () => {
-    currentMode = 'deezer';
-    hiddenMode.value = 'deezer';
-    btnModeDeezer.className = 'flex-1 px-4 py-3 rounded-md font-medium transition bg-blue-600 text-white flex items-center justify-center gap-2';
-    btnModeManual.className = 'flex-1 px-4 py-3 rounded-md font-medium transition bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center justify-center gap-2';
-    modeDeezer.classList.remove('hidden');
-    modeManual.classList.add('hidden');
-  });
+  const activeTabClass = 'flex-1 px-4 py-3 rounded-md font-medium transition bg-blue-600 text-white flex items-center justify-center gap-2';
+  const inactiveTabClass = 'flex-1 px-4 py-3 rounded-md font-medium transition bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center justify-center gap-2';
 
-  btnModeManual.addEventListener('click', () => {
-    currentMode = 'manual';
-    hiddenMode.value = 'manual';
-    btnModeManual.className = 'flex-1 px-4 py-3 rounded-md font-medium transition bg-blue-600 text-white flex items-center justify-center gap-2';
-    btnModeDeezer.className = 'flex-1 px-4 py-3 rounded-md font-medium transition bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center justify-center gap-2';
-    modeManual.classList.remove('hidden');
-    modeDeezer.classList.add('hidden');
-  });
+  function switchMode(mode) {
+    currentMode = mode;
+    hiddenMode.value = mode;
+    btnModeDeezer.className = mode === 'deezer' ? activeTabClass : inactiveTabClass;
+    btnModeDiscogs.className = mode === 'discogs' ? activeTabClass : inactiveTabClass;
+    btnModeManual.className = mode === 'manual' ? activeTabClass : inactiveTabClass;
+    modeDeezer.classList.toggle('hidden', mode !== 'deezer');
+    modeDiscogs.classList.toggle('hidden', mode !== 'discogs');
+    modeManual.classList.toggle('hidden', mode !== 'manual');
+  }
+
+  btnModeDeezer.addEventListener('click', () => switchMode('deezer'));
+  btnModeDiscogs.addEventListener('click', () => switchMode('discogs'));
+  btnModeManual.addEventListener('click', () => switchMode('manual'));
 
   // === Fetch Deezer Album ===
   const btnFetchDeezer = document.getElementById('btn-fetch-deezer');
@@ -284,6 +330,61 @@
       deezerError.textContent = 'Erreur de connexion à Deezer';
       deezerError.classList.remove('hidden');
     }
+  });
+
+  // === Fetch Discogs Release ===
+  const btnFetchDiscogs = document.getElementById('btn-fetch-discogs');
+  const discogsUrlInput = document.getElementById('discogs-url-input');
+  const discogsError = document.getElementById('discogs-error');
+  const discogsLoading = document.getElementById('discogs-loading');
+  const discogsPreview = document.getElementById('discogs-preview');
+
+  btnFetchDiscogs.addEventListener('click', async () => {
+    const url = discogsUrlInput.value.trim();
+
+    if (!url) {
+      discogsError.textContent = 'Veuillez entrer un lien Discogs';
+      discogsError.classList.remove('hidden');
+      return;
+    }
+
+    discogsError.classList.add('hidden');
+    discogsPreview.classList.add('hidden');
+    discogsLoading.classList.remove('hidden');
+
+    try {
+      const response = await fetch(`{% url 'fetch_discogs_release' %}?url=${encodeURIComponent(url)}`);
+      const data = await response.json();
+      discogsLoading.classList.add('hidden');
+
+      if (data.error) {
+        discogsError.textContent = data.error;
+        discogsError.classList.remove('hidden');
+        return;
+      }
+
+      // Afficher la preview
+      document.getElementById('discogs-preview-cover').src = data.cover_url;
+      document.getElementById('discogs-preview-name').textContent = data.name;
+      document.getElementById('discogs-preview-artist').textContent = data.artist;
+      document.getElementById('discogs-preview-year').textContent = data.year || 'Non spécifiée';
+      discogsPreview.classList.remove('hidden');
+
+      // Remplir les champs du form
+      document.getElementById('id_name').value = data.name;
+      document.getElementById('id_artist_name').value = data.artist;
+      document.getElementById('id_year').value = data.year || '';
+      document.getElementById('id_cover_url').value = data.cover_url;
+
+    } catch {
+      discogsLoading.classList.add('hidden');
+      discogsError.textContent = 'Erreur de connexion à Discogs';
+      discogsError.classList.remove('hidden');
+    }
+  });
+
+  discogsUrlInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); btnFetchDiscogs.click(); }
   });
 
   // === Gestion upload manuel ===

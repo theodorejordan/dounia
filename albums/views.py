@@ -5,6 +5,7 @@ from django.core.paginator import Paginator
 from .models import Album, Artist, Tag, Tag as TagModel
 from .forms import AlbumForm
 from .deezer_api import extract_deezer_album_id, fetch_album_from_deezer
+from .discogs_api import extract_discogs_release_id, fetch_release_from_discogs
 
 
 def collection_view(request):
@@ -100,6 +101,22 @@ def fetch_deezer_album(request):
         return JsonResponse(album_info)
     
     return JsonResponse({'error': 'Méthode non autorisée'}, status=405)
+
+
+def fetch_discogs_release(request):
+    """API endpoint to fetch a Discogs release from a URL or bare ID"""
+    url = request.GET.get('url', '').strip()
+    if not url:
+        return JsonResponse({'error': 'URL Discogs manquante'}, status=400)
+
+    release_id = extract_discogs_release_id(url)
+    if not release_id:
+        return JsonResponse({'error': 'URL Discogs invalide'}, status=400)
+
+    result = fetch_release_from_discogs(release_id)
+    if 'error' in result:
+        return JsonResponse(result, status=400)
+    return JsonResponse(result)
 
 
 def tags_autocomplete(request):

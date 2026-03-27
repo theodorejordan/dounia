@@ -96,9 +96,11 @@ class AlbumForm(forms.ModelForm):
         return cleaned_data
     
     def save(self, commit=True):
-        # Gérer l'artiste (créer ou récupérer)
+        # Gérer l'artiste (créer ou récupérer) — case-insensitive lookup
         artist_name = self.cleaned_data.get('artist_name')
-        artist, _ = Artist.objects.get_or_create(name=artist_name)
+        artist = Artist.objects.filter(name__iexact=artist_name).first()
+        if not artist:
+            artist = Artist.objects.create(name=artist_name)
         
         album = super().save(commit=False)
         album.artist = artist

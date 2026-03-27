@@ -68,9 +68,15 @@ def fetch_album_from_deezer(album_id):
 def download_cover_from_url(cover_url):
     """Télécharge une image depuis une URL et retourne un objet File Django"""
     try:
-        response = requests.get(cover_url, timeout=10)
+        headers = {'User-Agent': 'DouniaMusicApp/1.0'}
+        # Discogs image servers require authentication
+        if 'discogs.com' in cover_url:
+            from django.conf import settings
+            token = getattr(settings, 'DISCOGS_TOKEN', '')
+            if token:
+                headers['Authorization'] = f'Discogs token={token}'
+        response = requests.get(cover_url, headers=headers, timeout=10)
         if response.status_code == 200:
-            # Créer un fichier Django depuis les bytes
             image_content = ContentFile(response.content)
             return image_content
         return None
