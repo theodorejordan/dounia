@@ -1,6 +1,6 @@
 {% load static hi %}
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -121,7 +121,7 @@
           <a href="{% url 'add_album' %}"
             class="flex items-center px-4 py-3 text-gray-700 rounded-md hover:bg-gray-100 {% if request.resolver_match.url_name == 'add_album' %}bg-blue-50 text-blue-600{% endif %}">
             {% hi "plus" css_class="h-5 w-5 mr-3 flex-shrink-0" %}
-            <span class="sidebar-text">Ajouter un album</span>
+            <span class="sidebar-text">Add album</span>
           </a>
         </nav>
       </div>

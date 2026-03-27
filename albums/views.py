@@ -85,13 +85,13 @@ def fetch_deezer_album(request):
         deezer_url = request.GET.get('url', '').strip()
         
         if not deezer_url:
-            return JsonResponse({'error': 'URL Deezer manquante'}, status=400)
+            return JsonResponse({'error': 'Missing Deezer URL'}, status=400)
         
         # Extraire l'ID de l'album
         album_id = extract_deezer_album_id(deezer_url)
         
         if not album_id:
-            return JsonResponse({'error': 'URL Deezer invalide'}, status=400)
+            return JsonResponse({'error': 'Invalid Deezer URL'}, status=400)
         
         # Récupérer les infos depuis Deezer
         album_info = fetch_album_from_deezer(album_id)
@@ -101,18 +101,18 @@ def fetch_deezer_album(request):
         
         return JsonResponse(album_info)
     
-    return JsonResponse({'error': 'Méthode non autorisée'}, status=405)
+    return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 
 def fetch_discogs_release(request):
     """API endpoint to fetch a Discogs release from a URL or bare ID"""
     url = request.GET.get('url', '').strip()
     if not url:
-        return JsonResponse({'error': 'URL Discogs manquante'}, status=400)
+        return JsonResponse({'error': 'Missing Discogs URL'}, status=400)
 
     release_id = extract_discogs_release_id(url)
     if not release_id:
-        return JsonResponse({'error': 'URL Discogs invalide'}, status=400)
+        return JsonResponse({'error': 'Invalid Discogs URL'}, status=400)
 
     result = fetch_release_from_discogs(release_id)
     if 'error' in result:
@@ -124,7 +124,7 @@ def fetch_bandcamp_album(request):
     """API endpoint to fetch album info from a Bandcamp URL"""
     url = request.GET.get('url', '').strip()
     if not url:
-        return JsonResponse({'error': 'URL Bandcamp manquante'}, status=400)
+        return JsonResponse({'error': 'Missing Bandcamp URL'}, status=400)
 
     result = fetch_album_from_bandcamp(url)
     if 'error' in result:
@@ -136,22 +136,22 @@ def fetch_album_from_link(request):
     """Unified endpoint — detects platform from URL and routes to the right API"""
     url = request.GET.get('url', '').strip()
     if not url:
-        return JsonResponse({'error': 'Lien manquant'}, status=400)
+        return JsonResponse({'error': 'Missing link'}, status=400)
 
     if 'deezer.com' in url:
         album_id = extract_deezer_album_id(url)
         if not album_id:
-            return JsonResponse({'error': 'URL Deezer invalide'}, status=400)
+            return JsonResponse({'error': 'Invalid Deezer URL'}, status=400)
         result = fetch_album_from_deezer(album_id)
     elif 'discogs.com' in url:
         release_id = extract_discogs_release_id(url)
         if not release_id:
-            return JsonResponse({'error': 'URL Discogs invalide'}, status=400)
+            return JsonResponse({'error': 'Invalid Discogs URL'}, status=400)
         result = fetch_release_from_discogs(release_id)
     elif 'bandcamp.com' in url:
         result = fetch_album_from_bandcamp(url)
     else:
-        return JsonResponse({'error': 'Lien non reconnu — collez un lien Deezer, Discogs ou Bandcamp'}, status=400)
+        return JsonResponse({'error': 'Unrecognised link — paste a Deezer, Discogs or Bandcamp URL'}, status=400)
 
     if 'error' in result:
         return JsonResponse(result, status=400)

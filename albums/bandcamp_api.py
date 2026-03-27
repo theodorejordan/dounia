@@ -13,21 +13,21 @@ def is_bandcamp_album_url(url):
 def fetch_album_from_bandcamp(url):
     """Fetch album metadata from a Bandcamp album page via JSON-LD"""
     if not is_bandcamp_album_url(url):
-        return {'error': 'URL Bandcamp invalide (doit pointer vers un album)'}
+        return {'error': 'Invalid Bandcamp URL (must point to an album)'}
 
     try:
         headers = {'User-Agent': 'DouniaMusicApp/1.0'}
         response = requests.get(url, headers=headers, timeout=10)
 
         if response.status_code != 200:
-            return {'error': 'Album introuvable sur Bandcamp'}
+            return {'error': 'Album not found on Bandcamp'}
 
         soup = BeautifulSoup(response.text, 'html.parser')
 
         # Find the JSON-LD block typed as MusicAlbum
         ld_tag = soup.find('script', type='application/ld+json')
         if not ld_tag:
-            return {'error': 'Données introuvables sur cette page Bandcamp'}
+            return {'error': 'No data found on this Bandcamp page'}
 
         data = json.loads(ld_tag.string)
 
@@ -48,7 +48,7 @@ def fetch_album_from_bandcamp(url):
                     year = int(match.group(1))
 
         if not name or not artist:
-            return {'error': 'Données manquantes sur cette page Bandcamp'}
+            return {'error': 'Missing data on this Bandcamp page'}
 
         return {
             'name': name,
@@ -58,10 +58,10 @@ def fetch_album_from_bandcamp(url):
         }
 
     except json.JSONDecodeError:
-        return {'error': 'Erreur lors de la lecture des données Bandcamp'}
+        return {'error': 'Error reading Bandcamp data'}
     except requests.exceptions.Timeout:
-        return {'error': 'Timeout lors de la connexion à Bandcamp'}
+        return {'error': 'Connection to Bandcamp timed out'}
     except requests.exceptions.RequestException as e:
-        return {'error': f'Erreur de connexion : {str(e)}'}
+        return {'error': f'Connection error: {str(e)}'}
     except Exception as e:
-        return {'error': f'Erreur inattendue : {str(e)}'}
+        return {'error': f'Unexpected error: {str(e)}'}

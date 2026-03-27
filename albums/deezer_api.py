@@ -31,13 +31,13 @@ def fetch_album_from_deezer(album_id):
         response = requests.get(f'https://api.deezer.com/album/{album_id}', timeout=10)
         
         if response.status_code != 200:
-            return {'error': 'Album introuvable sur Deezer'}
+            return {'error': 'Album not found on Deezer'}
         
         data = response.json()
         
         # Vérifier si l'album existe
         if 'error' in data:
-            return {'error': 'Album introuvable sur Deezer'}
+            return {'error': 'Album not found on Deezer'}
         
         # Extraire les infos
         album_info = {
@@ -58,11 +58,11 @@ def fetch_album_from_deezer(album_id):
         return album_info
     
     except requests.exceptions.Timeout:
-        return {'error': 'Timeout lors de la connexion à Deezer'}
+        return {'error': 'Connection to Deezer timed out'}
     except requests.exceptions.RequestException as e:
-        return {'error': f'Erreur de connexion : {str(e)}'}
+        return {'error': f'Connection error: {str(e)}'}
     except Exception as e:
-        return {'error': f'Erreur inattendue : {str(e)}'}
+        return {'error': f'Unexpected error: {str(e)}'}
 
 
 def download_cover_from_url(cover_url):

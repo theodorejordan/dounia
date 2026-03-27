@@ -8,7 +8,7 @@ class AlbumForm(forms.ModelForm):
     # Champ pour le mode Deezer
     deezer_url = forms.CharField(
         required=False,
-        label="Lien Deezer",
+        label="Deezer link",
         widget=forms.TextInput(attrs={
             'class': 'w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent',
             'placeholder': 'https://www.deezer.com/album/302127'
@@ -24,10 +24,10 @@ class AlbumForm(forms.ModelForm):
     artist_name = forms.CharField(
         max_length=200,
         required=False,
-        label="Artiste",
+        label="Artist",
         widget=forms.TextInput(attrs={
             'class': 'w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-            'placeholder': 'Nom de l\'artiste'
+            'placeholder': 'Artist name'
         })
     )
     
@@ -36,7 +36,7 @@ class AlbumForm(forms.ModelForm):
         label="Tags",
         widget=forms.TextInput(attrs={
             'id': 'tags-input',
-            'placeholder': 'Ajouter des tags...'
+            'placeholder': 'Add tags...'
         })
     )
     
@@ -44,15 +44,15 @@ class AlbumForm(forms.ModelForm):
         model = Album
         fields = ['name', 'cover', 'year', 'notes']
         labels = {
-            'name': 'Nom de l\'album',
-            'cover': 'Couverture',
-            'year': 'Année',
+            'name': 'Album name',
+            'cover': 'Cover',
+            'year': 'Year',
             'notes': 'Notes'
         }
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-                'placeholder': 'Nom de l\'album'
+                'placeholder': 'Album name'
             }),
             'cover': forms.FileInput(attrs={
                 'class': 'w-full px-4 py-2 border border-gray-300 rounded-md',
@@ -66,7 +66,7 @@ class AlbumForm(forms.ModelForm):
             }),
             'notes': forms.Textarea(attrs={
                 'class': 'w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-                'placeholder': 'Notes sur cet album...',
+                'placeholder': 'Notes about this album...',
                 'rows': 4
             })
         }
@@ -85,13 +85,12 @@ class AlbumForm(forms.ModelForm):
         
         # Vérifier qu'on a au moins un artiste et un nom
         if not artist_name:
-            raise forms.ValidationError("Le nom de l'artiste est requis")
+            raise forms.ValidationError("Artist name is required")
         if not name:
-            raise forms.ValidationError("Le nom de l'album est requis")
-        
-        # Vérifier qu'on a au moins une cover (fichier OU url)
+            raise forms.ValidationError("Album name is required")
+
         if not cover and not cover_url:
-            raise forms.ValidationError("Une couverture est requise (fichier ou depuis Deezer)")
+            raise forms.ValidationError("A cover is required (file or imported link)")
         
         return cleaned_data
     

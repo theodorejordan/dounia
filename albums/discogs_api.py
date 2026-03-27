@@ -44,7 +44,7 @@ def fetch_release_from_discogs(release_id):
             timeout=10,
         )
         if response.status_code != 200:
-            return {'error': 'Release introuvable sur Discogs'}
+            return {'error': 'Release not found on Discogs'}
 
         data = response.json()
 
@@ -66,9 +66,9 @@ def fetch_release_from_discogs(release_id):
         }
 
     except requests.exceptions.Timeout:
-        return {'error': 'Timeout lors de la connexion à Discogs'}
+        return {'error': 'Connection to Discogs timed out'}
     except requests.exceptions.RequestException as e:
-        return {'error': f'Erreur de connexion : {str(e)}'}
+        return {'error': f'Connection error: {str(e)}'}
     except Exception as e:
-        return {'error': f'Erreur inattendue : {str(e)}'}
+        return {'error': f'Unexpected error: {str(e)}'}
 
