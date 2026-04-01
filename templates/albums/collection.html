@@ -128,7 +128,7 @@
   <!-- Load More Button -->
   {% if has_more %}
   <div class="mt-8 text-center">
-    <button id="load-more-btn" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-md transition-colors">
+    <button id="load-more-btn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-sm transition-colors">
       Load More
     </button>
     <div id="loading-indicator" class="hidden mt-4">
@@ -505,11 +505,9 @@
         // Hide loading indicator
         document.getElementById('loading-indicator').classList.add('hidden');
 
-        // Show button again or show end message
+        // Show button again if there are more albums, otherwise keep it hidden
         if (data.has_more) {
           loadMoreBtn.style.display = 'block';
-        } else {
-          document.getElementById('end-message').classList.remove('hidden');
         }
 
       } catch (error) {

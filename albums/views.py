@@ -252,7 +252,7 @@ def albums_paginated_api(request):
             'year': album.year,
             'cover_url': album.cover.url if album.cover else None,
             'tags': [
-                {'id': tag.id, 'name': tag.name, 'category': tag.category}
+                {'id': tag.id, 'name': tag.name, 'category': tag.get_category_display()}
                 for tag in album.tags.all()
             ]
         })
