@@ -10,7 +10,7 @@ class AlbumForm(forms.ModelForm):
         required=False,
         label="Deezer link",
         widget=forms.TextInput(attrs={
-            'class': 'w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+            'class': 'w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent',
             'placeholder': 'https://www.deezer.com/album/302127'
         })
     )
@@ -26,7 +26,7 @@ class AlbumForm(forms.ModelForm):
         required=False,
         label="Artist",
         widget=forms.TextInput(attrs={
-            'class': 'w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+            'class': 'w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent',
             'placeholder': 'Artist name'
         })
     )
@@ -51,21 +51,21 @@ class AlbumForm(forms.ModelForm):
         }
         widgets = {
             'name': forms.TextInput(attrs={
-                'class': 'w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent',
                 'placeholder': 'Album name'
             }),
             'cover': forms.FileInput(attrs={
-                'class': 'w-full px-4 py-2 border border-gray-300 rounded-md',
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded',
                 'accept': 'image/*'
             }),
             'year': forms.NumberInput(attrs={
-                'class': 'w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent',
                 'placeholder': '2024',
                 'min': 1900,
                 'max': 2100
             }),
             'notes': forms.Textarea(attrs={
-                'class': 'w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent',
                 'placeholder': 'Notes about this album...',
                 'rows': 4
             })
