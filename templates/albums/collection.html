@@ -5,7 +5,7 @@
 {% block content %}
 <div class="max-w-7xl mx-auto">
   <!-- Barre de recherche avec filtres tags -->
-  <div class="mb-4 border bg-white p-4 rounded-sm">
+  <div class="mb-4 border bg-white p-4 rounded">
     <form method="GET" action="{% url 'collection' %}" id="filter-form">
       <div class="relative mb-3">
         <input
@@ -15,7 +15,7 @@
           placeholder="Search by artist..."
           value="{{ artist_search }}"
           autocomplete="off"
-          class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          class="w-full px-3 py-2 pr-10 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
         <button type="button" id="clear-artist" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 hidden">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -724,7 +724,7 @@
   // Create album card HTML element
   function createAlbumCard(album) {
     const card = document.createElement('div');
-    card.className = 'bg-white border rounded-sm overflow-hidden group';
+    card.className = 'bg-white border rounded overflow-hidden group';
 
     // Build cover image HTML
     const coverHtml = album.cover_url

@@ -5,7 +5,7 @@
 </div>
 <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
   {% for album in albums %}
-  <div class="bg-white border rounded-sm overflow-hidden group">
+  <div class="bg-white border rounded overflow-hidden group">
     <div class="aspect-square bg-gray-200 relative">
       {% if album.cover %}
       <img src="{{ album.cover.url }}" alt="{{ album.name }}" class="w-full h-full object-cover">
@@ -71,7 +71,7 @@
 <!-- Load More Button -->
 {% if has_more %}
 <div class="mt-8 text-center">
-  <button id="load-more-btn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-sm transition-colors">
+  <button id="load-more-btn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors">
     Load More
   </button>
   <div id="loading-indicator" class="hidden mt-4">
