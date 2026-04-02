@@ -469,12 +469,12 @@
 
       if (isActiveFilter) {
         // Light blue when category is actively filtering
-        btn.classList.remove('bg-white', 'text-gray-700', 'border-gray-300');
-        btn.classList.add('bg-blue-50', 'border-blue-200');
+        btn.classList.remove('bg-white', 'text-gray-700');
+        btn.classList.add('bg-blue-50/70');
       } else {
         // Default gray
-        btn.classList.remove('bg-blue-50', 'border-blue-200');
-        btn.classList.add('bg-white', 'text-gray-700', 'border-gray-300');
+        btn.classList.remove('bg-blue-50/70',);
+        btn.classList.add('bg-white', 'text-gray-700');
       }
     });
   }
@@ -502,11 +502,16 @@
         selectedCategory = null;
         tagsRow.classList.add('hidden');
         categoryInput.value = '';
+        // Remove ring from button
+        this.classList.remove('ring-1', 'ring-blue-500');
         updateHiddenInputs();
         triggerFilterUpdate();
       } else {
         // Expand row for this category
         selectedCategory = category;
+        // Remove ring from all buttons, then add to current
+        categoryBtns.forEach(b => b.classList.remove('ring-1', 'ring-blue-500'));
+        this.classList.add('ring-1', 'ring-blue-500');
         expandCategoryRow(category);
       }
     });
