@@ -263,3 +263,38 @@ def albums_paginated_api(request):
         'total': paginator.count,
         'has_more': page_obj.has_next()
     })
+
+
+def album_grid_partial(request):
+    """HTMX endpoint - returns just the album grid HTML"""
+    albums = Album.objects.select_related('artist').prefetch_related('tags').all()
+
+    # Apply filters
+    artist_search = request.GET.get('artist', '').strip()
+    if artist_search:
+        albums = albums.filter(artist__name__icontains=artist_search)
+
+    selected_category = request.GET.get('category', '').strip()
+    if selected_category:
+        albums = albums.filter(tags__category=selected_category).distinct()
+
+    selected_tags = request.GET.getlist('tags')
+    if selected_tags:
+        for tag_id in selected_tags:
+            albums = albums.filter(tags__id=tag_id)
+        albums = albums.distinct()
+
+    # Get total count before pagination
+    total_count = albums.count()
+
+    # Paginate
+    paginator = Paginator(albums, 50)
+    page_obj = paginator.get_page(1)
+
+    context = {
+        'albums': page_obj,
+        'has_more': page_obj.has_next(),
+        'albums_count': total_count,
+    }
+
+    return render(request, 'albums/_album_grid.html', context)
