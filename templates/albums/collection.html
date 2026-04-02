@@ -41,11 +41,16 @@
         <button
           type="button"
           data-category="{{ category_key }}"
-          class="category-btn px-3 py-1 text-sm rounded-full border transition-colors {% if selected_category == category_key %}bg-blue-600 text-white border-blue-600{% else %}bg-white text-gray-700 border-gray-300 hover:border-blue-400 hover:text-blue-600{% endif %}"
+          class="category-btn px-3 py-1 text-sm rounded-full border transition-colors bg-white text-gray-700 border-gray-300 hover:border-blue-400 hover:text-blue-600"
         >
           {{ category_label }}
         </button>
         {% endfor %}
+      </div>
+
+      <!-- Second row for child tags (initially hidden) -->
+      <div id="tags-row" class="mt-3 hidden transition-all">
+        <div id="tags-row-buttons" class="flex flex-wrap gap-2"></div>
       </div>
 
       <div class="mt-3 text-sm text-gray-600">
@@ -452,25 +457,200 @@
     form.submit();
   });
 
-  // Category filter buttons
+  // ====== CATEGORY FILTER WITH EXPANDABLE TAG ROW ======
   const categoryInput = document.getElementById('category-input');
   const categoryBtns = document.querySelectorAll('.category-btn');
+  const tagsRow = document.getElementById('tags-row');
+  const tagsRowButtons = document.getElementById('tags-row-buttons');
+  let selectedCategory = null;
 
+  // Preload and organize all tags by category (instant access, no API call needed)
+  const tagsByCategory = {};
+  {% for tag in all_tags %}
+  const category_{{ forloop.counter }} = "{{ tag.category }}";
+  if (!tagsByCategory[category_{{ forloop.counter }}]) {
+    tagsByCategory[category_{{ forloop.counter }}] = [];
+  }
+  tagsByCategory[category_{{ forloop.counter }}].push({
+    id: {{ tag.id }},
+    name: "{{ tag.name }}"
+  });
+  {% endfor %}
+
+  // CSS classes for filter buttons (DRY)
+  const BUTTON_CLASSES = {
+    active: "tag-filter-btn px-3 py-1 text-sm rounded-full border bg-blue-600 text-white border-blue-600 transition-colors",
+    inactive: "tag-filter-btn px-3 py-1 text-sm rounded-full border bg-white text-gray-700 border-gray-300 hover:border-blue-400 hover:text-blue-600 transition-colors"
+  };
+
+  // Helper: Get selected tag IDs from Tagify
+  function getSelectedTagIds() {
+    return tagify.value.map(tag => parseInt(tag.value.split('|')[0]));
+  }
+
+  // Helper: Get all tag IDs for a category
+  function getTagIdsInCategory(category) {
+    return (tagsByCategory[category] || []).map(t => t.id);
+  }
+
+  // Helper: Get category display label
+  function getCategoryLabel(category) {
+    const btn = [...categoryBtns].find(b => b.dataset.category === category);
+    return btn ? btn.textContent.trim() : category;
+  }
+
+  // Helper: Remove all tags from a category
+  function removeCategoryTagsFromTagify(category) {
+    const tagIdsInCategory = getTagIdsInCategory(category);
+    tagify.value.forEach(tag => {
+      const tagId = parseInt(tag.value.split('|')[0]);
+      if (tagIdsInCategory.includes(tagId)) {
+        tagify.removeTags(tag.value);
+      }
+    });
+  }
+
+  // Helper: Check if "All" button should be active
+  function isAllButtonActive(category) {
+    const selectedTagIds = getSelectedTagIds();
+    const tagIdsInCategory = getTagIdsInCategory(category);
+    const hasSpecificTags = tagIdsInCategory.some(id => selectedTagIds.includes(id));
+    return categoryInput.value === category && !hasSpecificTags;
+  }
+
+  // Helper: Find which category a tag belongs to
+  function findCategoryForTag(tagId) {
+    for (const [category, tags] of Object.entries(tagsByCategory)) {
+      if (tags.some(tag => tag.id === tagId)) {
+        return category;
+      }
+    }
+    return null;
+  }
+
+  // Category button click handler
   categoryBtns.forEach(btn => {
     btn.addEventListener('click', function() {
       const category = this.dataset.category;
 
-      // Toggle: if already selected, deselect it
-      if (categoryInput.value === category) {
+      if (selectedCategory === category) {
+        // Collapse row and clear filter
+        selectedCategory = null;
+        tagsRow.classList.add('hidden');
         categoryInput.value = '';
+        updateHiddenInputs();
+        form.submit();
       } else {
-        categoryInput.value = category;
+        // Expand row for this category
+        selectedCategory = category;
+        expandCategoryRow(category);
       }
-
-      updateHiddenInputs();
-      form.submit();
     });
   });
+
+  // Expand and render second row for a category
+  function expandCategoryRow(category) {
+    const tags = tagsByCategory[category] || [];
+    const selectedTagIds = getSelectedTagIds();
+    const selectedTagsInCategory = tags.filter(tag => selectedTagIds.includes(tag.id)).map(t => t.id);
+    const highlightAll = isAllButtonActive(category);
+
+    renderTagButtons(category, tags, highlightAll, selectedTagsInCategory);
+    tagsRow.classList.remove('hidden');
+  }
+
+  // Render "All" + individual tag buttons
+  function renderTagButtons(category, tags, highlightAll, selectedTagIds) {
+    let html = `
+      <button type="button" data-action="category" data-category="${category}"
+        class="${highlightAll ? BUTTON_CLASSES.active : BUTTON_CLASSES.inactive}">
+        All
+      </button>
+    `;
+
+    tags.forEach(tag => {
+      const isSelected = selectedTagIds.includes(tag.id);
+      html += `
+        <button type="button" data-action="tag" data-tag-id="${tag.id}" data-tag-name="${escapeHtml(tag.name)}"
+          class="${isSelected ? BUTTON_CLASSES.active : BUTTON_CLASSES.inactive}">
+          ${escapeHtml(tag.name)}
+        </button>
+      `;
+    });
+
+    tagsRowButtons.innerHTML = html;
+    attachTagButtonHandlers();
+  }
+
+  // Handle clicks on second row buttons
+  function attachTagButtonHandlers() {
+    tagsRowButtons.querySelectorAll('.tag-filter-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const action = this.dataset.action;
+
+        if (action === 'category') {
+          handleAllButtonClick(this.dataset.category);
+        } else if (action === 'tag') {
+          handleTagButtonClick(parseInt(this.dataset.tagId), this.dataset.tagName);
+        }
+      });
+    });
+  }
+
+  // Handle "All" button click
+  function handleAllButtonClick(category) {
+    if (isAllButtonActive(category)) {
+      // Toggle off: clear filter
+      categoryInput.value = '';
+      updateHiddenInputs();
+      form.submit();
+    } else {
+      // Toggle on: remove specific tags, apply category filter
+      removeCategoryTagsFromTagify(category);
+      categoryInput.value = category;
+      updateHiddenInputs();
+      form.submit();
+    }
+  }
+
+  // Handle specific tag button click
+  function handleTagButtonClick(tagId, tagName) {
+    const selectedTagIds = getSelectedTagIds();
+
+    if (selectedTagIds.includes(tagId)) {
+      // Toggle off: remove tag
+      const tagToRemove = tagify.value.find(tag => parseInt(tag.value.split('|')[0]) === tagId);
+      if (tagToRemove) {
+        tagify.removeTags(tagToRemove.value);
+      }
+    } else {
+      // Toggle on: add tag, clear category filter
+      categoryInput.value = '';
+      const categoryLabel = getCategoryLabel(selectedCategory);
+      const tagValue = `${tagId}|${tagName}|${categoryLabel}`;
+      tagify.addTags([tagValue]);
+    }
+  }
+
+  // Initialize: Auto-expand second row if category or tag filter is active
+  (function initializeCategoryExpansion() {
+    const activeCategory = "{{ selected_category }}";
+
+    if (activeCategory) {
+      selectedCategory = activeCategory;
+      expandCategoryRow(activeCategory);
+    } else {
+      // Check if selected tags belong to a category
+      const selectedTagIds = getSelectedTagIds();
+      if (selectedTagIds.length > 0) {
+        const category = findCategoryForTag(selectedTagIds[0]);
+        if (category) {
+          selectedCategory = category;
+          expandCategoryRow(category);
+        }
+      }
+    }
+  })();
 
   // ====== LOAD MORE PAGINATION ======
   const loadMoreBtn = document.getElementById('load-more-btn');
