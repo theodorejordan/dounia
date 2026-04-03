@@ -1,7 +1,6 @@
 from django import forms
 from .models import Album, Artist, Tag
-from .deezer_api import download_cover_from_url
-from django.core.files.base import ContentFile
+from .services import get_or_create_artist, download_and_attach_cover, sync_album_tags
 
 
 class AlbumForm(forms.ModelForm):
@@ -95,40 +94,24 @@ class AlbumForm(forms.ModelForm):
         return cleaned_data
     
     def save(self, commit=True):
-        # Gérer l'artiste (créer ou récupérer) — case-insensitive lookup
+        # Get or create artist using service layer
         artist_name = self.cleaned_data.get('artist_name')
-        artist = Artist.objects.filter(name__iexact=artist_name).first()
-        if not artist:
-            artist = Artist.objects.create(name=artist_name)
-        
+        artist = get_or_create_artist(artist_name)
+
+        # Create album instance (not saved yet)
         album = super().save(commit=False)
         album.artist = artist
-        
-        # Si on a une URL de cover (mode Deezer), télécharger l'image
+
+        # Download cover from URL if provided (using service layer)
         cover_url = self.cleaned_data.get('cover_url')
-        if cover_url and not album.cover:
-            cover_content = download_cover_from_url(cover_url)
-            if cover_content:
-                # Extraire le nom de fichier depuis l'URL ou utiliser un nom par défaut
-                filename = f"{artist.slug}_{album.name[:50]}.jpg"
-                album.cover.save(filename, cover_content, save=False)
-        
+        if cover_url:
+            download_and_attach_cover(album, cover_url)
+
         if commit:
             album.save()
-            
-            # Gérer les tags
+
+            # Sync tags using service layer
             tags_input = self.cleaned_data.get('tags_input', '')
-            if tags_input:
-                import json
-                try:
-                    tags_data = json.loads(tags_input)
-                    album.tags.clear()
-                    for tag_data in tags_data:
-                        tag_name = tag_data.get('value')
-                        if tag_name:
-                            tag, _ = Tag.objects.get_or_create(name=tag_name)
-                            album.tags.add(tag)
-                except json.JSONDecodeError:
-                    pass
-        
+            sync_album_tags(album, tags_input)
+
         return album
