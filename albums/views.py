@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.db.models import Q, Count
 from django.core.paginator import Paginator
-from .models import Album, Artist, Tag, Tag as TagModel
+from .models import Album, Artist, Tag
 from .forms import AlbumForm
 from .deezer_api import extract_deezer_album_id, fetch_album_from_deezer
 from .discogs_api import extract_discogs_release_id, fetch_release_from_discogs
@@ -11,30 +11,17 @@ from .bandcamp_api import fetch_album_from_bandcamp
 
 def collection_view(request):
     """Vue de la collection avec filtres"""
-    albums = Album.objects.select_related('artist').prefetch_related('tags').all()
-
-    # Récupérer la recherche par artiste
+    # Get filter parameters
     artist_search = request.GET.get('artist', '').strip()
-
-    # Filtrer par nom d'artiste si présent
-    if artist_search:
-        albums = albums.filter(artist__name__icontains=artist_search)
-
-    # Récupérer la catégorie sélectionnée
     selected_category = request.GET.get('category', '').strip()
-
-    # Filtrer par catégorie de tags si présente
-    if selected_category:
-        albums = albums.filter(tags__category=selected_category).distinct()
-
-    # Récupérer les tags sélectionnés depuis l'URL
     selected_tags = request.GET.getlist('tags')
 
-    # Filtrer par tags si présents
-    if selected_tags:
-        for tag_id in selected_tags:
-            albums = albums.filter(tags__id=tag_id)
-        albums = albums.distinct()
+    # Apply filters using custom manager
+    albums = Album.objects.select_related('artist').prefetch_related('tags').with_filters(
+        artist_search=artist_search,
+        category=selected_category,
+        tags=selected_tags
+    )
 
     # Paginate: show only first 50 albums
     total_count = albums.count()
@@ -52,7 +39,7 @@ def collection_view(request):
         'has_more': page_obj.has_next(),
         'artist_search': artist_search,
         'selected_category': selected_category,
-        'tag_categories': TagModel.CATEGORY_CHOICES,
+        'tag_categories': Tag.CATEGORY_CHOICES,
     }
 
     return render(request, 'albums/collection.html', context)
@@ -219,23 +206,17 @@ def check_duplicate_album(request):
 
 def albums_paginated_api(request):
     """API endpoint for paginated albums (returns JSON)"""
-    # Start with all albums, optimized query
-    albums = Album.objects.select_related('artist').prefetch_related('tags').all()
-
-    # Apply the same filters as collection_view
+    # Get filter parameters
     artist_search = request.GET.get('artist', '').strip()
-    if artist_search:
-        albums = albums.filter(artist__name__icontains=artist_search)
-
     selected_category = request.GET.get('category', '').strip()
-    if selected_category:
-        albums = albums.filter(tags__category=selected_category).distinct()
-
     selected_tags = request.GET.getlist('tags')
-    if selected_tags:
-        for tag_id in selected_tags:
-            albums = albums.filter(tags__id=tag_id)
-        albums = albums.distinct()
+
+    # Apply filters using custom manager
+    albums = Album.objects.select_related('artist').prefetch_related('tags').with_filters(
+        artist_search=artist_search,
+        category=selected_category,
+        tags=selected_tags
+    )
 
     # Paginate the results (50 per page)
     page_number = request.GET.get('page', 1)
@@ -267,22 +248,17 @@ def albums_paginated_api(request):
 
 def album_grid_partial(request):
     """HTMX endpoint - returns just the album grid HTML"""
-    albums = Album.objects.select_related('artist').prefetch_related('tags').all()
-
-    # Apply filters
+    # Get filter parameters
     artist_search = request.GET.get('artist', '').strip()
-    if artist_search:
-        albums = albums.filter(artist__name__icontains=artist_search)
-
     selected_category = request.GET.get('category', '').strip()
-    if selected_category:
-        albums = albums.filter(tags__category=selected_category).distinct()
-
     selected_tags = request.GET.getlist('tags')
-    if selected_tags:
-        for tag_id in selected_tags:
-            albums = albums.filter(tags__id=tag_id)
-        albums = albums.distinct()
+
+    # Apply filters using custom manager
+    albums = Album.objects.select_related('artist').prefetch_related('tags').with_filters(
+        artist_search=artist_search,
+        category=selected_category,
+        tags=selected_tags
+    )
 
     # Get total count before pagination
     total_count = albums.count()

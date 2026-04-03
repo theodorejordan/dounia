@@ -2,6 +2,52 @@ from django.db import models
 from django.utils.text import slugify
 
 
+class AlbumQuerySet(models.QuerySet):
+    """Custom queryset for Album with reusable filter logic"""
+
+    def with_filters(self, artist_search=None, category=None, tags=None):
+        """
+        Apply filters to albums based on search criteria.
+
+        Args:
+            artist_search: Filter by artist name (case-insensitive)
+            category: Filter by tag category
+            tags: List of tag IDs (all must match)
+
+        Returns:
+            Filtered QuerySet
+        """
+        queryset = self
+
+        # Filter by artist name
+        if artist_search:
+            queryset = queryset.filter(artist__name__icontains=artist_search)
+
+        # Filter by tag category
+        if category:
+            queryset = queryset.filter(tags__category=category).distinct()
+
+        # Filter by specific tags (all must match)
+        if tags:
+            for tag_id in tags:
+                queryset = queryset.filter(tags__id=tag_id)
+            queryset = queryset.distinct()
+
+        return queryset
+
+
+class AlbumManager(models.Manager):
+    """Custom manager that uses AlbumQuerySet"""
+
+    def get_queryset(self):
+        """Override to use our custom QuerySet"""
+        return AlbumQuerySet(self.model, using=self._db)
+
+    def with_filters(self, *args, **kwargs):
+        """Proxy to QuerySet.with_filters() for convenience"""
+        return self.get_queryset().with_filters(*args, **kwargs)
+
+
 class Tag(models.Model):
     """Tag pour catégoriser les albums"""
     CATEGORY_CHOICES = [
@@ -65,20 +111,23 @@ class Album(models.Model):
     """Album principal avec métadonnées"""
     # Champs obligatoires
     name = models.CharField(max_length=300, db_index=True)
-    artist = models.ForeignKey(Artist, on_delete=models.PROTECT, 
+    artist = models.ForeignKey(Artist, on_delete=models.PROTECT,
                                related_name='albums')
     cover = models.ImageField(upload_to='covers/%Y/%m/')
-    
+
     # Champs optionnels
     year = models.PositiveIntegerField(null=True, blank=True)
     notes = models.TextField(blank=True)
-    
+
     # Relations
     tags = models.ManyToManyField(Tag, related_name='albums', blank=True)
-    
+
     # Métadonnées
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    # Custom manager
+    objects = AlbumManager()
     
     class Meta:
         ordering = ['-created_at']
