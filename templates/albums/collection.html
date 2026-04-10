@@ -392,6 +392,12 @@
       params.append('tags', tagId);
     });
 
+    // Update browser URL to match current filters
+    const newUrl = params.toString()
+      ? `${window.location.pathname}?${params.toString()}`
+      : window.location.pathname;
+    history.replaceState(null, '', newUrl);
+
     // Make HTMX request
     const url = `/partials/album-grid/?${params.toString()}`;
     htmx.ajax('GET', url, {target: '#album-grid-container', swap: 'innerHTML'});
