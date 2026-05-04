@@ -14,4 +14,7 @@ urlpatterns = [
     path('api/albums/', views.albums_paginated_api, name='albums_api'),
     path('api/check-duplicate/', views.check_duplicate_album, name='check_duplicate_album'),
     path('partials/album-grid/', views.album_grid_partial, name='album_grid_partial'),
+    path('register/', views.register_view, name='register'),
+    path('profile/', views.profile_view, name='profile'),
+    path('profile/<str:username>/', views.public_profile_view, name='public_profile'),
 ]

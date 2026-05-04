@@ -1,6 +1,29 @@
 from django import forms
+from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm  # noqa: F401 (re-exported)
+from django.contrib.auth.models import User
 from .models import Album, Artist, Tag
 from .services import get_or_create_artist, download_and_attach_cover, sync_album_tags
+
+
+class RegisterForm(UserCreationForm):
+    email = forms.EmailField(required=True, label="Email")
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password1', 'password2']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['username'].label = "Username (pseudo)"
+        self.fields['password1'].label = "Password"
+        self.fields['password2'].label = "Confirm password"
+
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'email']
+        labels = {'username': 'Username (pseudo)', 'email': 'Email'}
 
 
 class AlbumForm(forms.ModelForm):

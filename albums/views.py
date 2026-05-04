@@ -1,9 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseForbidden
 from django.db.models import Q, Count
 from django.core.paginator import Paginator
+from django.contrib.auth import login, update_session_auth_hash
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.models import User
 from .models import Album, Artist, Tag
-from .forms import AlbumForm
+from .forms import AlbumForm, RegisterForm, ProfileForm
 from .deezer_api import extract_deezer_album_id, fetch_album_from_deezer
 from .discogs_api import extract_discogs_release_id, fetch_release_from_discogs
 from .bandcamp_api import fetch_album_from_bandcamp
@@ -45,6 +49,7 @@ def collection_view(request):
     return render(request, 'albums/collection.html', context)
 
 
+@login_required
 def add_album_view(request):
     """Vue pour ajouter un album"""
     if request.method == 'POST':
@@ -157,8 +162,11 @@ def tags_autocomplete(request):
     return JsonResponse(list(tags), safe=False)
 
 
+@login_required
 def delete_album_view(request, album_id):
     """Vue pour supprimer un album"""
+    if not request.user.is_staff:
+        return HttpResponseForbidden()
     if request.method == 'POST':
         album = get_object_or_404(Album, id=album_id)
         album.delete()
@@ -274,3 +282,53 @@ def album_grid_partial(request):
     }
 
     return render(request, 'albums/_album_grid.html', context)
+
+
+def register_view(request):
+    if request.user.is_authenticated:
+        return redirect('collection')
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('collection')
+    else:
+        form = RegisterForm()
+    return render(request, 'albums/register.html', {'form': form})
+
+
+@login_required
+def profile_view(request):
+    profile_updated = False
+    password_updated = False
+    profile_form = ProfileForm(instance=request.user)
+    password_form = PasswordChangeForm(user=request.user)
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'profile':
+            profile_form = ProfileForm(request.POST, instance=request.user)
+            if profile_form.is_valid():
+                profile_form.save()
+                profile_updated = True
+        elif action == 'password':
+            password_form = PasswordChangeForm(user=request.user, data=request.POST)
+            if password_form.is_valid():
+                password_form.save()
+                update_session_auth_hash(request, password_form.user)
+                password_updated = True
+
+    return render(request, 'albums/profile.html', {
+        'profile_form': profile_form,
+        'password_form': password_form,
+        'profile_updated': profile_updated,
+        'password_updated': password_updated,
+    })
+
+
+def public_profile_view(request, username):
+    profile_user = get_object_or_404(User, username=username)
+    return render(request, 'albums/public_profile.html', {
+        'profile_user': profile_user,
+    })

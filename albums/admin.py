@@ -25,13 +25,13 @@ class AlbumAdmin(admin.ModelAdmin):
     readonly_fields = ['created_at', 'updated_at']
     
     fieldsets = (
-        ('Informations principales', {
+        ('Main info', {
             'fields': ('name', 'artist', 'cover', 'year')
         }),
-        ('Contenu', {
+        ('Content', {
             'fields': ('notes', 'tags')
         }),
-        ('Métadonnées', {
+        ('Metadata', {
             'fields': ('created_at', 'updated_at'),
             'classes': ('collapse',)
         }),
