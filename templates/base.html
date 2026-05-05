@@ -108,7 +108,7 @@
 <body class="bg-gray-50">
   <div class="flex h-screen overflow-hidden">
     <!-- Sidebar -->
-    <aside id="sidebar" class="w-64 bg-white border-r transition-all duration-300 flex-shrink-0 sticky top-0 h-screen flex flex-col">
+    <aside id="sidebar" class="w-52 bg-white border-r transition-all duration-300 flex-shrink-0 sticky top-0 h-screen flex flex-col">
       <!-- Top: logo + nav -->
       <div class="p-1 flex-1 overflow-y-auto">
         <div class="flex items-center justify-start p-2">
@@ -116,19 +116,19 @@
         </div>
         <nav class="space-y-1">
           <a href="{% url 'collection' %}"
-            class="flex items-center px-4 py-3 text-gray-700 rounded hover:bg-gray-100 {% if request.resolver_match.url_name == 'collection' %}bg-blue-50 text-blue-600{% endif %}">
-            {% hi "book-open" css_class="h-5 w-5 mr-3 flex-shrink-0" %}
+            class="flex items-center p-2 text-gray-700 rounded hover:bg-gray-100 {% if request.resolver_match.url_name == 'collection' %}bg-blue-50 text-blue-600{% endif %}">
+            {% hi "book-open" css_class="h-4 w-4 mr-2 flex-shrink-0" %}
             <span class="sidebar-text">Collection</span>
           </a>
           {% if request.user.is_authenticated %}
           <a href="{% url 'add_album' %}"
-            class="flex items-center px-4 py-3 text-gray-700 rounded hover:bg-gray-100 {% if request.resolver_match.url_name == 'add_album' %}bg-blue-50 text-blue-600{% endif %}">
-            {% hi "plus" css_class="h-5 w-5 mr-3 flex-shrink-0" %}
+            class="flex items-center p-2 text-gray-700 rounded hover:bg-gray-100 {% if request.resolver_match.url_name == 'add_album' %}bg-blue-50 text-blue-600{% endif %}">
+            {% hi "plus" css_class="h-4 w-4 mr-2 flex-shrink-0" %}
             <span class="sidebar-text">Add album</span>
           </a>
           {% else %}
-          <span class="flex items-center px-4 py-3 text-gray-300 rounded cursor-not-allowed select-none" title="Log in to add albums">
-            {% hi "plus" css_class="h-5 w-5 mr-3 flex-shrink-0" %}
+          <span class="flex items-center p-2 text-gray-300 rounded cursor-not-allowed select-none" title="Log in to add albums">
+            {% hi "plus" css_class="h-4 w-4 mr-2 flex-shrink-0" %}
             <span class="sidebar-text">Add album</span>
           </span>
           {% endif %}
@@ -147,12 +147,12 @@
         </a>
         {% else %}
         <div class="space-y-1">
-          <a href="{% url 'login' %}" class="flex items-center px-4 py-3 text-gray-700 rounded hover:bg-gray-100">
-            {% hi "login" css_class="h-5 w-5 mr-3 flex-shrink-0" %}
+          <a href="{% url 'login' %}" class="flex items-center p-2 text-gray-700 rounded hover:bg-gray-100">
+            {% hi "login" css_class="h-4 w-4 mr-2 flex-shrink-0" %}
             <span class="sidebar-text">Log in</span>
           </a>
-          <a href="{% url 'register' %}" class="flex items-center px-4 py-3 text-gray-700 rounded hover:bg-gray-100">
-            {% hi "user-add" css_class="h-5 w-5 mr-3 flex-shrink-0" %}
+          <a href="{% url 'register' %}" class="flex items-center p-2 text-gray-700 rounded hover:bg-gray-100">
+            {% hi "user-add" css_class="h-4 w-4 mr-2 flex-shrink-0" %}
             <span class="sidebar-text">Register</span>
           </a>
         </div>
@@ -180,6 +180,10 @@
     overflow: hidden;
   }
   
+  .sidebar-text {
+    font-size: 0.875rem;
+  }
+
   #sidebar.collapsed .sidebar-text {
     display: none;
   }
@@ -193,7 +197,7 @@
   }
   
   body:not(.sidebar-collapsed) #toggle-sidebar {
-    left: 15rem;
+    left: 12rem;
   }
 </style>
 
