@@ -6,8 +6,8 @@ from django.contrib.auth import login, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User
-from .models import Album, Artist, Tag
-from .forms import AlbumForm, RegisterForm, ProfileForm
+from .models import Album, Artist, Tag, UserProfile
+from .forms import AlbumForm, RegisterForm, ProfileForm, AvatarForm
 from .deezer_api import extract_deezer_album_id, fetch_album_from_deezer
 from .discogs_api import extract_discogs_release_id, fetch_release_from_discogs
 from .bandcamp_api import fetch_album_from_bandcamp
@@ -300,18 +300,20 @@ def register_view(request):
 
 @login_required
 def profile_view(request):
-    profile_updated = False
     password_updated = False
+    user_profile = request.user.userprofile
     profile_form = ProfileForm(instance=request.user)
     password_form = PasswordChangeForm(user=request.user)
+    avatar_form = AvatarForm(instance=user_profile)
 
     if request.method == 'POST':
         action = request.POST.get('action')
         if action == 'profile':
             profile_form = ProfileForm(request.POST, instance=request.user)
-            if profile_form.is_valid():
+            avatar_form = AvatarForm(request.POST, request.FILES, instance=user_profile)
+            if profile_form.is_valid() and avatar_form.is_valid():
                 profile_form.save()
-                profile_updated = True
+                avatar_form.save()
         elif action == 'password':
             password_form = PasswordChangeForm(user=request.user, data=request.POST)
             if password_form.is_valid():
@@ -322,7 +324,8 @@ def profile_view(request):
     return render(request, 'albums/profile.html', {
         'profile_form': profile_form,
         'password_form': password_form,
-        'profile_updated': profile_updated,
+        'avatar_form': avatar_form,
+        'user_profile': user_profile,
         'password_updated': password_updated,
     })
 

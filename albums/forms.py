@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm  # noqa: F401 (re-exported)
 from django.contrib.auth.models import User
-from .models import Album, Artist, Tag
+from .models import Album, Artist, Tag, UserProfile
 from .services import get_or_create_artist, download_and_attach_cover, sync_album_tags
 
 
@@ -24,6 +24,14 @@ class ProfileForm(forms.ModelForm):
         model = User
         fields = ['username', 'email']
         labels = {'username': 'Username (pseudo)', 'email': 'Email'}
+
+
+class AvatarForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['avatar']
+        labels = {'avatar': 'Avatar'}
+        widgets = {'avatar': forms.FileInput(attrs={'accept': 'image/*'})}
 
 
 class AlbumForm(forms.ModelForm):
