@@ -7,7 +7,11 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 min-h-screen flex items-center justify-center">
-  <div class="w-full max-w-sm px-4">
+  <div class="w-full max-w-sm px-4 space-y-4">
+    <p class="text-center text-sm text-gray-500">
+      <a href="{% url 'collection' %}" class="hover:underline">Back to Home</a>
+    </p>
+
     <div class="bg-white rounded border border-gray-200 p-8">
       <h2 class="text-lg font-semibold text-gray-800 mb-6">Create an account</h2>
 
@@ -38,8 +42,8 @@
       </form>
     </div>
 
-    <p class="text-center text-sm text-gray-500 mt-4">
-      Already have an account? <a href="/login/" class="text-blue-600 hover:underline">Log in</a>
+    <p class="text-center text-sm text-gray-500">
+      <a href="/login/" class="hover:underline">Log in</a>
     </p>
   </div>
 </body>
