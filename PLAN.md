@@ -265,8 +265,55 @@ Each phase is independently deployable and testable before moving on.
 ## Future ideas (deferred)
 
 - **Homepage** — latest albums added, latest projects updated, universal search bar
-- **Changelog page** — history of updates to the site/collection
+- ~~**Changelog page** — history of updates to the site/collection~~ ✓ Done (v0.3.1)
 - **Dounia logo illustration** — custom illustrated logo
+
+### Album Detail Drawer
+
+Clicking an album cover opens a slide-in drawer from the right side.
+
+**Content:**
+- Album info: cover, name, artist, year, tags
+- Notes field (currently unused) — displayed here
+- Submitted by: link to user's public profile (if applicable)
+- Edit / Delete buttons (visible only to admin or submitter with proper permissions)
+
+**URL:**
+- Drawer has a shareable URL: `/albums/<id>/` or `?album=<id>` query param
+- Direct link opens collection with drawer pre-opened
+- Browser back button closes drawer, returns to collection
+
+**Implementation notes:**
+- Drawer component reusable for other contexts (projects?)
+- HTMX for loading drawer content without full page reload
+- CSS transition for slide-in animation
+
+### Social Features
+
+Comment section inside the album detail drawer.
+
+**Features:**
+- Users can leave comments on albums
+- Comments displayed below album info in the drawer
+- Nested replies (optional, could keep flat initially)
+- Edit/delete own comments
+
+**Model:**
+```python
+class Comment(models.Model):
+    album = ForeignKey(Album, on_delete=CASCADE, related_name='comments')
+    author = ForeignKey(User, on_delete=CASCADE)
+    content = TextField()
+    created_at = DateTimeField(auto_now_add=True)
+    updated_at = DateTimeField(auto_now=True)
+    parent = ForeignKey('self', null=True, blank=True, on_delete=CASCADE)  # for replies
+```
+
+**Access:**
+- Anonymous: can read comments
+- Authenticated: can post comments
+- Comment author: can edit/delete own comments
+- Admin: can delete any comment
 
 ---
 
