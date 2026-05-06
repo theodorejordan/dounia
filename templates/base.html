@@ -116,19 +116,19 @@
         </div>
         <nav class="space-y-2">
           <a href="{% url 'collection' %}"
-            class="flex items-center p-2 text-gray-700 rounded hover:bg-blue-50 {% if request.resolver_match.url_name == 'collection' %}bg-blue-50 text-blue-600{% endif %}">
-            {% hi "book-open" css_class="h-5 w-5 mr-2 flex-shrink-0" %}
+            class="flex items-center pl-2.5 py-2 text-gray-700 gap-x-2 rounded hover:bg-blue-50 {% if request.resolver_match.url_name == 'collection' %}bg-blue-50 text-blue-600{% endif %}">
+            {% hi "book-open" css_class="h-5 w-5 flex-shrink-0" %}
             <span class="sidebar-text">Collection</span>
           </a>
           {% if request.user.is_authenticated %}
           <a href="{% url 'add_album' %}"
-            class="flex items-center p-2 text-gray-700 rounded hover:bg-blue-50 {% if request.resolver_match.url_name == 'add_album' %}bg-blue-50 text-blue-600{% endif %}">
-            {% hi "plus" css_class="h-5 w-5 mr-2 flex-shrink-0" %}
+            class="flex items-center pl-2.5 py-2 text-gray-700 gap-x-2 rounded hover:bg-blue-50 {% if request.resolver_match.url_name == 'add_album' %}bg-blue-50 text-blue-600{% endif %}">
+            {% hi "plus" css_class="h-5 w-5 flex-shrink-0" %}
             <span class="sidebar-text">Add album</span>
           </a>
           {% else %}
-          <span class="flex items-center p-2 text-gray-300 rounded cursor-not-allowed select-none" title="Log in to add albums">
-            {% hi "plus" css_class="h-5 w-5 mr-2 flex-shrink-0" %}
+          <span class="flex items-center pl-2.5 py-2 text-gray-300 gap-x-2 rounded cursor-not-allowed select-none" title="Log in to add albums">
+            {% hi "plus" css_class="h-5 w-5 flex-shrink-0" %}
             <span class="sidebar-text">Add album</span>
           </span>
           {% endif %}
@@ -138,14 +138,14 @@
       <!-- Bottom: changelog + profile widget -->
       <div class="p-2 border-t">
         <a href="{% url 'changelog' %}"
-          class="flex items-center p-2 text-gray-700 rounded hover:bg-blue-50 {% if request.resolver_match.url_name == 'changelog' %}bg-blue-50 text-blue-600{% endif %}">
-          {% hi "clock" css_class="h-5 w-5 mr-2 flex-shrink-0" %}
+          class="flex items-center pl-2.5 py-2 text-gray-700 rounded gap-x-2 hover:bg-blue-50 {% if request.resolver_match.url_name == 'changelog' %}bg-blue-50 text-blue-600{% endif %}">
+          {% hi "clock" css_class="h-5 w-5 flex-shrink-0" %}
           <span class="sidebar-text">Changelog</span>
         </a>
       </div>
       <div class="p-2 border-t">
         {% if request.user.is_authenticated %}
-          <a href="{% url 'profile' %}" class="flex items-center p-1.5 rounded hover:bg-blue-50 gap-1.5">
+          <a href="{% url 'profile' %}" class="flex items-center p-2 rounded hover:bg-blue-50 gap-2">
             {% if request.user.userprofile.avatar %}
               <img src="{{ request.user.userprofile.avatar.url }}" alt="" class="w-6 h-6 rounded object-cover flex-shrink-0">
             {% else %}
