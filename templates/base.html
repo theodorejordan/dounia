@@ -110,19 +110,19 @@
     <!-- Sidebar -->
     <aside id="sidebar" class="w-52 bg-white border-r transition-all duration-300 flex-shrink-0 sticky top-0 h-screen flex flex-col">
       <!-- Top: logo + nav -->
-      <div class="p-1 flex-1 overflow-y-auto">
+      <div class="p-2 flex-1 overflow-y-auto">
         <div class="flex items-center justify-start p-2">
           <h1 class="text-2xl font-bold text-gray-800">Dounia</h1>
         </div>
-        <nav class="space-y-1">
+        <nav class="space-y-2">
           <a href="{% url 'collection' %}"
-            class="flex items-center p-2 text-gray-700 rounded hover:bg-gray-100 {% if request.resolver_match.url_name == 'collection' %}bg-blue-50 text-blue-600{% endif %}">
+            class="flex items-center p-2 text-gray-700 rounded hover:bg-blue-50 {% if request.resolver_match.url_name == 'collection' %}bg-blue-50 text-blue-600{% endif %}">
             {% hi "book-open" css_class="h-5 w-5 mr-2 flex-shrink-0" %}
             <span class="sidebar-text">Collection</span>
           </a>
           {% if request.user.is_authenticated %}
           <a href="{% url 'add_album' %}"
-            class="flex items-center p-2 text-gray-700 rounded hover:bg-gray-100 {% if request.resolver_match.url_name == 'add_album' %}bg-blue-50 text-blue-600{% endif %}">
+            class="flex items-center p-2 text-gray-700 rounded hover:bg-blue-50 {% if request.resolver_match.url_name == 'add_album' %}bg-blue-50 text-blue-600{% endif %}">
             {% hi "plus" css_class="h-5 w-5 mr-2 flex-shrink-0" %}
             <span class="sidebar-text">Add album</span>
           </a>
@@ -136,9 +136,9 @@
       </div>
 
       <!-- Bottom: profile widget -->
-      <div class="p-1 border-t">
+      <div class="p-2 border-t">
         {% if request.user.is_authenticated %}
-          <a href="{% url 'profile' %}" class="flex items-center p-1 rounded hover:bg-gray-100 gap-2">
+          <a href="{% url 'profile' %}" class="flex items-center p-1.5 rounded hover:bg-blue-50 gap-2">
             {% if request.user.userprofile.avatar %}
               <img src="{{ request.user.userprofile.avatar.url }}" alt="" class="w-7 h-7 rounded object-cover flex-shrink-0">
             {% else %}
@@ -149,12 +149,12 @@
             <span class="text-sm text-gray-700 flex-1 truncate sidebar-text">{{ request.user.username }}</span>
           </a>
         {% else %}
-          <div class="space-y-1">
-            <a href="{% url 'login' %}" class="flex items-center p-2 text-gray-700 rounded hover:bg-gray-100">
+          <div class="space-y-2">
+            <a href="{% url 'login' %}" class="flex items-center p-2 text-gray-700 rounded hover:bg-blue-50">
               {% hi "login" css_class="h-5 w-5 mr-2 flex-shrink-0" %}
               <span class="sidebar-text">Log in</span>
             </a>
-            <a href="{% url 'register' %}" class="flex items-center p-2 text-gray-700 rounded hover:bg-gray-100">
+            <a href="{% url 'register' %}" class="flex items-center p-2 text-gray-700 rounded hover:bg-blue-50">
               {% hi "user-add" css_class="h-5 w-5 mr-2 flex-shrink-0" %}
               <span class="sidebar-text">Register</span>
             </a>
@@ -166,8 +166,8 @@
 
     <main class="flex-1 p-4 overflow-y-auto">
       <!-- Toggle Button -->
-      <button id="toggle-sidebar" class="fixed top-1/2 -translate-y-1/2 left-2 z-50 bg-white border p-1.5 rounded hover:bg-gray-100 transition-colors">
-        <svg id="toggle-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <button id="toggle-sidebar" class="fixed top-1/2 -translate-y-1/2 left-2 z-50 bg-white border p-1 rounded hover:bg-gray-100 transition-colors">
+        <svg id="toggle-icon" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
         </svg>
       </button>
@@ -184,7 +184,7 @@
   }
   
   .sidebar-text {
-    font-size: 0.875rem;
+    font-size: 1rem;
   }
 
   #sidebar.collapsed .sidebar-text {
@@ -200,7 +200,7 @@
   }
   
   body:not(.sidebar-collapsed) #toggle-sidebar {
-    left: 12rem;
+    left: 12.15rem;
   }
 </style>
 

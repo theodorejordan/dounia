@@ -30,13 +30,12 @@
         <label class="block text-sm font-medium text-gray-700 mb-2">
           Link *
         </label>
-        <div class="flex gap-4">
-          <input type="text" id="link-url-input" class="flex-1 px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Deezer, Discogs or Bandcamp...">
+        <div class="flex gap-2">
+          <input type="text" id="link-url-input" class="flex-1 px-4 py-2 border border-gray-300 rounded" placeholder="Deezer, Discogs or Bandcamp...">
           <button type="button" id="btn-fetch-link" class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-medium transition">
             Import
           </button>
         </div>
-        <p class="mt-1 text-sm text-gray-500">Paste a Deezer, Discogs or Bandcamp link</p>
         <div id="link-error" class="mt-2 text-sm text-red-600 hidden"></div>
         <div id="link-loading" class="mt-2 text-sm text-blue-600 hidden flex items-center gap-1">
           {% hi "refresh" css_class="h-4 w-4 animate-spin" %}
@@ -145,12 +144,12 @@
     <div>
       <label for="{{ form.notes.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
         {{ form.notes.label }}
-      </label>
+      </label>      
       {{ form.notes }}
     </div>
     
     <!-- Boutons -->
-    <div class="flex gap-4">
+    <div class="flex gap-2">
       <button type="submit" id="btn-submit" class="flex-1 px-6 py-3 bg-blue-600 text-white font-medium rounded hover:bg-blue-700 transition">
         Add album
       </button>

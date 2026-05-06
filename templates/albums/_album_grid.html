@@ -29,10 +29,12 @@
     </div>
     <div class="p-2">
       <h3 class="font-semibold text-gray-800 truncate">{{ album.name }}</h3>
-      <p class="text-sm text-gray-600 truncate">{{ album.artist.name }}</p>
-      {% if album.year %}
-      <p class="text-xs text-gray-500">{{ album.year }}</p>
-      {% endif %}
+      <div class="flex justify-between items-center gap-x-2">
+        <p class="text-sm text-gray-600 truncate">{{ album.artist.name }}</p>
+        {% if album.year %}
+        <p class="text-xs text-gray-500">{{ album.year }}</p>
+        {% endif %}
+      </div>
       <!-- Tags de l'album -->
       {% if album.tags.all %}
       <div class="mt-2 flex flex-wrap gap-1">
