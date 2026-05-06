@@ -17,4 +17,5 @@ urlpatterns = [
     path('register/', views.register_view, name='register'),
     path('profile/', views.profile_view, name='profile'),
     path('profile/<str:username>/', views.public_profile_view, name='public_profile'),
+    path('delete-account/', views.delete_account_view, name='delete_account'),
 ]
