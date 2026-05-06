@@ -345,3 +345,7 @@ def delete_account_view(request):
         user.delete()
         return redirect('collection')
     return redirect('profile')
+
+
+def changelog_view(request):
+    return render(request, 'albums/changelog.html')
