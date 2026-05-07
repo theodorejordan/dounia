@@ -317,15 +317,21 @@ class Comment(models.Model):
 
 ---
 
-## Verification checklist
+## Progress
 
-**Phase 1:**
-- [ ] Anonymous can browse collection; trash button absent; sidebar shows all links (some greyed)
-- [ ] Register → login → sidebar shows profile widget at bottom
-- [ ] Profile page: edit username/email, change password, logout button (red, bottom)
-- [ ] Admin (`is_staff`) sees trash button on album cards
+### Phase 1: Auth + Profile ✅ COMPLETE
 
-**Phase 2:**
+- [x] Anonymous can browse collection; trash button absent; sidebar shows all links (some greyed)
+- [x] Register → login → sidebar shows profile widget at bottom
+- [x] Profile page: edit username/email, change password, logout button (red, bottom)
+- [x] Admin (`is_staff`) sees trash button on album cards
+- [x] User avatar upload with sidebar display
+- [x] Delete account functionality
+- [x] Public profile page (`/profile/<username>/`)
+
+### Phase 2: Album Submissions — NOT STARTED
+
+- [ ] Add `submitted_by`, `status`, `rejection_notes` fields to Album model
 - [ ] Authenticated user visits `/add/` → sees "Submit for review", Tagify no free input
 - [ ] Submit with 0 tags → server-side validation error
 - [ ] Submission appears in `/submissions/` for admin, not in main collection
@@ -333,9 +339,19 @@ class Comment(models.Model):
 - [ ] Admin rejects → user sees notes on their `/profile/` page
 - [ ] Public profile shows only approved submissions
 
-**Phase 3:**
-- [ ] Admin checks 3 albums → action bar appears → creates project → redirects to project page
+### Phase 3: Projects — NOT STARTED
+
+- [ ] Project and ProjectAlbum models created
+- [ ] Admin checks albums → action bar appears → creates project → redirects to project page
 - [ ] Tab 1 (admin): edit project name inline; remove album → album stays in main collection
 - [ ] Tab 1 (user): read-only, no action buttons, Tab 2 not visible
 - [ ] Tab 2: drag to reorder → refresh → order persists
 - [ ] Notes textarea autosaves on blur
+
+### Other Features Completed
+
+- [x] Changelog page (v0.3.1)
+- [x] HTMX-powered instant filtering with URL persistence
+- [x] Album import from Deezer, Discogs, Bandcamp links
+- [x] Expandable category filters with child tags
+- [x] Artist slug collision handling
