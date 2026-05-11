@@ -29,7 +29,7 @@ def collection_view(request):
 
     # Paginate: show only first 50 albums
     total_count = albums.count()
-    paginator = Paginator(albums, 50)
+    paginator = Paginator(albums, 40)
     page_obj = paginator.get_page(1)  # Always load page 1 on initial view
 
     # Récupérer tous les tags pour les filtres
@@ -226,9 +226,9 @@ def albums_paginated_api(request):
         tags=selected_tags
     )
 
-    # Paginate the results (50 per page)
+    # Paginate the results (40 per page)
     page_number = request.GET.get('page', 1)
-    paginator = Paginator(albums, 50)
+    paginator = Paginator(albums, 40)
     page_obj = paginator.get_page(page_number)
 
     # Build the JSON response
@@ -272,7 +272,7 @@ def album_grid_partial(request):
     total_count = albums.count()
 
     # Paginate
-    paginator = Paginator(albums, 50)
+    paginator = Paginator(albums, 40)
     page_obj = paginator.get_page(1)
 
     context = {
