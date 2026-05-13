@@ -16,7 +16,13 @@ urlpatterns = [
     path('partials/album-grid/', views.album_grid_partial, name='album_grid_partial'),
     path('register/', views.register_view, name='register'),
     path('profile/', views.profile_view, name='profile'),
+    path('profile/submissions/', views.profile_view, {'section': 'submissions'}, name='profile_submissions'),
     path('profile/<str:username>/', views.public_profile_view, name='public_profile'),
     path('delete-account/', views.delete_account_view, name='delete_account'),
     path('changelog/', views.changelog_view, name='changelog'),
+    # Submissions
+    path('submit/', views.submit_album_view, name='submit_album'),
+    path('submissions/', views.submissions_admin_view, name='submissions_admin'),
+    path('submissions/<int:pk>/approve/', views.approve_submission_view, name='approve_submission'),
+    path('submissions/<int:pk>/delete/', views.delete_submission_view, name='delete_submission'),
 ]

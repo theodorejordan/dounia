@@ -147,3 +147,35 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return self.user.username
+
+
+class Submission(models.Model):
+    """Pending album submission from a user, awaiting admin review"""
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+
+    # Album data (stored as-is, artist as string since it may not exist yet)
+    name = models.CharField(max_length=300)
+    artist_name = models.CharField(max_length=200)
+    cover = models.ImageField(upload_to='submissions/%Y/%m/')
+    year = models.PositiveIntegerField(null=True, blank=True)
+    notes = models.TextField(blank=True)
+    tags = models.ManyToManyField(Tag, related_name='submissions', blank=True)
+
+    # Submission metadata
+    submitted_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='submissions')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    reviewed_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True, related_name='reviewed_submissions'
+    )
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.artist_name} - {self.name} ({self.status})"

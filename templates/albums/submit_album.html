@@ -1,0 +1,353 @@
+{% extends 'base.html' %}
+{% load hi %}
+
+{% block title %}Submit album — Dounia{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto flex flex-col justify-center min-h-screen -mt-4 py-8">
+
+  <!-- Toggle between modes -->
+  <div class="bg-white border p-2 rounded mb-6 flex gap-2">
+    <button id="btn-mode-link" type="button" class="flex-1 px-4 py-3 rounded font-medium transition bg-blue-600 text-white flex items-center justify-center gap-2">
+      {% hi "link" css_class="h-4 w-4" %}
+      Link
+    </button>
+    <button id="btn-mode-manual" type="button" class="flex-1 px-4 py-3 rounded font-medium transition bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center justify-center gap-2">
+      {% hi "pencil-alt" css_class="h-4 w-4" %}
+      Manual
+    </button>
+  </div>
+
+  <form method="POST" enctype="multipart/form-data" id="album-form" class="bg-white border p-8 rounded space-y-6">
+    {% csrf_token %}
+
+    <!-- Hidden field to indicate mode -->
+    <input type="hidden" name="mode" id="hidden-mode" value="link">
+
+    <!-- LINK MODE -->
+    <div id="mode-link" class="!mt-0">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Link *
+        </label>
+        <div class="flex gap-2">
+          <input type="text" id="link-url-input" class="flex-1 px-4 py-2 border border-gray-300 rounded" placeholder="Deezer, Discogs or Bandcamp...">
+          <button type="button" id="btn-fetch-link" class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-medium transition">
+            Import
+          </button>
+        </div>
+        <div id="link-error" class="mt-2 text-sm text-red-600 hidden"></div>
+        <div id="link-loading" class="mt-2 text-sm text-blue-600 hidden flex items-center gap-1">
+          {% hi "refresh" css_class="h-4 w-4 animate-spin" %}
+          Loading...
+        </div>
+      </div>
+
+      <!-- Preview after import -->
+      <div id="link-preview" class="hidden border-2 border-blue-200 rounded p-6 bg-blue-50 mt-4">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          {% hi "check" css_class="h-5 w-5 text-green-600" %}
+          Album found!
+        </h3>
+        <div class="flex gap-4">
+          <img id="link-preview-cover" src="" alt="Cover" class="w-32 h-32 object-cover rounded">
+          <div class="flex-1">
+            <p class="text-sm text-gray-600">Album</p>
+            <p id="link-preview-name" class="font-bold text-lg text-gray-800"></p>
+            <p class="text-sm text-gray-600 mt-2">Artist</p>
+            <p id="link-preview-artist" class="font-semibold text-gray-800"></p>
+            <p class="text-sm text-gray-600 mt-2">Year</p>
+            <p id="link-preview-year" class="text-gray-800"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MANUAL MODE -->
+    <div id="mode-manual" class="space-y-6 hidden !mt-0">
+      <!-- Album name -->
+      <div>
+        <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+          {{ form.name.label }} *
+        </label>
+        {{ form.name }}
+      </div>
+
+      <!-- Artist -->
+      <div>
+        <label for="{{ form.artist_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+          {{ form.artist_name.label }} *
+        </label>
+        {{ form.artist_name }}
+      </div>
+
+      <!-- Cover -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          {{ form.cover.label }} *
+        </label>
+
+        <div id="drop-zone" class="border-2 border-dashed border-gray-300 rounded p-8 text-center cursor-pointer hover:border-blue-500 transition">
+          <div id="drop-zone-content">
+            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+              <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <p class="mt-2 text-sm text-gray-600">
+              <span class="font-medium text-blue-600">Click to select</span> or drag and drop an image
+            </p>
+            <p class="text-xs text-gray-500 mt-1">PNG, JPG, WebP up to 10MB</p>
+          </div>
+
+          <div id="preview-container" class="hidden">
+            <img id="preview-image" src="" alt="Preview" class="max-h-64 mx-auto rounded">
+            <button type="button" id="remove-image" class="mt-4 px-4 py-2 bg-red-100 text-red-700 rounded hover:bg-red-200">
+              Remove image
+            </button>
+          </div>
+        </div>
+
+        {{ form.cover }}
+        <style>
+          #id_cover { display: none; }
+        </style>
+      </div>
+
+      <!-- Year -->
+      <div>
+        <label for="{{ form.year.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+          {{ form.year.label }}
+        </label>
+        {{ form.year }}
+      </div>
+    </div>
+
+    <!-- Hidden fields for link mode -->
+    {{ form.cover_url }}
+
+    <!-- Tags (common to both modes) -->
+    <div>
+      <label for="tags-input" class="block text-sm font-medium text-gray-700 mb-2">
+        Tags
+      </label>
+      <input type="text" id="tags-input" name="tags_display" class="w-full" placeholder="Select tags...">
+      <input type="hidden" name="tags_input" id="tags-input-hidden">
+      <p class="mt-1 text-sm text-gray-500">Select from existing tags</p>
+    </div>
+
+    <!-- Notes (common to both modes) -->
+    <div>
+      <label for="{{ form.notes.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+        {{ form.notes.label }}
+      </label>
+      {{ form.notes }}
+    </div>
+
+    <!-- Buttons -->
+    <div class="flex gap-2">
+      <button type="submit" id="btn-submit" class="flex-1 px-6 py-3 bg-blue-600 text-white font-medium rounded hover:bg-blue-700 transition">
+        Submit album
+      </button>
+      <a href="{% url 'collection' %}" class="px-6 py-3 bg-gray-200 text-gray-700 font-medium rounded hover:bg-gray-300 transition">
+        Cancel
+      </a>
+    </div>
+
+    <!-- Info box -->
+    <div class="p-3 bg-blue-50 border border-blue-200 rounded text-blue-700 text-sm">
+      Your submission will be reviewed by an admin before being added to the collection.
+    </div>
+  </form>
+</div>
+
+<style>
+  .tagify {
+    display: flex;
+    align-items: center;
+  }
+  .tagify__tag {
+    margin: 0.2rem 0.2rem 0.2rem 0;
+    display: inline-flex;
+    align-items: center;
+  }
+  .tagify__dropdown__wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 10px;
+  }
+  .tagify__dropdown__item {
+    display: inline-block !important;
+    width: auto !important;
+  }
+</style>
+
+<script>
+  // === Global variables ===
+  let currentMode = 'link';
+
+  // === Toggle between modes ===
+  const btnModeLink = document.getElementById('btn-mode-link');
+  const btnModeManual = document.getElementById('btn-mode-manual');
+  const modeLink = document.getElementById('mode-link');
+  const modeManual = document.getElementById('mode-manual');
+  const hiddenMode = document.getElementById('hidden-mode');
+
+  const activeTabClass = 'flex-1 px-4 py-3 rounded font-medium transition bg-blue-600 text-white flex items-center justify-center gap-2';
+  const inactiveTabClass = 'flex-1 px-4 py-3 rounded font-medium transition bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center justify-center gap-2';
+
+  function switchMode(mode) {
+    currentMode = mode;
+    hiddenMode.value = mode;
+    btnModeLink.className = mode === 'link' ? activeTabClass : inactiveTabClass;
+    btnModeManual.className = mode === 'manual' ? activeTabClass : inactiveTabClass;
+    modeLink.classList.toggle('hidden', mode !== 'link');
+    modeManual.classList.toggle('hidden', mode !== 'manual');
+  }
+
+  btnModeLink.addEventListener('click', () => switchMode('link'));
+  btnModeManual.addEventListener('click', () => switchMode('manual'));
+
+  // === Fetch from link (Deezer / Discogs / Bandcamp) ===
+  const btnFetchLink = document.getElementById('btn-fetch-link');
+  const linkUrlInput = document.getElementById('link-url-input');
+  const linkError = document.getElementById('link-error');
+  const linkLoading = document.getElementById('link-loading');
+  const linkPreview = document.getElementById('link-preview');
+
+  btnFetchLink.addEventListener('click', async () => {
+    const url = linkUrlInput.value.trim();
+
+    if (!url) {
+      linkError.textContent = 'Please enter a link';
+      linkError.classList.remove('hidden');
+      return;
+    }
+
+    linkError.classList.add('hidden');
+    linkPreview.classList.add('hidden');
+    linkLoading.classList.remove('hidden');
+
+    try {
+      const response = await fetch(`{% url 'fetch_album_from_link' %}?url=${encodeURIComponent(url)}`);
+      const data = await response.json();
+      linkLoading.classList.add('hidden');
+
+      if (data.error) {
+        linkError.textContent = data.error;
+        linkError.classList.remove('hidden');
+        return;
+      }
+
+      // Show preview
+      document.getElementById('link-preview-cover').src = data.cover_url;
+      document.getElementById('link-preview-name').textContent = data.name;
+      document.getElementById('link-preview-artist').textContent = data.artist;
+      document.getElementById('link-preview-year').textContent = data.year || 'Unknown';
+      linkPreview.classList.remove('hidden');
+
+      // Fill form fields
+      document.getElementById('id_name').value = data.name;
+      document.getElementById('id_artist_name').value = data.artist;
+      document.getElementById('id_year').value = data.year || '';
+      document.getElementById('id_cover_url').value = data.cover_url;
+
+    } catch {
+      linkLoading.classList.add('hidden');
+      linkError.textContent = 'Connection error';
+      linkError.classList.remove('hidden');
+    }
+  });
+
+  linkUrlInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); btnFetchLink.click(); }
+  });
+
+  // === Manual upload handling ===
+  const dropZone = document.getElementById('drop-zone');
+  const fileInput = document.getElementById('id_cover');
+  const dropZoneContent = document.getElementById('drop-zone-content');
+  const previewContainer = document.getElementById('preview-container');
+  const previewImage = document.getElementById('preview-image');
+  const removeImageBtn = document.getElementById('remove-image');
+
+  dropZone.addEventListener('click', (e) => {
+    if (e.target.id !== 'remove-image' && !e.target.closest('#remove-image')) {
+      fileInput.click();
+    }
+  });
+
+  dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('border-blue-500', 'bg-blue-50');
+  });
+
+  dropZone.addEventListener('dragleave', () => {
+    dropZone.classList.remove('border-blue-500', 'bg-blue-50');
+  });
+
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('border-blue-500', 'bg-blue-50');
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      fileInput.files = files;
+      showPreview(files[0]);
+    }
+  });
+
+  fileInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+      showPreview(e.target.files[0]);
+    }
+  });
+
+  function showPreview(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      previewImage.src = e.target.result;
+      dropZoneContent.classList.add('hidden');
+      previewContainer.classList.remove('hidden');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  removeImageBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    fileInput.value = '';
+    previewImage.src = '';
+    dropZoneContent.classList.remove('hidden');
+    previewContainer.classList.add('hidden');
+  });
+
+  // === Tagify (whitelist enforced - no new tags) ===
+  const tagsInput = document.querySelector('#tags-input');
+  const tagsHidden = document.querySelector('#tags-input-hidden');
+
+  const allTags = {{ all_tags|safe }};
+
+  const tagify = new Tagify(tagsInput, {
+    whitelist: allTags.map(tag => tag.name),
+    dropdown: {
+      maxItems: 20,
+      enabled: 0,
+      closeOnSelect: false,
+      highlightFirst: true
+    },
+    enforceWhitelist: true,  // Users cannot create new tags
+    maxTags: 20,
+    templates: {
+      dropdownItem: function(tagData) {
+        const existingTag = allTags.find(t => t.name === tagData.value);
+        const category = existingTag ? existingTag.category : '';
+        return `<div ${this.getAttributes(tagData)} class='tagify__dropdown__item' tabindex="0" role="option" style='padding: 6px 10px; border-radius: 4px; background: #DBEAFE; color: #1E40AF;'>
+                    <span style='font-size: 0.75rem;'>${tagData.value}</span>
+                    ${category ? `<span style='opacity: 0.6; font-size: 0.65rem; margin-left: 4px;'>${category}</span>` : ''}
+                </div>`;
+      }
+    }
+  });
+
+  tagify.on('add', () => { tagsHidden.value = JSON.stringify(tagify.value); });
+  tagify.on('remove', () => { tagsHidden.value = JSON.stringify(tagify.value); });
+</script>
+{% endblock %}

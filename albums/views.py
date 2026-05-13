@@ -6,8 +6,9 @@ from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User
-from .models import Album, Artist, Tag, UserProfile
-from .forms import AlbumForm, RegisterForm, ProfileForm, AvatarForm
+from .models import Album, Artist, Tag, UserProfile, Submission
+from .forms import AlbumForm, RegisterForm, ProfileForm, AvatarForm, SubmissionForm
+from .services import create_album_from_submission
 from .deezer_api import extract_deezer_album_id, fetch_album_from_deezer
 from .discogs_api import extract_discogs_release_id, fetch_release_from_discogs
 from .bandcamp_api import fetch_album_from_bandcamp
@@ -299,7 +300,7 @@ def register_view(request):
 
 
 @login_required
-def profile_view(request):
+def profile_view(request, section='account'):
     password_updated = False
     user_profile = request.user.userprofile
     profile_form = ProfileForm(instance=request.user)
@@ -321,12 +322,17 @@ def profile_view(request):
                 update_session_auth_hash(request, password_form.user)
                 password_updated = True
 
+    # Get user's submissions for the submissions tab
+    user_submissions = Submission.objects.filter(submitted_by=request.user).prefetch_related('tags')
+
     return render(request, 'albums/profile.html', {
         'profile_form': profile_form,
         'password_form': password_form,
         'avatar_form': avatar_form,
         'user_profile': user_profile,
         'password_updated': password_updated,
+        'user_submissions': user_submissions,
+        'section': section,
     })
 
 
@@ -349,3 +355,66 @@ def delete_account_view(request):
 
 def changelog_view(request):
     return render(request, 'albums/changelog.html')
+
+
+@login_required
+def submit_album_view(request):
+    """View for users to submit albums for review"""
+    if request.method == 'POST':
+        form = SubmissionForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save(user=request.user)
+            return redirect('profile_submissions')
+    else:
+        form = SubmissionForm()
+
+    # Get all tags for autocomplete (whitelist-only selection)
+    all_tags = Tag.objects.all().values('id', 'name', 'category')
+
+    return render(request, 'albums/submit_album.html', {
+        'form': form,
+        'all_tags': list(all_tags),
+    })
+
+
+@login_required
+def submissions_admin_view(request):
+    """Staff-only view to manage pending submissions"""
+    if not request.user.is_staff:
+        return HttpResponseForbidden()
+
+    submissions = Submission.objects.filter(
+        status='pending'
+    ).select_related('submitted_by').prefetch_related('tags')
+
+    return render(request, 'albums/submissions_admin.html', {
+        'submissions': submissions,
+    })
+
+
+@login_required
+def approve_submission_view(request, pk):
+    """Staff action to approve a submission and create an album"""
+    if not request.user.is_staff:
+        return HttpResponseForbidden()
+
+    if request.method == 'POST':
+        submission = get_object_or_404(Submission, pk=pk, status='pending')
+        create_album_from_submission(submission, reviewed_by=request.user)
+        return redirect('submissions_admin')
+
+    return redirect('submissions_admin')
+
+
+@login_required
+def delete_submission_view(request, pk):
+    """Staff action to delete a submission"""
+    if not request.user.is_staff:
+        return HttpResponseForbidden()
+
+    if request.method == 'POST':
+        submission = get_object_or_404(Submission, pk=pk)
+        submission.delete()
+        return redirect('submissions_admin')
+
+    return redirect('submissions_admin')

@@ -121,15 +121,31 @@
             <span class="sidebar-text">Collection</span>
           </a>
           {% if request.user.is_authenticated %}
-          <a href="{% url 'add_album' %}"
-            class="flex items-center pl-2.5 py-2 text-gray-700 gap-x-2 rounded hover:bg-blue-50 {% if request.resolver_match.url_name == 'add_album' %}bg-blue-50 text-blue-600{% endif %}">
-            {% hi "plus" css_class="h-5 w-5 flex-shrink-0" %}
-            <span class="sidebar-text">Add album</span>
-          </a>
+            {% if request.user.is_staff %}
+              <!-- Staff: submissions management -->
+              <a href="{% url 'submissions_admin' %}"
+                class="flex items-center pl-2.5 py-2 text-gray-700 gap-x-2 rounded hover:bg-blue-50 {% if request.resolver_match.url_name == 'submissions_admin' %}bg-blue-50 text-blue-600{% endif %}">
+                {% hi "inbox" css_class="h-5 w-5 flex-shrink-0" %}
+                <span class="sidebar-text">Submissions</span>
+              </a>
+              <!-- Staff: direct add to collection -->
+              <a href="{% url 'add_album' %}"
+                class="flex items-center pl-2.5 py-2 text-gray-700 gap-x-2 rounded hover:bg-blue-50 {% if request.resolver_match.url_name == 'add_album' %}bg-blue-50 text-blue-600{% endif %}">
+                {% hi "plus" css_class="h-5 w-5 flex-shrink-0" %}
+                <span class="sidebar-text">Add album</span>
+              </a>
+            {% else %}
+            <!-- Regular users: submit for review -->
+            <a href="{% url 'submit_album' %}"
+              class="flex items-center pl-2.5 py-2 text-gray-700 gap-x-2 rounded hover:bg-blue-50 {% if request.resolver_match.url_name == 'submit_album' %}bg-blue-50 text-blue-600{% endif %}">
+              {% hi "plus" css_class="h-5 w-5 flex-shrink-0" %}
+              <span class="sidebar-text">Submit album</span>
+            </a>
+            {% endif %}
           {% else %}
-          <span class="flex items-center pl-2.5 py-2 text-gray-300 gap-x-2 rounded cursor-not-allowed select-none" title="Log in to add albums">
+          <span class="flex items-center pl-2.5 py-2 text-gray-300 gap-x-2 rounded cursor-not-allowed select-none" title="Log in to submit albums">
             {% hi "plus" css_class="h-5 w-5 flex-shrink-0" %}
-            <span class="sidebar-text">Add album</span>
+            <span class="sidebar-text">Submit album</span>
           </span>
           {% endif %}
         </nav>

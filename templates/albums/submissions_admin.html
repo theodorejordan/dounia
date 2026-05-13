@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load hi %}
+
+{% block title %}Submissions — Dounia{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto py-8 px-4">
+  <h1 class="text-2xl font-bold text-gray-800 mb-6">Pending Submissions</h1>
+
+  {% if submissions %}
+  <div class="mb-4 text-xs text-gray-600">
+    {{ submissions|length }} submission{{ submissions|length|pluralize }}
+  </div>
+
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+    {% for submission in submissions %}
+    <div class="bg-white border rounded overflow-hidden group">
+      <div class="aspect-square bg-gray-200 relative">
+        {% if submission.cover %}
+        <img src="{{ submission.cover.url }}" alt="{{ submission.name }}" class="w-full h-full object-cover" loading="lazy">
+        {% else %}
+        <div class="w-full h-full flex items-center justify-center text-gray-400">
+          No cover
+        </div>
+        {% endif %}
+
+        <!-- Status badge -->
+        <span class="absolute top-2 left-2 text-xs px-2 py-1 bg-yellow-100 text-yellow-800 rounded">
+          Pending
+        </span>
+      </div>
+      <div class="p-2">
+        <h3 class="font-semibold text-gray-800 truncate">{{ submission.name }}</h3>
+        <div class="flex justify-between items-center gap-x-2">
+          <p class="text-sm text-gray-600 truncate">{{ submission.artist_name }}</p>
+          {% if submission.year %}
+          <p class="text-xs text-gray-500">{{ submission.year }}</p>
+          {% endif %}
+        </div>
+
+        <!-- Tags -->
+        {% if submission.tags.all %}
+        <div class="mt-2 flex flex-wrap gap-1">
+          {% for tag in submission.tags.all|slice:":3" %}
+          <span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 rounded">
+            {{ tag.name }}
+          </span>
+          {% endfor %}
+          {% if submission.tags.count > 3 %}
+          <span class="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">
+            +{{ submission.tags.count|add:"-3" }}
+          </span>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Submitted by -->
+        <p class="mt-2 text-xs text-gray-500">
+          Submitted by <span class="font-medium">{{ submission.submitted_by.username }}</span>
+        </p>
+        <p class="text-xs text-gray-400">{{ submission.created_at|date:"M j, Y" }}</p>
+
+        <!-- Action buttons -->
+        <div class="mt-3 flex gap-2">
+          <form method="post" action="{% url 'approve_submission' submission.pk %}" class="flex-1">
+            {% csrf_token %}
+            <button type="submit" class="w-full px-3 py-1.5 text-xs bg-green-100 text-green-600 rounded hover:bg-green-200 transition-colors flex items-center justify-center gap-1">
+              {% hi "check" css_class="h-3 w-3" %}
+              Accept
+            </button>
+          </form>
+          <form method="post" action="{% url 'delete_submission' submission.pk %}" class="flex-1" onsubmit="return confirm('Delete this submission?');">
+            {% csrf_token %}
+            <button type="submit" class="w-full px-3 py-1.5 text-xs bg-red-100 text-red-600 rounded hover:bg-red-200 transition-colors flex items-center justify-center gap-1">
+              {% hi "trash" css_class="h-3 w-3" %}
+              Delete
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center py-16">
+    <div class="text-gray-400 mb-4">
+      {% hi "inbox" css_class="h-16 w-16 mx-auto" %}
+    </div>
+    <p class="text-gray-600 text-lg">No pending submissions</p>
+    <p class="text-gray-500 text-sm mt-1">New submissions from users will appear here</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
