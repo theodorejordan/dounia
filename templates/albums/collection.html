@@ -74,7 +74,8 @@
     pointer-events: none;
   }
 
-  #filter-form.loading input {
+  #filter-form.loading input,
+  #filter-form.loading .tagify {
     background-color: #f3f4f6 !important;
     cursor: not-allowed !important;
   }
@@ -127,6 +128,7 @@
   .tagify {
     display: flex;
     align-items: center;
+    min-height: 43.39px;
   }
 
   .tagify__tag {
@@ -709,6 +711,8 @@
     if (event.detail.target.id === 'album-grid-container') {
       form.classList.add('loading');
       gridWrapper.classList.add('loading');
+      artistInput.readOnly = true;
+      tagify.DOM.input.setAttribute('contenteditable', 'false');
     }
   });
 
@@ -717,6 +721,8 @@
     if (event.detail.target.id === 'album-grid-container') {
       form.classList.remove('loading');
       gridWrapper.classList.remove('loading');
+      artistInput.readOnly = false;
+      tagify.DOM.input.setAttribute('contenteditable', 'true');
       // Re-initialize Load More button
       initializeLoadMore();
 
