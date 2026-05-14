@@ -182,6 +182,7 @@ def create_album_from_submission(submission: Submission, reviewed_by) -> Album:
         cover=submission.cover,
         year=submission.year,
         notes=submission.notes,
+        submitted_by=submission.submitted_by,
     )
 
     # Copy tags

@@ -122,6 +122,9 @@ class Album(models.Model):
 
     # Relations
     tags = models.ManyToManyField(Tag, related_name='albums', blank=True)
+    submitted_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True, related_name='submitted_albums'
+    )
 
     # Métadonnées
     created_at = models.DateTimeField(auto_now_add=True)

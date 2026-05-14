@@ -150,7 +150,7 @@
     
     <!-- Boutons -->
     <div class="flex gap-2">
-      <button type="submit" id="btn-submit" class="flex-1 px-6 py-3 bg-blue-600 text-white font-medium rounded hover:bg-blue-700 transition">
+      <button type="submit" id="btn-submit" disabled class="flex-1 px-6 py-3 bg-gray-300 text-gray-500 font-medium rounded cursor-not-allowed transition">
         Add album
       </button>
       <a href="{% url 'collection' %}" class="px-6 py-3 bg-gray-200 text-gray-700 font-medium rounded hover:bg-gray-300 transition">
@@ -367,8 +367,19 @@
     }
   });
 
-  tagify.on('add', () => { tagsHidden.value = JSON.stringify(tagify.value); });
-  tagify.on('remove', () => { tagsHidden.value = JSON.stringify(tagify.value); });
+  const btnSubmit = document.getElementById('btn-submit');
+
+  function updateSubmitBtn() {
+    tagsHidden.value = JSON.stringify(tagify.value);
+    const hasTags = tagify.value.length > 0;
+    btnSubmit.disabled = !hasTags;
+    btnSubmit.className = hasTags
+      ? 'flex-1 px-6 py-3 bg-blue-600 text-white font-medium rounded hover:bg-blue-700 transition'
+      : 'flex-1 px-6 py-3 bg-gray-300 text-gray-500 font-medium rounded cursor-not-allowed transition';
+  }
+
+  tagify.on('add', updateSubmitBtn);
+  tagify.on('remove', updateSubmitBtn);
 
   // === Duplicate check on submit ===
   const albumForm = document.getElementById('album-form');

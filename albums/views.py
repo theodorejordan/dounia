@@ -8,7 +8,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User
 from .models import Album, Artist, Tag, UserProfile, Submission
 from .forms import AlbumForm, RegisterForm, ProfileForm, AvatarForm, SubmissionForm
-from .services import create_album_from_submission
+from .services import create_album_from_submission, sync_album_tags
 from .deezer_api import extract_deezer_album_id, fetch_album_from_deezer
 from .discogs_api import extract_discogs_release_id, fetch_release_from_discogs
 from .bandcamp_api import fetch_album_from_bandcamp
@@ -22,7 +22,7 @@ def collection_view(request):
     selected_tags = request.GET.getlist('tags')
 
     # Apply filters using custom manager
-    albums = Album.objects.select_related('artist').prefetch_related('tags').with_filters(
+    albums = Album.objects.select_related('artist', 'submitted_by__userprofile').prefetch_related('tags').with_filters(
         artist_search=artist_search,
         category=selected_category,
         tags=selected_tags
@@ -56,7 +56,10 @@ def add_album_view(request):
     if request.method == 'POST':
         form = AlbumForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
+            album = form.save(commit=False)
+            album.submitted_by = request.user
+            album.save()
+            sync_album_tags(album, form.cleaned_data.get('tags_input', ''))
             return redirect('collection')
     else:
         form = AlbumForm()
@@ -221,7 +224,7 @@ def albums_paginated_api(request):
     selected_tags = request.GET.getlist('tags')
 
     # Apply filters using custom manager
-    albums = Album.objects.select_related('artist').prefetch_related('tags').with_filters(
+    albums = Album.objects.select_related('artist', 'submitted_by__userprofile').prefetch_related('tags').with_filters(
         artist_search=artist_search,
         category=selected_category,
         tags=selected_tags
@@ -263,7 +266,7 @@ def album_grid_partial(request):
     selected_tags = request.GET.getlist('tags')
 
     # Apply filters using custom manager
-    albums = Album.objects.select_related('artist').prefetch_related('tags').with_filters(
+    albums = Album.objects.select_related('artist', 'submitted_by__userprofile').prefetch_related('tags').with_filters(
         artist_search=artist_search,
         category=selected_category,
         tags=selected_tags
@@ -322,7 +325,6 @@ def profile_view(request, section='account'):
                 update_session_auth_hash(request, password_form.user)
                 password_updated = True
 
-    # Get user's submissions for the submissions tab
     user_submissions = Submission.objects.filter(submitted_by=request.user).prefetch_related('tags')
 
     return render(request, 'albums/profile.html', {

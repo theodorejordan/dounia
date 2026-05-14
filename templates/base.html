@@ -110,11 +110,11 @@
     <!-- Sidebar -->
     <aside id="sidebar" class="w-48 bg-white border-r transition-all duration-300 flex-shrink-0 sticky top-0 h-screen flex flex-col">
       <!-- Top: logo + nav -->
-      <div class="p-2 flex-1 overflow-y-auto">
+      <div class="p-1 flex-1 overflow-y-auto">
         <div class="flex items-center justify-start p-2">
           <h1 class="text-2xl font-bold text-gray-800">Dounia</h1>
         </div>
-        <nav class="space-y-2">
+        <nav class="flex flex-col gap-y-1">
           <a href="{% url 'collection' %}"
             class="flex items-center pl-2.5 py-2 text-gray-700 gap-x-2 rounded hover:bg-blue-50 {% if request.resolver_match.url_name == 'collection' %}bg-blue-50 text-blue-600{% endif %}">
             {% hi "book-open" css_class="h-5 w-5 flex-shrink-0" %}
@@ -124,9 +124,14 @@
             {% if request.user.is_staff %}
               <!-- Staff: submissions management -->
               <a href="{% url 'submissions_admin' %}"
-                class="flex items-center pl-2.5 py-2 text-gray-700 gap-x-2 rounded hover:bg-blue-50 {% if request.resolver_match.url_name == 'submissions_admin' %}bg-blue-50 text-blue-600{% endif %}">
+                class="flex items-center px-2.5 py-2 text-gray-700 gap-x-2 rounded hover:bg-blue-50 {% if request.resolver_match.url_name == 'submissions_admin' %}bg-blue-50 text-blue-600{% endif %}">
                 {% hi "inbox" css_class="h-5 w-5 flex-shrink-0" %}
-                <span class="sidebar-text">Submissions</span>
+                <span class="sidebar-text flex items-center w-full justify-between">
+                  Submissions
+                  <span class="text-xs leading-none">
+                    {{ pending_submissions_count }}
+                  </span>
+                </span>
               </a>
               <!-- Staff: direct add to collection -->
               <a href="{% url 'add_album' %}"
@@ -152,14 +157,14 @@
       </div>
 
       <!-- Bottom: changelog + profile widget -->
-      <div class="p-2 border-t">
+      <div class="p-1 border-t">
         <a href="{% url 'changelog' %}"
           class="flex items-center pl-2.5 py-2 text-gray-700 rounded gap-x-2 hover:bg-blue-50 {% if request.resolver_match.url_name == 'changelog' %}bg-blue-50 text-blue-600{% endif %}">
           {% hi "clock" css_class="h-5 w-5 flex-shrink-0" %}
           <span class="sidebar-text">Changelog</span>
         </a>
       </div>
-      <div class="p-2 border-t">
+      <div class="p-1 border-t">
         {% if request.user.is_authenticated %}
           <a href="{% url 'profile' %}" class="flex items-center p-2 rounded hover:bg-blue-50 gap-2">
             {% if request.user.userprofile.avatar %}
