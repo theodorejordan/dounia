@@ -30,7 +30,9 @@
     <div class="p-2">
       <h3 class="font-semibold text-gray-800 truncate">{{ album.name }}</h3>
       <div class="flex justify-between items-center gap-x-2">
-        <p class="text-sm text-gray-600 truncate">{{ album.artist.name }}</p>
+        <p class="artist-clickable text-sm text-gray-600 truncate cursor-pointer hover:underline"
+           data-artist-id="{{ album.artist.id }}"
+           data-artist-name="{{ album.artist.name }}">{{ album.artist.name }}</p>
         {% if album.year %}
         <p class="text-xs text-gray-500">{{ album.year }}</p>
         {% endif %}
@@ -75,7 +77,9 @@
         {% else %}
           <div class="w-4 h-4 rounded bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold flex-shrink-0">{{ album.submitted_by.username|first|upper }}</div>
         {% endif %}
-        <span class="text-xs text-gray-500 truncate">{{ album.submitted_by.username }}</span>
+        <span class="contributor-clickable text-xs text-gray-500 truncate cursor-pointer hover:underline"
+              data-contributor-id="{{ album.submitted_by.id }}"
+              data-contributor-name="{{ album.submitted_by.username }}">{{ album.submitted_by.username }}</span>
       </div>
       {% endif %}
     </div>

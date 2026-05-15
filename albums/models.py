@@ -6,12 +6,13 @@ from django.utils.text import slugify
 class AlbumQuerySet(models.QuerySet):
     """Custom queryset for Album with reusable filter logic"""
 
-    def with_filters(self, artist_search=None, category=None, tags=None):
+    def with_filters(self, artist_search=None, contributor=None, category=None, tags=None):
         """
         Apply filters to albums based on search criteria.
 
         Args:
             artist_search: Filter by artist name (case-insensitive)
+            contributor: Filter by contributor username (case-insensitive)
             category: Filter by tag category
             tags: List of tag IDs (all must match)
 
@@ -23,6 +24,10 @@ class AlbumQuerySet(models.QuerySet):
         # Filter by artist name
         if artist_search:
             queryset = queryset.filter(artist__name__icontains=artist_search)
+
+        # Filter by contributor username
+        if contributor:
+            queryset = queryset.filter(submitted_by__username__icontains=contributor)
 
         # Filter by tag category
         if category:

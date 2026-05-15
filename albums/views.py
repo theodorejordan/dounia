@@ -18,12 +18,14 @@ def collection_view(request):
     """Vue de la collection avec filtres"""
     # Get filter parameters
     artist_search = request.GET.get('artist', '').strip()
+    contributor_search = request.GET.get('contributor', '').strip()
     selected_category = request.GET.get('category', '').strip()
     selected_tags = request.GET.getlist('tags')
 
     # Apply filters using custom manager
     albums = Album.objects.select_related('artist', 'submitted_by__userprofile').prefetch_related('tags').with_filters(
         artist_search=artist_search,
+        contributor=contributor_search,
         category=selected_category,
         tags=selected_tags
     )
@@ -36,13 +38,22 @@ def collection_view(request):
     # Récupérer tous les tags pour les filtres
     all_tags = Tag.objects.all().order_by('category', 'name')
 
+    # Get all artists and contributors for unified filter whitelist
+    all_artists = Artist.objects.annotate(album_count=Count('albums')).order_by('-album_count', 'name')
+    all_contributors = User.objects.filter(
+        submitted_albums__isnull=False
+    ).annotate(album_count=Count('submitted_albums')).distinct().order_by('-album_count', 'username')
+
     context = {
         'albums': page_obj,
         'all_tags': all_tags,
+        'all_artists': all_artists,
+        'all_contributors': all_contributors,
         'selected_tags': [int(t) for t in selected_tags if t.isdigit()],
+        'selected_artist': artist_search,
+        'selected_contributor': contributor_search,
         'albums_count': total_count,
         'has_more': page_obj.has_next(),
-        'artist_search': artist_search,
         'selected_category': selected_category,
         'tag_categories': Tag.CATEGORY_CHOICES,
     }
@@ -197,6 +208,30 @@ def artists_autocomplete(request):
     return JsonResponse(result, safe=False)
 
 
+def contributors_autocomplete(request):
+    """API for contributor autocomplete with album count"""
+    query = request.GET.get('q', '').strip()
+
+    # Get users who have submitted at least one album
+    contributors = User.objects.filter(
+        submitted_albums__isnull=False
+    ).annotate(
+        album_count=Count('submitted_albums')
+    ).distinct()
+
+    if query:
+        contributors = contributors.filter(username__icontains=query)
+
+    contributors = contributors.order_by('-album_count', 'username')[:15]
+
+    result = [
+        {'username': user.username, 'album_count': user.album_count}
+        for user in contributors
+    ]
+
+    return JsonResponse(result, safe=False)
+
+
 def check_duplicate_album(request):
     """API to check if an album with the same name and artist already exists"""
     name = request.GET.get('name', '').strip()
@@ -220,12 +255,14 @@ def albums_paginated_api(request):
     """API endpoint for paginated albums (returns JSON)"""
     # Get filter parameters
     artist_search = request.GET.get('artist', '').strip()
+    contributor_search = request.GET.get('contributor', '').strip()
     selected_category = request.GET.get('category', '').strip()
     selected_tags = request.GET.getlist('tags')
 
     # Apply filters using custom manager
     albums = Album.objects.select_related('artist', 'submitted_by__userprofile').prefetch_related('tags').with_filters(
         artist_search=artist_search,
+        contributor=contributor_search,
         category=selected_category,
         tags=selected_tags
     )
@@ -238,16 +275,24 @@ def albums_paginated_api(request):
     # Build the JSON response
     albums_data = []
     for album in page_obj:
+        submitted_by = None
+        if album.submitted_by:
+            submitted_by = {
+                'id': album.submitted_by.id,
+                'username': album.submitted_by.username,
+                'avatar_url': album.submitted_by.userprofile.avatar.url if album.submitted_by.userprofile.avatar else None
+            }
         albums_data.append({
             'id': album.id,
             'name': album.name,
-            'artist': {'name': album.artist.name},
+            'artist': {'id': album.artist.id, 'name': album.artist.name},
             'year': album.year,
             'cover_url': album.cover.url if album.cover else None,
             'tags': [
                 {'id': tag.id, 'name': tag.name, 'category': tag.get_category_display()}
                 for tag in album.tags.all()
-            ]
+            ],
+            'submitted_by': submitted_by
         })
 
     return JsonResponse({
@@ -262,12 +307,14 @@ def album_grid_partial(request):
     """HTMX endpoint - returns just the album grid HTML"""
     # Get filter parameters
     artist_search = request.GET.get('artist', '').strip()
+    contributor_search = request.GET.get('contributor', '').strip()
     selected_category = request.GET.get('category', '').strip()
     selected_tags = request.GET.getlist('tags')
 
     # Apply filters using custom manager
     albums = Album.objects.select_related('artist', 'submitted_by__userprofile').prefetch_related('tags').with_filters(
         artist_search=artist_search,
+        contributor=contributor_search,
         category=selected_category,
         tags=selected_tags
     )

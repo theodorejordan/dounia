@@ -116,9 +116,12 @@
         </div>
         <nav class="flex flex-col gap-y-1">
           <a href="{% url 'collection' %}"
-            class="flex items-center pl-2.5 py-2 text-gray-700 gap-x-2 rounded hover:bg-blue-50 {% if request.resolver_match.url_name == 'collection' %}bg-blue-50 text-blue-600{% endif %}">
+            class="flex items-center px-2.5 py-2 text-gray-700 gap-x-2 rounded hover:bg-blue-50 {% if request.resolver_match.url_name == 'collection' %}bg-blue-50 text-blue-600{% endif %}">
             {% hi "book-open" css_class="h-5 w-5 flex-shrink-0" %}
-            <span class="sidebar-text">Collection</span>
+            <span class="sidebar-text flex items-center w-full justify-between">
+              Collection
+              <span class="text-xs leading-none">{{ total_albums_count }}</span>
+            </span>
           </a>
           {% if request.user.is_authenticated %}
             {% if request.user.is_staff %}

@@ -1,5 +1,5 @@
 from django.db.models import prefetch_related_objects
-from .models import Submission
+from .models import Album, Submission
 
 
 def user_profile(request):
@@ -15,4 +15,9 @@ def user_profile(request):
                 submitted_by=request.user, status='pending'
             ).count()
 
-    return {'pending_submissions_count': pending_submissions_count}
+    total_albums_count = Album.objects.count()
+
+    return {
+        'pending_submissions_count': pending_submissions_count,
+        'total_albums_count': total_albums_count,
+    }

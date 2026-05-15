@@ -4,29 +4,13 @@
 
 {% block content %}
 <div class="max-w-[82rem] mx-auto">
-  <!-- Barre de recherche avec filtres tags -->
+  <!-- Unified filter bar -->
   <div class="mb-4 border bg-white p-4 rounded">
     <form method="GET" action="{% url 'collection' %}" id="filter-form">
+      <!-- Single unified filter input -->
       <div class="relative mb-3">
-        <input
-          type="text"
-          name="artist"
-          id="artist-search"
-          placeholder="Search by artist..."
-          value="{{ artist_search }}"
-          autocomplete="off"
-          class="w-full px-3 py-2 pr-10 border border-gray-300 rounded focus:outline-none"
-        >
-        <button type="button" id="clear-artist" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 hidden">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-          </svg>
-        </button>
-        <div id="artist-dropdown" class="absolute z-10 w-full bg-white border border-gray-300 rounded mt-1 hidden max-h-60 overflow-y-auto"></div>
-      </div>
-      <div class="relative mb-3">
-        <input id="tags-filter" placeholder="Filter by tags..." class="12 w-full">
-        <button type="button" id="clear-tags" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 hidden z-10">
+        <input id="unified-filter" placeholder="Filter by artist, contributor, or tags..." class="w-full">
+        <button type="button" id="clear-filters" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 hidden z-10">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
           </svg>
@@ -154,24 +138,41 @@
 <script>
   const IS_STAFF = {{ request.user.is_staff|yesno:"true,false" }};
 
-  // Initialiser Tagify pour le multi-select avec recherche
-  const input = document.querySelector('#tags-filter');
+  // ====== UNIFIED FILTER SETUP ======
+  const input = document.querySelector('#unified-filter');
   const form = document.getElementById('filter-form');
   const hiddenInputsContainer = document.getElementById('hidden-tags-inputs');
-  
-  // Préparer la liste de tous les tags disponibles
-  const allTagsWhitelist = [
-  {% for tag in all_tags %}
-  "{{ tag.id }}|{{ tag.name }}|{{ tag.get_category_display }}",
-  {% endfor %}
+  const clearFiltersBtn = document.getElementById('clear-filters');
+
+  // Type styling configuration
+  const TYPE_CONFIG = {
+    tag: { label: 'Tag', bg: '#DBEAFE', color: '#1E40AF', chipBg: '#DBEAFE' },
+    artist: { label: 'Artist', bg: '#D1FAE5', color: '#065F46', chipBg: '#D1FAE5' },
+    contributor: { label: 'By', bg: '#FEF3C7', color: '#92400E', chipBg: '#FEF3C7' }
+  };
+
+  // Build unified whitelist: type|id|name|extra
+  const unifiedWhitelist = [
+    // Tags: tag|id|name|category
+    {% for tag in all_tags %}
+    "tag|{{ tag.id }}|{{ tag.name }}|{{ tag.get_category_display }}",
+    {% endfor %}
+    // Artists: artist|id|name|album_count
+    {% for artist in all_artists %}
+    "artist|{{ artist.id }}|{{ artist.name|escapejs }}|{{ artist.album_count }}",
+    {% endfor %}
+    // Contributors: contributor|id|username|album_count
+    {% for user in all_contributors %}
+    "contributor|{{ user.id }}|{{ user.username|escapejs }}|{{ user.album_count }}",
+    {% endfor %}
   ];
-  
+
   const tagify = new Tagify(input, {
     enforceWhitelist: true,
-    whitelist: allTagsWhitelist,
+    whitelist: unifiedWhitelist,
     dropdown: {
       enabled: 1,
-      maxItems: 50,
+      maxItems: 30,
       closeOnSelect: false,
       highlightFirst: true,
       searchKeys: ['value']
@@ -179,88 +180,134 @@
     templates: {
       tag: function(tagData) {
         const parts = tagData.value.split('|');
-        const tagId = parts[0];
-        const tagName = parts[1];
-        const tagCategory = parts[2];
-        return `<tag title="${tagName} (${tagCategory})" contenteditable='false' spellcheck='false' class='tagify__tag' data-tag-id="${tagId}">
-                    <x title='Remove tag' class='tagify__tag__removeBtn' role='button'></x>
+        const type = parts[0];
+        const name = parts[2];
+        const config = TYPE_CONFIG[type] || TYPE_CONFIG.tag;
+        return `<tag title="${name}" contenteditable='false' spellcheck='false'
+                    class='tagify__tag' style='--tag-bg: ${config.chipBg}; --tag-text-color: ${config.color};'>
+                    <x title='Remove' class='tagify__tag__removeBtn' role='button'></x>
                     <div>
-                        <span style='font-size: 0.80rem;'>${tagName}</span>
+                        <span style='font-size: 0.80rem;'>${name}</span>
                     </div>
                 </tag>`;
       },
       dropdownItem: function(tagData) {
         const parts = (tagData.value || '').split('|');
-        const tagName = parts[1] || tagData.value;
-        const tagCategory = parts[2] || '';
-        return `<div ${this.getAttributes(tagData)} class='tagify__dropdown__item' tabindex="0" role="option" style='padding: 6px 10px; border-radius: 4px; background: #DBEAFE; color: #1E40AF;'>
-                    <span style='font-size: 0.75rem;'>${tagName}</span>
-                    <span style='opacity: 0.6; font-size: 0.65rem; margin-left: 4px;'>${tagCategory}</span>
+        const type = parts[0];
+        const name = parts[2] || tagData.value;
+        const extra = parts[3] || '';
+        const config = TYPE_CONFIG[type] || TYPE_CONFIG.tag;
+
+        // Format extra info based on type
+        let extraText = '';
+        if (type === 'tag') {
+          extraText = extra; // category name
+        } else {
+          extraText = extra + ' album' + (parseInt(extra) !== 1 ? 's' : '');
+        }
+
+        return `<div ${this.getAttributes(tagData)} class='tagify__dropdown__item' tabindex="0" role="option"
+                    style='padding: 6px 10px; border-radius: 4px; background: ${config.bg}; color: ${config.color};'>
+                    <span style='font-size: 0.75rem;'>${name}</span>
+                    <span style='opacity: 0.6; font-size: 0.65rem; margin-left: 4px;'>${extraText}</span>
                 </div>`;
       }
     },
     transformTag: function(tagData) {
       const parts = tagData.value.split('|');
-      tagData.id = parts[0];
-      tagData.name = parts[1];
-      tagData.category = parts[2];
+      tagData.type = parts[0];
+      tagData.id = parts[1];
+      tagData.name = parts[2];
+      tagData.extra = parts[3];
     }
   });
-  
-  // Function to update hidden inputs
+
+  // Function to update hidden inputs based on selected filters
   function updateHiddenInputs() {
     hiddenInputsContainer.innerHTML = '';
-    const tags = tagify.value;
-    tags.forEach(tag => {
-      const parts = tag.value.split('|');
-      const tagId = parts[0];
+    tagify.value.forEach(item => {
+      const parts = item.value.split('|');
+      const type = parts[0];
+      const id = parts[1];
+      const name = parts[2];
+
       const hiddenInput = document.createElement('input');
       hiddenInput.type = 'hidden';
-      hiddenInput.name = 'tags';
-      hiddenInput.value = tagId;
+
+      if (type === 'tag') {
+        hiddenInput.name = 'tags';
+        hiddenInput.value = id;
+      } else if (type === 'artist') {
+        hiddenInput.name = 'artist';
+        hiddenInput.value = name;
+      } else if (type === 'contributor') {
+        hiddenInput.name = 'contributor';
+        hiddenInput.value = name;
+      }
+
       hiddenInputsContainer.appendChild(hiddenInput);
     });
   }
-  
-  // Mettre à jour les inputs cachés quand on ajoute/supprime un tag
+
+  // Update hidden inputs on add/remove
   tagify.on('add', updateHiddenInputs);
   tagify.on('remove', updateHiddenInputs);
 
   // Flag to prevent form submission during initialization
   let isInitializing = true;
 
-  // Submit form when tag is added or removed (after initialization)
+  // Submit form when filter is added or removed (after initialization)
   tagify.on('add', function() {
     if (!isInitializing) {
-      updateHiddenInputs();
       triggerFilterUpdate();
     }
   });
   tagify.on('remove', function() {
     if (!isInitializing) {
-      updateHiddenInputs();
       triggerFilterUpdate();
     }
   });
 
-  // Initialiser avec les tags déjà sélectionnés
+  // Initialize with pre-selected filters from URL
+  const initialFilters = [];
+
+  // Add selected tags
   const selectedTags = {{ selected_tags|safe }};
-  if (selectedTags.length > 0) {
-    const selectedTagsData = [];
-    {% for tag in all_tags %}
-    {% if tag.id in selected_tags %}
-    selectedTagsData.push("{{ tag.id }}|{{ tag.name }}|{{ tag.get_category_display }}");
-    {% endif %}
+  {% for tag in all_tags %}
+  if (selectedTags.includes({{ tag.id }})) {
+    initialFilters.push("tag|{{ tag.id }}|{{ tag.name }}|{{ tag.get_category_display }}");
+  }
+  {% endfor %}
+
+  // Add selected artist
+  const selectedArtist = "{{ selected_artist|escapejs }}";
+  if (selectedArtist) {
+    {% for artist in all_artists %}
+    if ("{{ artist.name|escapejs }}" === selectedArtist) {
+      initialFilters.push("artist|{{ artist.id }}|{{ artist.name|escapejs }}|{{ artist.album_count }}");
+    }
     {% endfor %}
-    tagify.addTags(selectedTagsData);
+  }
+
+  // Add selected contributor
+  const selectedContributor = "{{ selected_contributor|escapejs }}";
+  if (selectedContributor) {
+    {% for user in all_contributors %}
+    if ("{{ user.username|escapejs }}" === selectedContributor) {
+      initialFilters.push("contributor|{{ user.id }}|{{ user.username|escapejs }}|{{ user.album_count }}");
+    }
+    {% endfor %}
+  }
+
+  if (initialFilters.length > 0) {
+    tagify.addTags(initialFilters);
     updateHiddenInputs();
   }
 
-  // Initialization complete, enable auto-submit
+  // Initialization complete
   isInitializing = false;
 
   // ====== CLICKABLE TAGS IN GRID ======
-  // Use event delegation to handle clicks on tags (both initial and dynamically loaded)
   document.addEventListener('click', function(e) {
     const tagElement = e.target.closest('.tag-clickable');
     if (!tagElement) return;
@@ -272,160 +319,88 @@
     const tagName = tagElement.dataset.tagName;
     const tagCategory = tagElement.dataset.tagCategory;
 
-    // Format: "id|name|category" (same as Tagify whitelist)
-    const tagValue = `${tagId}|${tagName}|${tagCategory}`;
+    // Format: "tag|id|name|category"
+    const tagValue = `tag|${tagId}|${tagName}|${tagCategory}`;
 
-    // Check if tag is already in Tagify
-    const existingTags = tagify.value;
-    const isAlreadyAdded = existingTags.some(tag => tag.value === tagValue);
+    // Check if already added
+    const isAlreadyAdded = tagify.value.some(item => item.value === tagValue);
 
     if (!isAlreadyAdded) {
       tagify.addTags([tagValue]);
-      // Form submission happens automatically via Tagify's 'add' event listener
     }
   });
 
-  // Autocomplete pour la recherche d'artistes
-  const artistInput = document.getElementById('artist-search');
-  const artistDropdown = document.getElementById('artist-dropdown');
-  let debounceTimer;
-  let selectedIndex = -1;
-
-  artistInput.addEventListener('input', function() {
-    clearTimeout(debounceTimer);
-    const query = this.value.trim();
-
-    debounceTimer = setTimeout(() => {
-      if (query.length >= 1) {
-        fetchArtists(query);
-      } else {
-        hideDropdown();
-      }
-    }, 200);
-  });
-
-  function fetchArtists(query) {
-    fetch(`{% url 'artists_autocomplete' %}?q=${encodeURIComponent(query)}`)
-      .then(response => response.json())
-      .then(artists => {
-        if (artists.length > 0) {
-          renderDropdown(artists);
-        } else {
-          hideDropdown();
-        }
-      });
-  }
-
-  function renderDropdown(artists) {
-    selectedIndex = -1;
-    artistDropdown.innerHTML = artists.map((artist, index) => `
-      <div class="artist-option px-3 py-2 cursor-pointer hover:bg-blue-50 flex items-center" data-index="${index}" data-name="${artist.name}">
-        <span class="font-medium text-gray-800">${artist.name}</span>
-        <span class="text-xs text-gray-500 ml-2">(${artist.album_count} album${artist.album_count > 1 ? 's' : ''})</span>
-      </div>
-    `).join('');
-    artistDropdown.classList.remove('hidden');
-
-    // Add click handlers
-    artistDropdown.querySelectorAll('.artist-option').forEach(option => {
-      option.addEventListener('click', function() {
-        artistInput.value = this.dataset.name;
-        hideDropdown();
-        updateHiddenInputs();
-        triggerFilterUpdate();
-      });
-    });
-  }
-
-  function hideDropdown() {
-    artistDropdown.classList.add('hidden');
-    selectedIndex = -1;
-  }
-
-  // Keyboard navigation
-  artistInput.addEventListener('keydown', function(e) {
-    const options = artistDropdown.querySelectorAll('.artist-option');
-    if (options.length === 0 || artistDropdown.classList.contains('hidden')) return;
-
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      selectedIndex = Math.min(selectedIndex + 1, options.length - 1);
-      updateSelection(options);
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      selectedIndex = Math.max(selectedIndex - 1, 0);
-      updateSelection(options);
-    } else if (e.key === 'Enter' && selectedIndex >= 0) {
-      e.preventDefault();
-      artistInput.value = options[selectedIndex].dataset.name;
-      hideDropdown();
-      updateHiddenInputs();
-      triggerFilterUpdate();
-    } else if (e.key === 'Escape') {
-      hideDropdown();
-    }
-  });
-
-  function updateSelection(options) {
-    options.forEach((opt, i) => {
-      if (i === selectedIndex) {
-        opt.classList.add('bg-blue-100');
-        opt.scrollIntoView({ block: 'nearest' });
-      } else {
-        opt.classList.remove('bg-blue-100');
-      }
-    });
-  }
-
-  // Hide dropdown when clicking outside
+  // ====== CLICKABLE ARTIST IN GRID ======
   document.addEventListener('click', function(e) {
-    if (!artistInput.contains(e.target) && !artistDropdown.contains(e.target)) {
-      hideDropdown();
+    const artistElement = e.target.closest('.artist-clickable');
+    if (!artistElement) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const artistId = artistElement.dataset.artistId;
+
+    // Find matching entry in whitelist (must match exactly for enforceWhitelist)
+    const artistValue = unifiedWhitelist.find(item => item.startsWith(`artist|${artistId}|`));
+
+    if (!artistValue) return; // Artist not in whitelist
+
+    // Check if already added
+    const isAlreadyAdded = tagify.value.some(item => item.value === artistValue);
+
+    if (!isAlreadyAdded) {
+      // Remove any existing artist filter (only one artist at a time)
+      const existingArtist = tagify.value.find(item => item.value.startsWith('artist|'));
+      if (existingArtist) {
+        tagify.removeTags(existingArtist.value);
+      }
+      tagify.addTags([artistValue]);
     }
   });
 
-  // Clear buttons functionality
-  const clearArtistBtn = document.getElementById('clear-artist');
-  const clearTagsBtn = document.getElementById('clear-tags');
+  // ====== CLICKABLE CONTRIBUTOR IN GRID ======
+  document.addEventListener('click', function(e) {
+    const contributorElement = e.target.closest('.contributor-clickable');
+    if (!contributorElement) return;
 
-  // Show/hide clear artist button based on input value
-  function updateClearArtistVisibility() {
-    if (artistInput.value.trim().length > 0) {
-      clearArtistBtn.classList.remove('hidden');
-    } else {
-      clearArtistBtn.classList.add('hidden');
+    e.preventDefault();
+    e.stopPropagation();
+
+    const contributorId = contributorElement.dataset.contributorId;
+
+    // Find matching entry in whitelist (must match exactly for enforceWhitelist)
+    const contributorValue = unifiedWhitelist.find(item => item.startsWith(`contributor|${contributorId}|`));
+
+    if (!contributorValue) return; // Contributor not in whitelist
+
+    // Check if already added
+    const isAlreadyAdded = tagify.value.some(item => item.value === contributorValue);
+
+    if (!isAlreadyAdded) {
+      // Remove any existing contributor filter (only one contributor at a time)
+      const existingContributor = tagify.value.find(item => item.value.startsWith('contributor|'));
+      if (existingContributor) {
+        tagify.removeTags(existingContributor.value);
+      }
+      tagify.addTags([contributorValue]);
     }
-  }
+  });
 
-  // Show/hide clear tags button based on tagify value
-  function updateClearTagsVisibility() {
+  // Clear all filters button
+  function updateClearFiltersVisibility() {
     if (tagify.value.length > 0) {
-      clearTagsBtn.classList.remove('hidden');
+      clearFiltersBtn.classList.remove('hidden');
     } else {
-      clearTagsBtn.classList.add('hidden');
+      clearFiltersBtn.classList.add('hidden');
     }
   }
 
-  // Initialize visibility on page load
-  updateClearArtistVisibility();
-  updateClearTagsVisibility();
+  updateClearFiltersVisibility();
+  tagify.on('add', updateClearFiltersVisibility);
+  tagify.on('remove', updateClearFiltersVisibility);
 
-  // Update visibility on input change
-  artistInput.addEventListener('input', updateClearArtistVisibility);
-  tagify.on('add', updateClearTagsVisibility);
-  tagify.on('remove', updateClearTagsVisibility);
-
-  // Clear artist input and submit
-  clearArtistBtn.addEventListener('click', function() {
-    artistInput.value = '';
-    updateHiddenInputs();
-    triggerFilterUpdate();
-  });
-
-  // Clear tags and submit
-  clearTagsBtn.addEventListener('click', function() {
+  clearFiltersBtn.addEventListener('click', function() {
     tagify.removeAllTags();
-    updateHiddenInputs();
     triggerFilterUpdate();
   });
 
@@ -440,23 +415,26 @@
   function triggerFilterUpdate() {
     const params = new URLSearchParams();
 
-    // Add artist filter
-    const artistValue = document.getElementById('artist-search').value.trim();
-    if (artistValue) {
-      params.set('artist', artistValue);
-    }
+    // Parse unified filter values by type
+    tagify.value.forEach(item => {
+      const parts = item.value.split('|');
+      const type = parts[0];
+      const id = parts[1];
+      const name = parts[2];
+
+      if (type === 'tag') {
+        params.append('tags', id);
+      } else if (type === 'artist') {
+        params.set('artist', name);
+      } else if (type === 'contributor') {
+        params.set('contributor', name);
+      }
+    });
 
     // Add category filter
     if (categoryInput.value) {
       params.set('category', categoryInput.value);
     }
-
-    // Add tag filters
-    const tagValues = tagify.value;
-    tagValues.forEach(tag => {
-      const tagId = tag.value.split('|')[0];
-      params.append('tags', tagId);
-    });
 
     // Update browser URL to match current filters
     const newUrl = params.toString()
@@ -491,9 +469,11 @@
   // Check icon SVG for selected state
   const CHECK_ICON = `<svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>`;
 
-  // Helper: Get selected tag IDs from Tagify
+  // Helper: Get selected tag IDs from Tagify (only items of type 'tag')
   function getSelectedTagIds() {
-    return tagify.value.map(tag => parseInt(tag.value.split('|')[0]));
+    return tagify.value
+      .filter(item => item.value.startsWith('tag|'))
+      .map(item => parseInt(item.value.split('|')[1]));
   }
 
   // Helper: Get all tag IDs for a category
@@ -510,10 +490,11 @@
   // Helper: Remove all tags from a category
   function removeCategoryTagsFromTagify(category) {
     const tagIdsInCategory = getTagIdsInCategory(category);
-    tagify.value.forEach(tag => {
-      const tagId = parseInt(tag.value.split('|')[0]);
+    tagify.value.forEach(item => {
+      if (!item.value.startsWith('tag|')) return;
+      const tagId = parseInt(item.value.split('|')[1]);
       if (tagIdsInCategory.includes(tagId)) {
-        tagify.removeTags(tag.value);
+        tagify.removeTags(item.value);
       }
     });
   }
@@ -667,8 +648,10 @@
     const selectedTagIds = getSelectedTagIds();
 
     if (selectedTagIds.includes(tagId)) {
-      // Toggle off: remove tag
-      const tagToRemove = tagify.value.find(tag => parseInt(tag.value.split('|')[0]) === tagId);
+      // Toggle off: remove tag (format: tag|id|name|category)
+      const tagToRemove = tagify.value.find(item =>
+        item.value.startsWith('tag|') && parseInt(item.value.split('|')[1]) === tagId
+      );
       if (tagToRemove) {
         tagify.removeTags(tagToRemove.value);
       }
@@ -676,7 +659,7 @@
       // Toggle on: add tag, clear category filter
       categoryInput.value = '';
       const categoryLabel = getCategoryLabel(selectedCategory);
-      const tagValue = `${tagId}|${tagName}|${categoryLabel}`;
+      const tagValue = `tag|${tagId}|${tagName}|${categoryLabel}`;
       tagify.addTags([tagValue]);
     }
   }
@@ -711,7 +694,6 @@
     if (event.detail.target.id === 'album-grid-container') {
       form.classList.add('loading');
       gridWrapper.classList.add('loading');
-      artistInput.readOnly = true;
       tagify.DOM.input.setAttribute('contenteditable', 'false');
     }
   });
@@ -721,7 +703,6 @@
     if (event.detail.target.id === 'album-grid-container') {
       form.classList.remove('loading');
       gridWrapper.classList.remove('loading');
-      artistInput.readOnly = false;
       tagify.DOM.input.setAttribute('contenteditable', 'true');
       // Re-initialize Load More button
       initializeLoadMore();
@@ -801,17 +782,20 @@
   function buildApiUrl(page) {
     const params = new URLSearchParams({ page });
 
-    // Add artist filter
-    const artistValue = artistInput.value.trim();
-    if (artistValue) {
-      params.set('artist', artistValue);
-    }
+    // Parse unified filter values by type
+    tagify.value.forEach(item => {
+      const parts = item.value.split('|');
+      const type = parts[0];
+      const id = parts[1];
+      const name = parts[2];
 
-    // Add selected tags
-    const tagValues = tagify.value;
-    tagValues.forEach(tag => {
-      const tagId = tag.value.split('|')[0];
-      params.append('tags', tagId);
+      if (type === 'tag') {
+        params.append('tags', id);
+      } else if (type === 'artist') {
+        params.set('artist', name);
+      } else if (type === 'contributor') {
+        params.set('contributor', name);
+      }
     });
 
     // Add category filter
@@ -849,6 +833,22 @@
       </div>`;
     }
 
+    // Build submitted by HTML
+    let submittedByHtml = '';
+    if (album.submitted_by) {
+      const avatarHtml = album.submitted_by.avatar_url
+        ? `<img src="${album.submitted_by.avatar_url}" alt="" class="w-4 h-4 rounded object-cover flex-shrink-0">`
+        : `<div class="w-4 h-4 rounded bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold flex-shrink-0">${album.submitted_by.username.charAt(0).toUpperCase()}</div>`;
+      submittedByHtml = `
+        <div class="mt-2 pt-2 border-t border-gray-200 flex items-center gap-1.5">
+          ${avatarHtml}
+          <span class="contributor-clickable text-xs text-gray-500 truncate cursor-pointer hover:underline"
+                data-contributor-id="${album.submitted_by.id}"
+                data-contributor-name="${escapeHtml(album.submitted_by.username)}">${escapeHtml(album.submitted_by.username)}</span>
+        </div>
+      `;
+    }
+
     card.innerHTML = `
       <div class="aspect-square bg-gray-200 relative">
         ${coverHtml}
@@ -864,9 +864,12 @@
       </div>
       <div class="p-2">
         <h3 class="font-semibold text-gray-800 truncate">${escapeHtml(album.name)}</h3>
-        <p class="text-sm text-gray-600 truncate">${escapeHtml(album.artist.name)}</p>
+        <p class="artist-clickable text-sm text-gray-600 truncate cursor-pointer hover:underline"
+           data-artist-id="${album.artist.id}"
+           data-artist-name="${escapeHtml(album.artist.name)}">${escapeHtml(album.artist.name)}</p>
         ${album.year ? `<p class="text-xs text-gray-500">${album.year}</p>` : ''}
         ${tagsHtml}
+        ${submittedByHtml}
       </div>
     `;
 
