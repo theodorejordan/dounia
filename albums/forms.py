@@ -46,7 +46,7 @@ class AlbumForm(forms.ModelForm):
         required=False,
         label="Deezer link",
         widget=forms.TextInput(attrs={
-            'class': 'w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+            'class': 'w-full px-4 py-2 border border-gray-300 rounded outline-none',
             'placeholder': 'https://www.deezer.com/album/302127'
         })
     )
@@ -62,7 +62,7 @@ class AlbumForm(forms.ModelForm):
         required=False,
         label="Artist",
         widget=forms.TextInput(attrs={
-            'class': 'w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+            'class': 'w-full px-4 py-2 border border-gray-300 rounded outline-none',
             'placeholder': 'Artist name'
         })
     )
@@ -87,7 +87,7 @@ class AlbumForm(forms.ModelForm):
         }
         widgets = {
             'name': forms.TextInput(attrs={
-                'class': 'w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded outline-none',
                 'placeholder': 'Album name'
             }),
             'cover': forms.FileInput(attrs={
@@ -95,13 +95,13 @@ class AlbumForm(forms.ModelForm):
                 'accept': 'image/*'
             }),
             'year': forms.NumberInput(attrs={
-                'class': 'w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded outline-none',
                 'placeholder': '2024',
                 'min': 1900,
                 'max': 2100
             }),
             'notes': forms.Textarea(attrs={
-                'class': 'w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded outline-none',
                 'placeholder': 'Notes about this album...',
                 'rows': 4
             })
@@ -162,7 +162,7 @@ class SubmissionForm(forms.ModelForm):
         required=False,
         label="Import link",
         widget=forms.TextInput(attrs={
-            'class': 'w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+            'class': 'w-full px-4 py-2 border border-gray-300 rounded outline-none',
             'placeholder': 'https://www.deezer.com/album/302127'
         })
     )
@@ -178,7 +178,7 @@ class SubmissionForm(forms.ModelForm):
         required=False,
         label="Artist",
         widget=forms.TextInput(attrs={
-            'class': 'w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+            'class': 'w-full px-4 py-2 border border-gray-300 rounded outline-none',
             'placeholder': 'Artist name'
         })
     )
@@ -203,7 +203,7 @@ class SubmissionForm(forms.ModelForm):
         }
         widgets = {
             'name': forms.TextInput(attrs={
-                'class': 'w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded outline-none',
                 'placeholder': 'Album name'
             }),
             'cover': forms.FileInput(attrs={
@@ -211,13 +211,13 @@ class SubmissionForm(forms.ModelForm):
                 'accept': 'image/*'
             }),
             'year': forms.NumberInput(attrs={
-                'class': 'w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded outline-none',
                 'placeholder': '2024',
                 'min': 1900,
                 'max': 2100
             }),
             'notes': forms.Textarea(attrs={
-                'class': 'w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded outline-none',
                 'placeholder': 'Notes about this album...',
                 'rows': 4
             })

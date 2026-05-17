@@ -3,44 +3,44 @@
 {% block title %}Collection — Dounia{% endblock %}
 
 {% block content %}
-<div class="max-w-[82rem] mx-auto">
-  <!-- Unified filter bar -->
-  <div class="mb-4 border bg-white p-4 rounded">
-    <form method="GET" action="{% url 'collection' %}" id="filter-form">
-      <!-- Single unified filter input -->
-      <div class="relative mb-3">
-        <input id="unified-filter" placeholder="Filter by artist, contributor, or tags..." class="w-full">
-        <button type="button" id="clear-filters" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 hidden z-10">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-          </svg>
-        </button>
-      </div>
-      <div id="hidden-tags-inputs"></div>
-      <input type="hidden" name="category" id="category-input" value="{{ selected_category }}">
+<!-- Unified filter bar: full-width, sticky -->
+<div class="sticky top-0 z-10 bg-white border-b px-6 py-4">
+  <form method="GET" action="{% url 'collection' %}" id="filter-form">
+    <!-- Single unified filter input -->
+    <div class="relative mb-3">
+      <input id="unified-filter" placeholder="Filter by artist, contributor, or tags..." class="w-full">
+      <button type="button" id="clear-filters" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 hidden z-10">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+        </svg>
+      </button>
+    </div>
+    <div id="hidden-tags-inputs"></div>
+    <input type="hidden" name="category" id="category-input" value="{{ selected_category }}">
 
-      <!-- Category filter buttons -->
-      <div class="flex flex-wrap gap-1">
-        {% for category_key, category_label in tag_categories %}
-        <button
-          type="button"
-          data-category="{{ category_key }}"
-          data-label="{{ category_label }}"
-          class="category-btn px-2 py-1 text-xs rounded transition-colors text-blue-800 hover:bg-blue-200"
-        >
-          {{ category_label }}
-        </button>
-        {% endfor %}
-      </div>
+    <!-- Category filter buttons -->
+    <div class="flex flex-wrap gap-1">
+      {% for category_key, category_label in tag_categories %}
+      <button
+        type="button"
+        data-category="{{ category_key }}"
+        data-label="{{ category_label }}"
+        class="category-btn px-2 py-1 text-xs rounded transition-colors text-blue-800 hover:bg-blue-200"
+      >
+        {{ category_label }}
+      </button>
+      {% endfor %}
+    </div>
 
-      <!-- Second row for child tags (initially hidden) -->
-      <div id="tags-row" class="mt-3 hidden transition-all">
-        <div id="tags-row-buttons" class="flex flex-wrap gap-1"></div>
-      </div>
-    </form>
-  </div>
-  
-  <!-- Album grid wrapper -->
+    <!-- Second row for child tags (initially hidden) -->
+    <div id="tags-row" class="mt-3 hidden transition-all">
+      <div id="tags-row-buttons" class="flex flex-wrap gap-1"></div>
+    </div>
+  </form>
+</div>
+
+<!-- Album grid -->
+<div class="max-w-[82rem] mx-auto px-6 pt-4">
   <div id="album-grid-wrapper" class="relative">
     <div id="album-grid-container">
       {% include 'albums/_album_grid.html' %}
