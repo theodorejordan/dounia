@@ -78,9 +78,12 @@ Dounia is a collaborative album collection platform:
 
 - **More import sources** — YouTube Music, Apple Music, RateYourMusic
 - **Homepage** — latest albums, latest projects, search
-- **Album detail drawer** — slide-in panel with full album info
-- **Comments** — users can comment on albums
+- **Album detail drawer** — right side slide-in panel with full album info
+- **Comments** — users can comment on albums inside the right side panel
 - **Dounia logo illustration**
+- **Clicking on artist to filter**
+- **one single filter bar with every filter available**
+- **count on collection**
 
 ---
 
