@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load static hi %}
+
+{% block title %}My Submissions — Dounia{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto py-8 px-4">
+  <h1 class="text-xl font-bold text-gray-800 mb-6">My Submissions</h1>
+  <div class="bg-white border border-gray-200 rounded-lg p-6">
+    {% if user_submissions %}
+    <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
+      {% for submission in user_submissions %}
+      <div class="bg-white border rounded overflow-hidden group">
+        <div class="aspect-square bg-gray-200 relative">
+          {% if submission.cover %}
+          <img src="{{ submission.cover.url }}" alt="{{ submission.name }}" class="w-full h-full object-cover" loading="lazy">
+          {% else %}
+          <div class="w-full h-full flex items-center justify-center text-gray-400">No cover</div>
+          {% endif %}
+          <span class="absolute top-2 left-2 text-xs px-2 py-1 rounded
+            {% if submission.status == 'pending' %}bg-yellow-100 text-yellow-800
+            {% elif submission.status == 'approved' %}bg-green-100 text-green-800
+            {% else %}bg-red-100 text-red-800{% endif %}">
+            {{ submission.get_status_display }}
+          </span>
+        </div>
+        <div class="p-2">
+          <h3 class="font-semibold text-gray-800 truncate">{{ submission.name }}</h3>
+          <div class="flex justify-between items-center gap-x-2">
+            <p class="text-sm text-gray-600 truncate">{{ submission.artist_name }}</p>
+            {% if submission.year %}<p class="text-xs text-gray-500">{{ submission.year }}</p>{% endif %}
+          </div>
+          {% if submission.tags.all %}
+          <div class="mt-2 flex flex-wrap gap-1">
+            {% for tag in submission.tags.all|slice:":3" %}
+            <span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 rounded">{{ tag.name }}</span>
+            {% endfor %}
+            {% if submission.tags.count > 3 %}
+            <span class="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">+{{ submission.tags.count|add:"-3" }}</span>
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-gray-500 text-sm">You haven't submitted any albums yet.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

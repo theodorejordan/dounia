@@ -350,7 +350,7 @@ def register_view(request):
 
 
 @login_required
-def profile_view(request, section='account'):
+def profile_view(request):
     password_updated = False
     user_profile = request.user.userprofile
     profile_form = ProfileForm(instance=request.user)
@@ -372,16 +372,11 @@ def profile_view(request, section='account'):
                 update_session_auth_hash(request, password_form.user)
                 password_updated = True
 
-    user_submissions = Submission.objects.filter(submitted_by=request.user).prefetch_related('tags')
-
     return render(request, 'albums/profile.html', {
         'profile_form': profile_form,
         'password_form': password_form,
-        'avatar_form': avatar_form,
         'user_profile': user_profile,
         'password_updated': password_updated,
-        'user_submissions': user_submissions,
-        'section': section,
     })
 
 
@@ -404,6 +399,14 @@ def delete_account_view(request):
 
 def changelog_view(request):
     return render(request, 'albums/changelog.html')
+
+
+@login_required
+def user_submissions_view(request):
+    user_submissions = Submission.objects.filter(submitted_by=request.user).prefetch_related('tags')
+    return render(request, 'albums/my_submissions.html', {
+        'user_submissions': user_submissions,
+    })
 
 
 @login_required

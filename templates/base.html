@@ -10,6 +10,15 @@
   <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
   <script src="https://unpkg.com/htmx.org@1.9.10"></script>
   <style>
+    @font-face {
+      font-family: 'Retropix';
+      src: url("{% static 'fonts/retropix.otf' %}") format('opentype');
+    }
+    .font-retropix {
+      font-family: 'Retropix', sans-serif;
+    }
+  </style>
+  <style>
     /* Tagify base styling */
     .tagify {
       border: 1px solid #d1d5db;
@@ -112,7 +121,7 @@
       <!-- Top: logo + nav -->
       <div class="p-1 flex-1 overflow-y-auto">
         <div class="flex items-center justify-start p-2">
-          <h1 class="text-2xl font-bold text-gray-800">Dounia</h1>
+          <h1 class="text-3xl font-retropix text-gray-800 text-center w-full">dounia</h1>
         </div>
         <nav class="flex flex-col gap-y-1">
           <a href="{% url 'collection' %}"
@@ -144,6 +153,14 @@
               </a>
             {% else %}
             <!-- Regular users: submit for review -->
+            <a href="{% url 'profile_submissions' %}"
+              class="flex items-center px-2.5 py-2 text-gray-700 gap-x-2 rounded hover:bg-blue-50 {% if request.resolver_match.url_name == 'profile_submissions' %}bg-blue-50 text-blue-600{% endif %}">
+              {% hi "inbox" css_class="h-5 w-5 flex-shrink-0" %}
+              <span class="sidebar-text flex items-center w-full justify-between">
+                My submissions
+                <span class="text-xs leading-none">{{ pending_submissions_count }}</span>
+              </span>
+            </a>
             <a href="{% url 'submit_album' %}"
               class="flex items-center pl-2.5 py-2 text-gray-700 gap-x-2 rounded hover:bg-blue-50 {% if request.resolver_match.url_name == 'submit_album' %}bg-blue-50 text-blue-600{% endif %}">
               {% hi "plus" css_class="h-5 w-5 flex-shrink-0" %}
