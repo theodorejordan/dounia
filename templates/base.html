@@ -119,11 +119,13 @@
     <!-- Sidebar -->
     <aside id="sidebar" class="w-56 bg-white border-r transition-all duration-300 flex-shrink-0 sticky top-0 h-screen flex flex-col">
       <!-- Top: logo + nav -->
-      <div class="p-1 flex-1 overflow-y-auto">
-        <a href="{% url 'collection' %}" class="flex items-center justify-start p-2 cursor-pointer">
-          <h1 class="text-3xl font-retropix text-gray-800 text-center w-full">dounia</h1>
-        </a>
-        <nav class="flex flex-col gap-y-1">
+      <div class="flex-1 overflow-y-auto">
+        <div class="border-b">
+          <a href="{% url 'collection' %}" class="flex items-center justify-start p-2 cursor-pointer">
+            <h1 class="text-3xl font-retropix text-gray-800 text-center w-full">dounia</h1>
+          </a>
+        </div>
+        <nav class="flex flex-col p-1 gap-y-1">
           <a href="{% url 'collection' %}"
             class="flex items-center px-2.5 py-2 text-gray-700 gap-x-2 rounded hover:bg-blue-50 {% if request.resolver_match.url_name == 'collection' %}bg-blue-50 text-blue-600{% endif %}">
             {% hi "book-open" css_class="h-5 w-5 flex-shrink-0" %}
