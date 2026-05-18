@@ -3,129 +3,272 @@
 {% block title %}Changelog — Dounia{% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto py-8 px-4">
-  <h1 class="text-2xl font-bold text-gray-900 mb-8">Changelog</h1>
+<!-- Sticky header -->
+<div class="sticky top-0 z-10 bg-white border-b px-6 py-4">
+  <h1 class="text-2xl font-bold text-gray-800">Changelog</h1>
+</div>
 
-  <article class="mb-10">
-    <h2 class="text-lg font-semibold text-gray-900">v0.4.3</h2>
-    <p class="text-sm text-gray-500 mb-3">May 17, 2026</p>
+<!-- Content -->
+<div class="max-w-2xl mx-auto py-8 px-4 space-y-1">
 
-    <h3 class="text-sm font-medium text-gray-700 mt-4 mb-2">Features</h3>
-    <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
-      <li>My submissions is now a standalone page, accessible from the sidebar</li>
-    </ul>
+  <article class="changelog-entry" data-open="true">
+    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded transition-colors">
+      <div class="flex items-center gap-3">
+        <h2 class="text-lg font-semibold text-gray-900">v0.4.4</h2>
+        <span class="text-sm text-gray-500">May 18, 2026</span>
+      </div>
+      <svg class="changelog-chevron h-5 w-5 text-gray-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </button>
+    <div class="changelog-content">
+      <div class="pb-6">
+        <h3 class="text-sm font-medium text-gray-700 mt-2 mb-2">Features</h3>
+        <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
+          <li>Discogs master URL support</li>
+          <li>Clickable logo links to collection</li>
+          <li>Collapsible changelog entries</li>
+        </ul>
 
-    <h3 class="text-sm font-medium text-gray-700 mt-4 mb-2">Styling</h3>
-    <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
-      <li>"Dounia" title uses the Retropix font</li>
-      <li>Profile page simplified: no tab navigation, content shown directly</li>
-      <li>Removed the delete account option</li>
-      <li>Log out button moved to the bottom of the profile page</li>
-    </ul>
+        <h3 class="text-sm font-medium text-gray-700 mt-4 mb-2">Styling</h3>
+        <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
+          <li>Sticky headers on all pages</li>
+          <li>Link/Manual toggle moved to header</li>
+          <li>Simplified form layouts (no white cards)</li>
+          <li>My submissions URL changed to /my-submissions/</li>
+        </ul>
+      </div>
+    </div>
   </article>
 
-  <article class="mb-10">
-    <h2 class="text-lg font-semibold text-gray-900">v0.4.2</h2>
-    <p class="text-sm text-gray-500 mb-3">May 15, 2026</p>
+  <article class="changelog-entry">
+    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded transition-colors">
+      <div class="flex items-center gap-3">
+        <h2 class="text-lg font-semibold text-gray-900">v0.4.3</h2>
+        <span class="text-sm text-gray-500">May 17, 2026</span>
+      </div>
+      <svg class="changelog-chevron h-5 w-5 text-gray-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </button>
+    <div class="changelog-content">
+      <div class="pb-6">
+        <h3 class="text-sm font-medium text-gray-700 mt-2 mb-2">Features</h3>
+        <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
+          <li>My submissions is now a standalone page, accessible from the sidebar</li>
+        </ul>
 
-    <h3 class="text-sm font-medium text-gray-700 mt-4 mb-2">Features</h3>
-    <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
-      <li>Unified filter bar: single input to filter by artist, contributor, or tags</li>
-      <li>Album count displayed next to Collection in sidebar</li>
-      <li>Clickable artist names on album cards to filter by artist</li>
-      <li>Clickable contributor names on album cards to filter by contributor</li>
-      <li>Color-coded filter chips (blue for tags, green for artists, amber for contributors)</li>
-    </ul>
+        <h3 class="text-sm font-medium text-gray-700 mt-4 mb-2">Styling</h3>
+        <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
+          <li>"Dounia" title uses the Retropix font</li>
+          <li>Profile page simplified: no tab navigation, content shown directly</li>
+          <li>Removed the delete account option</li>
+          <li>Log out button moved to the bottom of the profile page</li>
+        </ul>
+      </div>
+    </div>
   </article>
 
-  <article class="mb-10">
-    <h2 class="text-lg font-semibold text-gray-900">v0.4.1</h2>
-    <p class="text-sm text-gray-500 mb-3">May 14, 2026</p>
-
-    <h3 class="text-sm font-medium text-gray-700 mt-4 mb-2">Features</h3>
-    <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
-      <li>Album cards now show the user who submitted them (avatar + username)</li>
-      <li>Pending submissions count badge in sidebar and profile nav</li>
-      <li>Albums require at least one tag before submission</li>
-    </ul>
-
-    <h3 class="text-sm font-medium text-gray-700 mt-4 mb-2">Fixes</h3>
-    <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
-      <li>Tags now correctly saved when admin adds an album directly</li>
-    </ul>
+  <article class="changelog-entry">
+    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded transition-colors">
+      <div class="flex items-center gap-3">
+        <h2 class="text-lg font-semibold text-gray-900">v0.4.2</h2>
+        <span class="text-sm text-gray-500">May 15, 2026</span>
+      </div>
+      <svg class="changelog-chevron h-5 w-5 text-gray-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </button>
+    <div class="changelog-content">
+      <div class="pb-6">
+        <h3 class="text-sm font-medium text-gray-700 mt-2 mb-2">Features</h3>
+        <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
+          <li>Unified filter bar: single input to filter by artist, contributor, or tags</li>
+          <li>Album count displayed next to Collection in sidebar</li>
+          <li>Clickable artist names on album cards to filter by artist</li>
+          <li>Clickable contributor names on album cards to filter by contributor</li>
+          <li>Color-coded filter chips (blue for tags, green for artists, amber for contributors)</li>
+        </ul>
+      </div>
+    </div>
   </article>
 
-  <article class="mb-10">
-    <h2 class="text-lg font-semibold text-gray-900">v0.4.0</h2>
-    <p class="text-sm text-gray-500 mb-3">May 13, 2026</p>
+  <article class="changelog-entry">
+    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded transition-colors">
+      <div class="flex items-center gap-3">
+        <h2 class="text-lg font-semibold text-gray-900">v0.4.1</h2>
+        <span class="text-sm text-gray-500">May 14, 2026</span>
+      </div>
+      <svg class="changelog-chevron h-5 w-5 text-gray-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </button>
+    <div class="changelog-content">
+      <div class="pb-6">
+        <h3 class="text-sm font-medium text-gray-700 mt-2 mb-2">Features</h3>
+        <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
+          <li>Album cards now show the user who submitted them (avatar + username)</li>
+          <li>Pending submissions count badge in sidebar and profile nav</li>
+          <li>Albums require at least one tag before submission</li>
+        </ul>
 
-    <h3 class="text-sm font-medium text-gray-700 mt-4 mb-2">Features</h3>
-    <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
-      <li>Registered users can now submit albums for review</li>
-      <li>Track your submissions and their status in your profile</li>
-      <li>Redesigned profile page with sidebar navigation</li>
-    </ul>
-
-    <h3 class="text-sm font-medium text-gray-700 mt-4 mb-2">Fixes</h3>
-    <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
-      <li>Profile now has separate pages for account info and submissions</li>
-      <li>Logout now asks for confirmation</li>
-    </ul>
+        <h3 class="text-sm font-medium text-gray-700 mt-4 mb-2">Fixes</h3>
+        <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
+          <li>Tags now correctly saved when admin adds an album directly</li>
+        </ul>
+      </div>
+    </div>
   </article>
 
-  <article class="mb-10">
-    <h2 class="text-lg font-semibold text-gray-900">v0.3.3</h2>
-    <p class="text-sm text-gray-500 mb-3">May 11, 2026</p>
+  <article class="changelog-entry">
+    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded transition-colors">
+      <div class="flex items-center gap-3">
+        <h2 class="text-lg font-semibold text-gray-900">v0.4.0</h2>
+        <span class="text-sm text-gray-500">May 13, 2026</span>
+      </div>
+      <svg class="changelog-chevron h-5 w-5 text-gray-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </button>
+    <div class="changelog-content">
+      <div class="pb-6">
+        <h3 class="text-sm font-medium text-gray-700 mt-2 mb-2">Features</h3>
+        <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
+          <li>Registered users can now submit albums for review</li>
+          <li>Track your submissions and their status in your profile</li>
+          <li>Redesigned profile page with sidebar navigation</li>
+        </ul>
 
-    <h3 class="text-sm font-medium text-gray-700 mt-4 mb-2">Features</h3>
-    <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
-      <li>Add loading state feedback when filtering (spinner overlay on grid, disabled filter inputs)</li>
-      <li>Add lazy loading attribute to album cover images</li>
-      <li>Reduce pagination from 50 to 40 albums per page</li>
-    </ul>
+        <h3 class="text-sm font-medium text-gray-700 mt-4 mb-2">Fixes</h3>
+        <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
+          <li>Profile now has separate pages for account info and submissions</li>
+          <li>Logout now asks for confirmation</li>
+        </ul>
+      </div>
+    </div>
   </article>
 
-  <article class="mb-10">
-    <h2 class="text-lg font-semibold text-gray-900">v0.3.2</h2>
-    <p class="text-sm text-gray-500 mb-3">May 6, 2026</p>
-
-    <h3 class="text-sm font-medium text-gray-700 mt-4 mb-2">Styling</h3>
-    <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
-      <li>Unify filter pills with album tile tags (same shape, background, size)</li>
-      <li>Add check icon to selected filters</li>
-      <li>Fix sidebar link heights for consistency</li>
-    </ul>
+  <article class="changelog-entry">
+    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded transition-colors">
+      <div class="flex items-center gap-3">
+        <h2 class="text-lg font-semibold text-gray-900">v0.3.3</h2>
+        <span class="text-sm text-gray-500">May 11, 2026</span>
+      </div>
+      <svg class="changelog-chevron h-5 w-5 text-gray-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </button>
+    <div class="changelog-content">
+      <div class="pb-6">
+        <h3 class="text-sm font-medium text-gray-700 mt-2 mb-2">Features</h3>
+        <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
+          <li>Add loading state feedback when filtering (spinner overlay on grid, disabled filter inputs)</li>
+          <li>Add lazy loading attribute to album cover images</li>
+          <li>Reduce pagination from 50 to 40 albums per page</li>
+        </ul>
+      </div>
+    </div>
   </article>
 
-  <article class="mb-10">
-    <h2 class="text-lg font-semibold text-gray-900">v0.3.1</h2>
-    <p class="text-sm text-gray-500 mb-3">May 6, 2026</p>
+  <article class="changelog-entry">
+    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded transition-colors">
+      <div class="flex items-center gap-3">
+        <h2 class="text-lg font-semibold text-gray-900">v0.3.2</h2>
+        <span class="text-sm text-gray-500">May 6, 2026</span>
+      </div>
+      <svg class="changelog-chevron h-5 w-5 text-gray-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </button>
+    <div class="changelog-content">
+      <div class="pb-6">
+        <h3 class="text-sm font-medium text-gray-700 mt-2 mb-2">Styling</h3>
+        <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
+          <li>Unify filter pills with album tile tags (same shape, background, size)</li>
+          <li>Add check icon to selected filters</li>
+          <li>Fix sidebar link heights for consistency</li>
+        </ul>
+      </div>
+    </div>
+  </article>
 
-    <h3 class="text-sm font-medium text-gray-700 mt-4 mb-2">Features</h3>
-    <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
-      <li>Add delete account button to profile page</li>
-      <li>Add user avatar with profile upload and sidebar display</li>
-      <li>Add auth system with login, register, and profile pages</li>
-      <li>Add changelog page and sidebar link</li>
-    </ul>
+  <article class="changelog-entry">
+    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded transition-colors">
+      <div class="flex items-center gap-3">
+        <h2 class="text-lg font-semibold text-gray-900">v0.3.1</h2>
+        <span class="text-sm text-gray-500">May 6, 2026</span>
+      </div>
+      <svg class="changelog-chevron h-5 w-5 text-gray-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </button>
+    <div class="changelog-content">
+      <div class="pb-6">
+        <h3 class="text-sm font-medium text-gray-700 mt-2 mb-2">Features</h3>
+        <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
+          <li>Add delete account button to profile page</li>
+          <li>Add user avatar with profile upload and sidebar display</li>
+          <li>Add auth system with login, register, and profile pages</li>
+          <li>Add changelog page and sidebar link</li>
+        </ul>
 
-    <h3 class="text-sm font-medium text-gray-700 mt-4 mb-2">Fixes</h3>
-    <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
-      <li>Fix Back to Home links in login and register pages</li>
-      <li>Fix sidebar text alignment with profile widget</li>
-    </ul>
+        <h3 class="text-sm font-medium text-gray-700 mt-4 mb-2">Fixes</h3>
+        <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
+          <li>Fix Back to Home links in login and register pages</li>
+          <li>Fix sidebar text alignment with profile widget</li>
+        </ul>
 
-    <h3 class="text-sm font-medium text-gray-700 mt-4 mb-2">Styling</h3>
-    <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
-      <li>Reduce gap in album grid</li>
-      <li>Refine UI spacing and hover states across templates</li>
-      <li>Increase gap in add album link input row</li>
-      <li>Increase sidebar icon sizes and refine profile widget</li>
-      <li>Clean up login page UI to match register page</li>
-      <li>Reduce sidebar text size</li>
-      <li>Use blue background for active category filter</li>
-    </ul>
+        <h3 class="text-sm font-medium text-gray-700 mt-4 mb-2">Styling</h3>
+        <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
+          <li>Reduce gap in album grid</li>
+          <li>Refine UI spacing and hover states across templates</li>
+          <li>Increase gap in add album link input row</li>
+          <li>Increase sidebar icon sizes and refine profile widget</li>
+          <li>Clean up login page UI to match register page</li>
+          <li>Reduce sidebar text size</li>
+          <li>Use blue background for active category filter</li>
+        </ul>
+      </div>
+    </div>
   </article>
 
 </div>
+
+<style>
+  .changelog-content {
+    display: grid;
+    grid-template-rows: 0fr;
+    overflow: hidden;
+    transition: grid-template-rows 0.2s ease-out;
+  }
+
+  .changelog-content > div {
+    overflow: hidden;
+    min-height: 0;
+    visibility: hidden;
+  }
+
+  .changelog-entry[data-open="true"] .changelog-content {
+    grid-template-rows: 1fr;
+  }
+
+  .changelog-entry[data-open="true"] .changelog-content > div {
+    visibility: visible;
+  }
+
+  .changelog-entry[data-open="true"] .changelog-chevron {
+    transform: rotate(180deg);
+  }
+</style>
+
+<script>
+  document.querySelectorAll('.changelog-entry').forEach(entry => {
+    const header = entry.querySelector('.changelog-header');
+
+    header.addEventListener('click', () => {
+      const isOpen = entry.dataset.open === 'true';
+      entry.dataset.open = isOpen ? 'false' : 'true';
+    });
+  });
+</script>
 {% endblock %}

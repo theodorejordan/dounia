@@ -4,21 +4,26 @@
 {% block title %}Add album — Dounia{% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto flex flex-col justify-center min-h-screen py-8">
-
+<!-- Sticky header -->
+<div class="sticky top-0 z-10 bg-white border-b px-6 py-4 flex items-center justify-between">
+  <h1 class="text-2xl font-bold text-gray-800">Add album</h1>
   <!-- Toggle entre les 2 modes -->
-  <div class="bg-white border p-2 rounded mb-6 flex gap-2">
-    <button id="btn-mode-link" type="button" class="flex-1 px-4 py-3 rounded font-medium transition bg-blue-600 text-white flex items-center justify-center gap-2">
+  <div class="flex gap-2">
+    <button id="btn-mode-link" type="button" class="px-4 py-2 rounded font-medium transition bg-blue-600 text-white flex items-center gap-2">
       {% hi "link" css_class="h-4 w-4" %}
       Link
     </button>
-    <button id="btn-mode-manual" type="button" class="flex-1 px-4 py-3 rounded font-medium transition bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center justify-center gap-2">
+    <button id="btn-mode-manual" type="button" class="px-4 py-2 rounded font-medium transition bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center gap-2">
       {% hi "pencil-alt" css_class="h-4 w-4" %}
       Manual
     </button>
   </div>
+</div>
+
+<!-- Content -->
+<div class="max-w-2xl mx-auto flex flex-col justify-center py-8 px-4">
   
-  <form method="POST" enctype="multipart/form-data" id="album-form" class="bg-white border p-8 rounded space-y-6">
+  <form method="POST" enctype="multipart/form-data" id="album-form" class="space-y-6">
     {% csrf_token %}
 
     <!-- Champ caché pour indiquer le mode au backend -->
@@ -212,8 +217,8 @@
   const modeManual = document.getElementById('mode-manual');
   const hiddenMode = document.getElementById('hidden-mode');
 
-  const activeTabClass = 'flex-1 px-4 py-3 rounded font-medium transition bg-blue-600 text-white flex items-center justify-center gap-2';
-  const inactiveTabClass = 'flex-1 px-4 py-3 rounded font-medium transition bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center justify-center gap-2';
+  const activeTabClass = 'px-4 py-2 rounded font-medium transition bg-blue-600 text-white flex items-center gap-2';
+  const inactiveTabClass = 'px-4 py-2 rounded font-medium transition bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center gap-2';
 
   function switchMode(mode) {
     currentMode = mode;

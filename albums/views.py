@@ -10,7 +10,7 @@ from .models import Album, Artist, Tag, UserProfile, Submission
 from .forms import AlbumForm, RegisterForm, ProfileForm, AvatarForm, SubmissionForm
 from .services import create_album_from_submission, sync_album_tags
 from .deezer_api import extract_deezer_album_id, fetch_album_from_deezer
-from .discogs_api import extract_discogs_release_id, fetch_release_from_discogs
+from .discogs_api import fetch_from_discogs
 from .bandcamp_api import fetch_album_from_bandcamp
 
 
@@ -112,16 +112,12 @@ def fetch_deezer_album(request):
 
 
 def fetch_discogs_release(request):
-    """API endpoint to fetch a Discogs release from a URL or bare ID"""
+    """API endpoint to fetch a Discogs release or master from a URL or bare ID"""
     url = request.GET.get('url', '').strip()
     if not url:
         return JsonResponse({'error': 'Missing Discogs URL'}, status=400)
 
-    release_id = extract_discogs_release_id(url)
-    if not release_id:
-        return JsonResponse({'error': 'Invalid Discogs URL'}, status=400)
-
-    result = fetch_release_from_discogs(release_id)
+    result = fetch_from_discogs(url)
     if 'error' in result:
         return JsonResponse(result, status=400)
     return JsonResponse(result)
@@ -151,10 +147,7 @@ def fetch_album_from_link(request):
             return JsonResponse({'error': 'Invalid Deezer URL'}, status=400)
         result = fetch_album_from_deezer(album_id)
     elif 'discogs.com' in url:
-        release_id = extract_discogs_release_id(url)
-        if not release_id:
-            return JsonResponse({'error': 'Invalid Discogs URL'}, status=400)
-        result = fetch_release_from_discogs(release_id)
+        result = fetch_from_discogs(url)
     elif 'bandcamp.com' in url:
         result = fetch_album_from_bandcamp(url)
     else:
