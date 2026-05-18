@@ -240,13 +240,20 @@
   }
   
   #toggle-sidebar {
-    transition: left 0.4s ease;
+    transition: left 0.4s ease, opacity 0.05s ease;
+    opacity: 0;
   }
-  
+
+  #sidebar:hover ~ main #toggle-sidebar,
+  #toggle-sidebar:hover {
+    opacity: 1;
+  }
+
   body.sidebar-collapsed #toggle-sidebar {
     left: 0.5rem;
+    opacity: 1;
   }
-  
+
   body:not(.sidebar-collapsed) #toggle-sidebar {
     left: 13.15rem;
   }

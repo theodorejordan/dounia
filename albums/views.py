@@ -35,8 +35,8 @@ def collection_view(request):
     paginator = Paginator(albums, 40)
     page_obj = paginator.get_page(1)  # Always load page 1 on initial view
 
-    # Récupérer tous les tags pour les filtres
-    all_tags = Tag.objects.all().order_by('category', 'name')
+    # Récupérer tous les tags pour les filtres (avec nombre d'albums)
+    all_tags = Tag.objects.annotate(album_count=Count('albums')).order_by('category', 'name')
 
     # Get all artists and contributors for unified filter whitelist
     all_artists = Artist.objects.annotate(album_count=Count('albums')).order_by('-album_count', 'name')
