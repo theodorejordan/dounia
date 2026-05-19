@@ -388,7 +388,9 @@
 
   // Clear all filters button
   function updateClearFiltersVisibility() {
-    if (tagify.value.length > 0) {
+    const catInput = document.getElementById('category-input');
+    const hasFilters = tagify.value.length > 0 || (catInput && catInput.value);
+    if (hasFilters) {
       clearFiltersBtn.classList.remove('hidden');
     } else {
       clearFiltersBtn.classList.add('hidden');
@@ -401,6 +403,11 @@
 
   clearFiltersBtn.addEventListener('click', function() {
     tagify.removeAllTags();
+    // Also clear category filter
+    categoryInput.value = '';
+    selectedCategory = null;
+    tagsRow.classList.add('hidden');
+    categoryBtns.forEach(b => b.classList.remove('ring-1', 'ring-blue-500'));
     triggerFilterUpdate();
   });
 
@@ -715,6 +722,9 @@
 
       // Update category button styling
       updateCategoryButtonStyles();
+
+      // Update clear filters button visibility
+      updateClearFiltersVisibility();
     }
   });
 
@@ -724,14 +734,23 @@
 
   function initializeLoadMore() {
     const loadMoreBtn = document.getElementById('load-more-btn');
-    if (!loadMoreBtn) return;
+    const loadingIndicator = document.getElementById('loading-indicator');
 
     // Reset state
     currentPage = 1;
     isLoading = false;
 
+    // Ensure loading indicator is hidden (in case of interrupted request)
+    if (loadingIndicator) {
+      loadingIndicator.classList.add('hidden');
+    }
+
+    if (!loadMoreBtn) return;
+
     // Remove old listeners by cloning the button
     const newBtn = loadMoreBtn.cloneNode(true);
+    // Reset any inline styles that might have persisted
+    newBtn.style.display = '';
     loadMoreBtn.parentNode.replaceChild(newBtn, loadMoreBtn);
 
     newBtn.addEventListener('click', async function() {
