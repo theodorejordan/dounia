@@ -127,7 +127,7 @@
         </div>
         <nav class="flex flex-col p-1 gap-y-1">
           <a href="{% url 'collection' %}"
-            class="flex items-center px-2.5 py-2 text-gray-700 gap-x-2 rounded hover:bg-blue-50 {% if request.resolver_match.url_name == 'collection' %}bg-blue-50 text-blue-600{% endif %}">
+            class="flex items-center px-2.5 py-2 gap-x-2 rounded hover:bg-blue-50 {% if request.resolver_match.url_name == 'collection' %}bg-blue-50 text-blue-800{% else %}text-gray-700{% endif %}">
             {% hi "book-open" css_class="h-5 w-5 flex-shrink-0" %}
             <span class="sidebar-text flex items-center w-full justify-between">
               Collection
@@ -138,7 +138,7 @@
             {% if request.user.is_staff %}
               <!-- Staff: submissions management -->
               <a href="{% url 'submissions_admin' %}"
-                class="flex items-center px-2.5 py-2 text-gray-700 gap-x-2 rounded hover:bg-blue-50 {% if request.resolver_match.url_name == 'submissions_admin' %}bg-blue-50 text-blue-600{% endif %}">
+                class="flex items-center px-2.5 py-2 gap-x-2 rounded hover:bg-blue-50 {% if request.resolver_match.url_name == 'submissions_admin' %}bg-blue-50 text-blue-800{% else %}text-gray-700{% endif %}">
                 {% hi "inbox" css_class="h-5 w-5 flex-shrink-0" %}
                 <span class="sidebar-text flex items-center w-full justify-between">
                   Submissions
@@ -149,14 +149,14 @@
               </a>
               <!-- Staff: direct add to collection -->
               <a href="{% url 'add_album' %}"
-                class="flex items-center pl-2.5 py-2 text-gray-700 gap-x-2 rounded hover:bg-blue-50 {% if request.resolver_match.url_name == 'add_album' %}bg-blue-50 text-blue-600{% endif %}">
+                class="flex items-center pl-2.5 py-2 gap-x-2 rounded hover:bg-blue-50 {% if request.resolver_match.url_name == 'add_album' %}bg-blue-50 text-blue-800{% else %}text-gray-700{% endif %}">
                 {% hi "plus" css_class="h-5 w-5 flex-shrink-0" %}
                 <span class="sidebar-text">Add album</span>
               </a>
             {% else %}
             <!-- Regular users: submit for review -->
             <a href="{% url 'my_submissions' %}"
-              class="flex items-center px-2.5 py-2 text-gray-700 gap-x-2 rounded hover:bg-blue-50 {% if request.resolver_match.url_name == 'my_submissions' %}bg-blue-50 text-blue-600{% endif %}">
+              class="flex items-center px-2.5 py-2 gap-x-2 rounded hover:bg-blue-50 {% if request.resolver_match.url_name == 'my_submissions' %}bg-blue-50 text-blue-800{% else %}text-gray-700{% endif %}">
               {% hi "inbox" css_class="h-5 w-5 flex-shrink-0" %}
               <span class="sidebar-text flex items-center w-full justify-between">
                 My submissions
@@ -164,7 +164,7 @@
               </span>
             </a>
             <a href="{% url 'submit_album' %}"
-              class="flex items-center pl-2.5 py-2 text-gray-700 gap-x-2 rounded hover:bg-blue-50 {% if request.resolver_match.url_name == 'submit_album' %}bg-blue-50 text-blue-600{% endif %}">
+              class="flex items-center pl-2.5 py-2 gap-x-2 rounded hover:bg-blue-50 {% if request.resolver_match.url_name == 'submit_album' %}bg-blue-50 text-blue-800{% else %}text-gray-700{% endif %}">
               {% hi "plus" css_class="h-5 w-5 flex-shrink-0" %}
               <span class="sidebar-text">Submit album</span>
             </a>
@@ -181,7 +181,7 @@
       <!-- Bottom: changelog + profile widget -->
       <div class="p-1 border-t">
         <a href="{% url 'changelog' %}"
-          class="flex items-center pl-2.5 py-2 text-gray-700 rounded gap-x-2 hover:bg-blue-50 {% if request.resolver_match.url_name == 'changelog' %}bg-blue-50 text-blue-600{% endif %}">
+          class="flex items-center pl-2.5 py-2 rounded gap-x-2 hover:bg-blue-50 {% if request.resolver_match.url_name == 'changelog' %}bg-blue-50 text-blue-800{% else %}text-gray-700{% endif %}">
           {% hi "clock" css_class="h-5 w-5 flex-shrink-0" %}
           <span class="sidebar-text">Changelog</span>
         </a>
