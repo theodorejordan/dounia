@@ -15,6 +15,7 @@ urlpatterns = [
     path('api/albums/', views.albums_paginated_api, name='albums_api'),
     path('api/check-duplicate/', views.check_duplicate_album, name='check_duplicate_album'),
     path('partials/album-grid/', views.album_grid_partial, name='album_grid_partial'),
+    path('download-covers/', views.download_covers_zip, name='download_covers_zip'),
     path('register/', views.register_view, name='register'),
     path('profile/', views.profile_view, name='profile'),
     path('my-submissions/', views.user_submissions_view, name='my_submissions'),

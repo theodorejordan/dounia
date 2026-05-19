@@ -1,5 +1,7 @@
+import zipfile
+from io import BytesIO
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse, HttpResponseForbidden
+from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
 from django.db.models import Q, Count
 from django.core.paginator import Paginator
 from django.contrib.auth import login, logout, update_session_auth_hash
@@ -44,6 +46,8 @@ def collection_view(request):
         submitted_albums__isnull=False
     ).annotate(album_count=Count('submitted_albums')).distinct().order_by('-album_count', 'username')
 
+    has_active_filters = bool(artist_search or contributor_search or selected_category or selected_tags)
+
     context = {
         'albums': page_obj,
         'all_tags': all_tags,
@@ -56,6 +60,7 @@ def collection_view(request):
         'has_more': page_obj.has_next(),
         'selected_category': selected_category,
         'tag_categories': Tag.CATEGORY_CHOICES,
+        'has_active_filters': has_active_filters,
     }
 
     return render(request, 'albums/collection.html', context)
@@ -319,13 +324,63 @@ def album_grid_partial(request):
     paginator = Paginator(albums, 40)
     page_obj = paginator.get_page(1)
 
+    has_active_filters = bool(artist_search or contributor_search or selected_category or selected_tags)
+
     context = {
         'albums': page_obj,
         'has_more': page_obj.has_next(),
         'albums_count': total_count,
+        'has_active_filters': has_active_filters,
     }
 
     return render(request, 'albums/_album_grid.html', context)
+
+
+def download_covers_zip(request):
+    """Generate and return a ZIP file containing album covers matching current filters"""
+    # Get filter parameters (same as collection_view)
+    artist_search = request.GET.get('artist', '').strip()
+    contributor_search = request.GET.get('contributor', '').strip()
+    selected_category = request.GET.get('category', '').strip()
+    selected_tags = request.GET.getlist('tags')
+
+    # Require at least one filter to be active
+    if not any([artist_search, contributor_search, selected_category, selected_tags]):
+        return HttpResponse("No filters selected", status=400)
+
+    # Apply filters using existing manager method
+    albums = Album.objects.select_related('artist').with_filters(
+        artist_search=artist_search,
+        contributor=contributor_search,
+        category=selected_category,
+        tags=selected_tags
+    )
+
+    # Limit to prevent abuse
+    albums = albums[:500]
+
+    # Create ZIP in memory
+    buffer = BytesIO()
+    with zipfile.ZipFile(buffer, 'w', zipfile.ZIP_DEFLATED) as zf:
+        for album in albums:
+            if album.cover:
+                # Generate filename: "Artist - Album.ext"
+                ext = album.cover.name.split('.')[-1]
+                filename = f"{album.artist.name} - {album.name}.{ext}"
+                # Sanitize filename (remove invalid characters)
+                filename = "".join(c for c in filename if c not in r'\/:*?"<>|')
+
+                try:
+                    zf.writestr(filename, album.cover.read())
+                except Exception:
+                    # Skip files that can't be read
+                    continue
+
+    buffer.seek(0)
+
+    response = HttpResponse(buffer.read(), content_type='application/zip')
+    response['Content-Disposition'] = 'attachment; filename="album-covers.zip"'
+    return response
 
 
 def register_view(request):

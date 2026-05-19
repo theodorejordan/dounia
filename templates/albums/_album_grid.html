@@ -1,7 +1,15 @@
 {% if albums %}
-<!-- Album count -->
-<div class="mb-4 text-xs text-gray-600">
-  {{ albums_count }} cover{{ albums_count|pluralize }}
+<!-- Album count and download button -->
+<div class="mb-4 flex items-center justify-between">
+  <div class="text-xs text-gray-600">
+    {{ albums_count }} cover{{ albums_count|pluralize }}
+  </div>
+  {% if has_active_filters %}
+  <a href="{% url 'download_covers_zip' %}?{{ request.GET.urlencode }}"
+     class="text-xs text-gray-600 hover:underline flex items-center gap-1">
+    Download ZIP
+  </a>
+  {% endif %}
 </div>
 <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
   {% for album in albums %}
