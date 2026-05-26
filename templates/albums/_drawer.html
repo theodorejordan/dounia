@@ -1,0 +1,92 @@
+{% load hi %}
+
+<!-- Header -->
+<div class="p-4">
+  <!-- Close button row -->
+  <div class="flex justify-end mb-4">
+    <button id="drawer-close-btn" class="text-xs text-gray-600 hover:underline">Close</button>
+  </div>
+
+  <!-- Cover image -->
+  <div class="aspect-square bg-gray-200 rounded overflow-hidden mb-4">
+    {% if album.cover %}
+    <img src="{{ album.cover.url }}" alt="{{ album.name }}" class="w-full h-full object-cover">
+    {% else %}
+    <div class="w-full h-full flex items-center justify-center text-gray-400">No cover</div>
+    {% endif %}
+  </div>
+
+  <!-- Album title and artist -->
+  <h2 class="text-lg font-semibold text-gray-800">{{ album.name }}</h2>
+  <p class="text-sm text-gray-500">{{ album.artist.name }}</p>
+
+  <!-- Metadata row: year pill + source badge -->
+  <div class="flex items-center gap-2 mt-2">
+    {% if album.year %}
+    <span class="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">{{ album.year }}</span>
+    {% endif %}
+    {% if album.source_type %}
+    <span class="text-xs px-2 py-0.5 rounded
+      {% if album.source_type == 'deezer' %}bg-purple-100 text-purple-700
+      {% elif album.source_type == 'discogs' %}bg-orange-100 text-orange-700
+      {% elif album.source_type == 'bandcamp' %}bg-cyan-100 text-cyan-700
+      {% endif %}">
+      {{ album.get_source_type_display }}
+    </span>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="border-b">
+  <div class="flex">
+    <button class="drawer-tab flex-1 py-2 text-sm font-medium text-center border-b-2 border-blue-500 text-blue-600" data-tab="info">
+      Info
+    </button>
+    <button class="drawer-tab flex-1 py-2 text-sm font-medium text-center border-b-2 border-transparent text-gray-500 hover:text-gray-700" data-tab="similar">
+      Similar
+    </button>
+  </div>
+</div>
+
+<!-- Tab content -->
+<div id="drawer-tab-content" class="p-4">
+  {% include 'albums/_drawer_info.html' %}
+</div>
+
+<script>
+  (function() {
+    const tabs = document.querySelectorAll('.drawer-tab');
+    const tabContent = document.getElementById('drawer-tab-content');
+    const albumId = {{ album.id }};
+
+    const loadingSpinner = `
+      <div class="flex justify-center items-center py-12">
+        <svg class="animate-spin h-8 w-8 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+      </div>
+    `;
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', function() {
+        const tabName = this.dataset.tab;
+
+        // Update active tab styling
+        tabs.forEach(t => {
+          t.classList.remove('border-blue-500', 'text-blue-600');
+          t.classList.add('border-transparent', 'text-gray-500');
+        });
+        this.classList.remove('border-transparent', 'text-gray-500');
+        this.classList.add('border-blue-500', 'text-blue-600');
+
+        // Show loading spinner
+        tabContent.innerHTML = loadingSpinner;
+
+        // Load tab content
+        htmx.ajax('GET', `/drawer/${albumId}/${tabName}/`, {target: '#drawer-tab-content', swap: 'innerHTML'});
+      });
+    });
+  })();
+</script>

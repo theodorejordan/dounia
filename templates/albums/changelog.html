@@ -14,6 +14,37 @@
   <article class="changelog-entry" data-open="true">
     <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded transition-colors">
       <div class="flex items-center gap-3">
+        <h2 class="text-lg font-semibold text-gray-900">v0.5.0</h2>
+        <span class="text-sm text-gray-500">May 26, 2026</span>
+      </div>
+      <svg class="changelog-chevron h-5 w-5 text-gray-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </button>
+    <div class="changelog-content">
+      <div class="pb-6">
+        <h3 class="text-sm font-medium text-gray-700 mt-2 mb-2">Features</h3>
+        <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
+          <li>Album drawer: click any album to open a detail panel on the right</li>
+          <li>Drawer shows cover, title, artist, year, and source badge (Deezer/Discogs/Bandcamp)</li>
+          <li>Info tab: view tags, notes, submitter info, and open source link</li>
+          <li>Similar tab: discover albums by the same artist or with shared tags</li>
+          <li>Admins can edit tags and notes directly from the drawer</li>
+          <li>Album deletion moved to drawer (admins only)</li>
+        </ul>
+
+        <h3 class="text-sm font-medium text-gray-700 mt-4 mb-2">Styling</h3>
+        <ul class="list-disc list-inside text-gray-600 space-y-1 text-sm">
+          <li>Grid adapts columns when drawer is open</li>
+          <li>Selected album highlighted with blue border</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <article class="changelog-entry">
+    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded transition-colors">
+      <div class="flex items-center gap-3">
         <h2 class="text-lg font-semibold text-gray-900">v0.4.5</h2>
         <span class="text-sm text-gray-500">May 19, 2026</span>
       </div>

@@ -4,9 +4,10 @@ An album collection manager built with Django. Browse, organize, and tag music a
 
 ## Features
 
-### Current (v0.4.0)
+### Current (v0.5.0)
 
 - **Album Collection**: Visual grid of album covers with artist, title, and year
+- **Album Drawer**: Click any album to open a detail panel — view info, discover similar albums, edit tags/notes (admin)
 - **Smart Import**: Add albums via Deezer, Discogs, or Bandcamp links — metadata and cover art fetched automatically
 - **Tag System**: Categorize albums by visual elements (colors, shapes, humans, landscapes, etc.) with hierarchical tags
 - **HTMX Filtering**: Instant filter by artist, category, or tags — no page reloads, URL persists for bookmarking

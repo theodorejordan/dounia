@@ -40,11 +40,19 @@
 </div>
 
 <!-- Album grid -->
-<div class="max-w-[82rem] mx-auto p-4">
-  <div id="album-grid-wrapper" class="relative">
-    <div id="album-grid-container">
-      {% include 'albums/_album_grid.html' %}
+<div id="main-content" class="transition-all duration-300">
+  <div class="max-w-[82rem] mx-auto p-4">
+    <div id="album-grid-wrapper" class="relative">
+      <div id="album-grid-container">
+        {% include 'albums/_album_grid.html' %}
+      </div>
     </div>
+  </div>
+</div>
+
+<!-- Album Drawer -->
+<div id="album-drawer" class="fixed right-0 w-[380px] bg-white border-l transition-transform duration-300 overflow-y-auto z-30">
+  <div id="drawer-content">
   </div>
 </div>
 
@@ -133,10 +141,67 @@
     display: inline-block !important;
     width: auto !important;
   }
+
+  /* Drawer positioning */
+  #album-drawer {
+    top: 0;
+    height: 100vh;
+    transform: translateX(100%);
+  }
+
+  /* Drawer open state */
+  #album-drawer.open {
+    transform: translateX(0);
+  }
+
+  /* Grid shrinks when drawer is open */
+  #main-content.drawer-open {
+    margin-right: 380px;
+  }
+
+  /* Reduce grid columns when drawer is open */
+  #main-content.drawer-open .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  @media (min-width: 768px) {
+    #main-content.drawer-open .grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1024px) {
+    #main-content.drawer-open .grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1280px) {
+    #main-content.drawer-open .grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1536px) {
+    #main-content.drawer-open .grid {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+  }
+
+  /* Active album card highlight */
+  .album-card.active {
+    outline: 1px solid #3b82f6;
+    outline-offset: -1px;
+  }
 </style>
 
 <script>
   const IS_STAFF = {{ request.user.is_staff|yesno:"true,false" }};
+
+  // ====== FILTER BAR HEIGHT (for drawer positioning) ======
+  function updateFilterBarHeight() {
+    const filterBar = document.querySelector('.sticky.top-0');
+    const height = filterBar ? filterBar.offsetHeight : 0;
+    document.documentElement.style.setProperty('--filter-bar-height', height + 'px');
+  }
+  updateFilterBarHeight();
+  window.addEventListener('resize', updateFilterBarHeight);
 
   // ====== UNIFIED FILTER SETUP ======
   const input = document.querySelector('#unified-filter');
@@ -567,6 +632,7 @@
         const wasAllSelected = categoryInput.value === category;
         selectedCategory = null;
         tagsRow.classList.add('hidden');
+        updateFilterBarHeight();
         // Remove ring from button
         this.classList.remove('ring-1', 'ring-blue-500');
         // Only trigger update if "All" was selected (tags stay in Tagify)
@@ -595,6 +661,7 @@
 
     renderTagButtons(category, tags, highlightAll, selectedTagsInCategory);
     tagsRow.classList.remove('hidden');
+    updateFilterBarHeight();
   }
 
   // Render "All" + individual tag buttons
@@ -829,7 +896,8 @@
   // Create album card HTML element
   function createAlbumCard(album) {
     const card = document.createElement('div');
-    card.className = 'bg-white border rounded overflow-hidden group';
+    card.className = 'album-card bg-white border rounded overflow-hidden group cursor-pointer hover:border-gray-400 transition-colors';
+    card.dataset.albumId = album.id;
 
     // Build cover image HTML
     const coverHtml = album.cover_url
@@ -872,15 +940,6 @@
     card.innerHTML = `
       <div class="aspect-square bg-gray-200 relative">
         ${coverHtml}
-        ${IS_STAFF ? `
-        <form method="POST" action="/delete/${album.id}/" class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity" onsubmit="return confirm('Are you sure you want to delete this album?');">
-          <input type="hidden" name="csrfmiddlewaretoken" value="${getCsrfToken()}">
-          <button type="submit" class="bg-gray-100 hover:bg-gray-300 opacity-60 hover:opacity-80 text-gray-400 hover:text-gray-800 p-2 rounded-full">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-            </svg>
-          </button>
-        </form>` : ''}
       </div>
       <div class="p-2">
         <h3 class="font-semibold text-gray-800 truncate">${escapeHtml(album.name)}</h3>
@@ -908,5 +967,88 @@
     const token = document.querySelector('[name=csrfmiddlewaretoken]');
     return token ? token.value : '';
   }
+
+  // ====== ALBUM DRAWER ======
+  const drawer = document.getElementById('album-drawer');
+  const drawerContent = document.getElementById('drawer-content');
+  const mainContent = document.getElementById('main-content');
+  let activeAlbumId = null;
+
+  const loadingSpinner = `<div class="flex items-center justify-center h-screen">
+    <svg class="animate-spin h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    </svg>
+  </div>`;
+
+  function openDrawer(albumId) {
+    activeAlbumId = albumId;
+    drawer.classList.add('open');
+    mainContent.classList.add('drawer-open');
+    drawerContent.innerHTML = loadingSpinner;
+
+    // Highlight active card
+    document.querySelectorAll('.album-card').forEach(card => {
+      card.classList.toggle('active', card.dataset.albumId === String(albumId));
+    });
+
+    // Load drawer content via HTMX
+    htmx.ajax('GET', `/drawer/${albumId}/`, {target: '#drawer-content', swap: 'innerHTML'});
+  }
+
+  function closeDrawer() {
+    activeAlbumId = null;
+    drawer.classList.remove('open');
+    mainContent.classList.remove('drawer-open');
+
+    // Remove highlight from all cards
+    document.querySelectorAll('.album-card.active').forEach(card => {
+      card.classList.remove('active');
+    });
+  }
+
+  // Click on album card to open drawer
+  document.addEventListener('click', function(e) {
+    const card = e.target.closest('.album-card');
+    if (!card) return;
+
+    // Don't open drawer if clicking on interactive elements inside the card
+    if (e.target.closest('.tag-clickable') ||
+        e.target.closest('.artist-clickable') ||
+        e.target.closest('.contributor-clickable') ||
+        e.target.closest('form') ||
+        e.target.closest('button')) {
+      return;
+    }
+
+    e.preventDefault();
+    const albumId = card.dataset.albumId;
+    if (albumId) {
+      openDrawer(albumId);
+    }
+  });
+
+  // Close on Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && activeAlbumId !== null) {
+      closeDrawer();
+    }
+  });
+
+  // Close button inside drawer (delegated)
+  document.addEventListener('click', function(e) {
+    if (e.target.closest('#drawer-close-btn')) {
+      closeDrawer();
+    }
+  });
+
+  // Close when clicking outside the drawer (but not on album cards or filter)
+  document.addEventListener('click', function(e) {
+    if (activeAlbumId === null) return;
+    if (e.target.closest('#album-drawer')) return;
+    if (e.target.closest('.album-card')) return;
+    if (e.target.closest('#filter-form')) return;
+    closeDrawer();
+  });
 </script>
 {% endblock %}

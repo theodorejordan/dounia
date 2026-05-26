@@ -130,6 +130,8 @@
     <!-- NOTE: pas de name="artist_name" ici car le champ existe déjà dans le form Django -->
     <!-- On utilise directement id_artist_name et id_name via JS -->
     {{ form.cover_url }}  {# HiddenInput, génère <input type="hidden" name="cover_url" id="id_cover_url"> #}
+    {{ form.source_url }}
+    {{ form.source_type }}
 
     <!-- Champs name/artist_name/year cachés utilisés par le mode Deezer -->
     <!-- Ils sont dans mode-manual mais soumis quand même car le DOM les inclut toujours -->
@@ -275,6 +277,14 @@
       document.getElementById('id_artist_name').value = data.artist;
       document.getElementById('id_year').value = data.year || '';
       document.getElementById('id_cover_url').value = data.cover_url;
+
+      // Populate source info
+      document.getElementById('id_source_url').value = url;
+      let sourceType = '';
+      if (url.includes('deezer.com')) sourceType = 'deezer';
+      else if (url.includes('discogs.com')) sourceType = 'discogs';
+      else if (url.includes('bandcamp.com')) sourceType = 'bandcamp';
+      document.getElementById('id_source_type').value = sourceType;
 
     } catch {
       linkLoading.classList.add('hidden');

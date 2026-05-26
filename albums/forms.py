@@ -56,7 +56,17 @@ class AlbumForm(forms.ModelForm):
         required=False,
         widget=forms.HiddenInput()
     )
-    
+
+    # Source info (from import)
+    source_url = forms.URLField(
+        required=False,
+        widget=forms.HiddenInput()
+    )
+    source_type = forms.CharField(
+        required=False,
+        widget=forms.HiddenInput()
+    )
+
     artist_name = forms.CharField(
         max_length=200,
         required=False,
@@ -139,6 +149,10 @@ class AlbumForm(forms.ModelForm):
         album = super().save(commit=False)
         album.artist = artist
 
+        # Save source info if provided
+        album.source_url = self.cleaned_data.get('source_url', '')
+        album.source_type = self.cleaned_data.get('source_type', '')
+
         # Download cover from URL if provided (using service layer)
         cover_url = self.cleaned_data.get('cover_url')
         if cover_url:
@@ -173,6 +187,16 @@ class SubmissionForm(forms.ModelForm):
         widget=forms.HiddenInput()
     )
 
+    # Source info (from import)
+    source_url = forms.URLField(
+        required=False,
+        widget=forms.HiddenInput()
+    )
+    source_type = forms.CharField(
+        required=False,
+        widget=forms.HiddenInput()
+    )
+
     artist_name = forms.CharField(
         max_length=200,
         required=False,
@@ -194,7 +218,7 @@ class SubmissionForm(forms.ModelForm):
 
     class Meta:
         model = Submission
-        fields = ['name', 'cover', 'year', 'notes']
+        fields = ['name', 'cover', 'year', 'notes', 'source_url', 'source_type']
         labels = {
             'name': 'Album name',
             'cover': 'Cover',

@@ -8,9 +8,10 @@ from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User
-from .models import Album, Artist, Tag, UserProfile, Submission
+from .models import Album, Artist, Tag, UserProfile, Submission, Comment
 from .forms import AlbumForm, RegisterForm, ProfileForm, AvatarForm, SubmissionForm
 from .services import create_album_from_submission, sync_album_tags
+import json
 from .deezer_api import extract_deezer_album_id, fetch_album_from_deezer
 from .discogs_api import fetch_from_discogs
 from .bandcamp_api import fetch_album_from_bandcamp
@@ -170,7 +171,8 @@ def tags_autocomplete(request):
     if query:
         tags = Tag.objects.filter(name__icontains=query).values('id', 'name', 'category')[:10]
     else:
-        tags = Tag.objects.all().values('id', 'name', 'category')[:20]
+        # Return all tags (for Tagify whitelist)
+        tags = Tag.objects.all().values('id', 'name', 'category')
 
     return JsonResponse(list(tags), safe=False)
 
@@ -518,3 +520,116 @@ def delete_submission_view(request, pk):
         return redirect('submissions_admin')
 
     return redirect('submissions_admin')
+
+
+def album_drawer_view(request, album_id):
+    """Main drawer view with header and tabs"""
+    album = get_object_or_404(
+        Album.objects.select_related('artist', 'submitted_by__userprofile').prefetch_related('tags'),
+        id=album_id
+    )
+    return render(request, 'albums/_drawer.html', {
+        'album': album,
+    })
+
+
+def drawer_info_view(request, album_id):
+    """Info tab content"""
+    album = get_object_or_404(
+        Album.objects.select_related('artist', 'submitted_by__userprofile').prefetch_related('tags'),
+        id=album_id
+    )
+    return render(request, 'albums/_drawer_info.html', {
+        'album': album,
+    })
+
+
+def drawer_similar_view(request, album_id):
+    """Similar tab content"""
+    album = get_object_or_404(
+        Album.objects.select_related('artist').prefetch_related('tags'),
+        id=album_id
+    )
+
+    # Albums by the same artist (excluding current)
+    same_artist = Album.objects.filter(artist_id=album.artist_id).exclude(id=album_id).only('id', 'name', 'cover', 'year')[:2]
+
+    # Albums sharing at least one tag (excluding current)
+    # Use values_list to get IDs directly - avoids slow subquery
+    tag_ids = list(album.tags.values_list('id', flat=True))
+    same_tags = []
+    if tag_ids:
+        same_tags = Album.objects.filter(tags__id__in=tag_ids).exclude(id=album_id).distinct().select_related('artist').only('id', 'name', 'cover', 'artist')[:2]
+
+    return render(request, 'albums/_drawer_similar.html', {
+        'album': album,
+        'same_artist': same_artist,
+        'same_tags': same_tags,
+    })
+
+
+def drawer_comments_view(request, album_id):
+    """Comments tab content"""
+    album = get_object_or_404(Album, id=album_id)
+
+    if request.method == 'POST' and request.user.is_authenticated:
+        text = request.POST.get('text', '').strip()
+        parent_id = request.POST.get('parent_id')
+        if text:
+            parent = None
+            if parent_id:
+                parent = Comment.objects.filter(id=parent_id, album=album).first()
+            Comment.objects.create(
+                album=album,
+                author=request.user,
+                text=text,
+                parent=parent
+            )
+
+    # Get top-level comments with replies
+    comments = Comment.objects.filter(album=album, parent__isnull=True).select_related('author__userprofile').prefetch_related('replies__author__userprofile')
+
+    return render(request, 'albums/_drawer_comments.html', {
+        'album': album,
+        'comments': comments,
+    })
+
+
+@login_required
+def update_album_tags(request, album_id):
+    """API to update album tags (staff only)"""
+    if not request.user.is_staff:
+        return HttpResponseForbidden()
+
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+    album = get_object_or_404(Album, id=album_id)
+
+    try:
+        data = json.loads(request.body)
+        tags_json = data.get('tags', '[]')
+        sync_album_tags(album, tags_json)
+        return JsonResponse({'success': True})
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+
+@login_required
+def update_album_notes(request, album_id):
+    """API to update album notes (staff only)"""
+    if not request.user.is_staff:
+        return HttpResponseForbidden()
+
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+    album = get_object_or_404(Album, id=album_id)
+
+    try:
+        data = json.loads(request.body)
+        album.notes = data.get('notes', '')
+        album.save()
+        return JsonResponse({'success': True})
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)

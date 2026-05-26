@@ -125,6 +125,15 @@ class Album(models.Model):
     year = models.PositiveIntegerField(null=True, blank=True)
     notes = models.TextField(blank=True)
 
+    # Source info (from import)
+    SOURCE_CHOICES = [
+        ('deezer', 'Deezer'),
+        ('discogs', 'Discogs'),
+        ('bandcamp', 'Bandcamp'),
+    ]
+    source_url = models.URLField(max_length=500, blank=True)
+    source_type = models.CharField(max_length=20, choices=SOURCE_CHOICES, blank=True)
+
     # Relations
     tags = models.ManyToManyField(Tag, related_name='albums', blank=True)
     submitted_by = models.ForeignKey(
@@ -147,6 +156,23 @@ class Album(models.Model):
     
     def __str__(self):
         return f"{self.artist.name} - {self.name}"
+
+
+class Comment(models.Model):
+    """Comment on an album"""
+    album = models.ForeignKey(Album, on_delete=models.CASCADE, related_name='comments')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
+    text = models.TextField()
+    parent = models.ForeignKey(
+        'self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f"{self.author.username} on {self.album.name}"
 
 
 class UserProfile(models.Model):
@@ -172,6 +198,15 @@ class Submission(models.Model):
     year = models.PositiveIntegerField(null=True, blank=True)
     notes = models.TextField(blank=True)
     tags = models.ManyToManyField(Tag, related_name='submissions', blank=True)
+
+    # Source info (from import)
+    SOURCE_CHOICES = [
+        ('deezer', 'Deezer'),
+        ('discogs', 'Discogs'),
+        ('bandcamp', 'Bandcamp'),
+    ]
+    source_url = models.URLField(max_length=500, blank=True)
+    source_type = models.CharField(max_length=20, choices=SOURCE_CHOICES, blank=True)
 
     # Submission metadata
     submitted_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='submissions')

@@ -1,0 +1,192 @@
+{% load hi %}
+
+<!-- Added by -->
+{% if album.submitted_by %}
+<div class="flex items-center gap-2 mb-4">
+  {% if album.submitted_by.userprofile.avatar %}
+    <img src="{{ album.submitted_by.userprofile.avatar.url }}" alt="" class="w-6 h-6 rounded object-cover">
+  {% else %}
+    <div class="w-6 h-6 rounded bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold">
+      {{ album.submitted_by.username|first|upper }}
+    </div>
+  {% endif %}
+  <span class="text-sm text-gray-600">{{ album.submitted_by.username }}</span>
+  <span class="text-xs text-gray-400">{{ album.created_at|timesince }} ago</span>
+</div>
+{% endif %}
+
+<!-- Tags section -->
+<div class="mb-4">
+  <div class="flex items-center justify-between mb-2">
+    <span class="text-sm font-medium text-gray-700">Tags</span>
+    {% if request.user.is_staff %}
+    <button id="edit-tags-btn" class="text-xs text-gray-500 hover:text-gray-700">Edit</button>
+    {% endif %}
+  </div>
+
+  <!-- Tags display (view mode) -->
+  <div id="tags-view" class="flex flex-wrap gap-1">
+    {% for tag in album.tags.all %}
+    <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">{{ tag.name }}</span>
+    {% empty %}
+    <span class="text-xs text-gray-400">No tags</span>
+    {% endfor %}
+  </div>
+
+  <!-- Tags edit (admin only, hidden by default) -->
+  {% if request.user.is_staff %}
+  <div id="tags-edit" class="hidden">
+    <input type="text" id="drawer-tags-input" class="w-full mb-2" placeholder="Add tags...">
+    <input type="hidden" id="drawer-tags-hidden">
+    <div class="flex gap-2">
+      <button id="save-tags-btn" class="text-xs px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">Save</button>
+      <button id="cancel-tags-btn" class="text-xs px-3 py-1 bg-gray-200 text-gray-600 rounded hover:bg-gray-300">Cancel</button>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Notes section -->
+<div class="mb-4">
+  <span class="text-sm font-medium text-gray-700 block mb-2">Notes</span>
+  {% if request.user.is_staff %}
+  <textarea id="notes-textarea" class="w-full px-3 py-2 border border-gray-200 rounded text-sm resize-none" rows="3" placeholder="Add notes...">{{ album.notes }}</textarea>
+  <button id="save-notes-btn" class="text-xs px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 mt-2 hidden">Save</button>
+  {% else %}
+  <p class="text-sm text-gray-600">{{ album.notes|default:"No notes" }}</p>
+  {% endif %}
+</div>
+
+<!-- Action row -->
+<div class="flex gap-2 pt-4 border-t">
+  <!-- Open source button -->
+  {% if album.source_url %}
+  <a href="{{ album.source_url }}" target="_blank" rel="noopener" class="flex-1 text-center text-xs px-3 py-2 border border-gray-200 rounded text-gray-600 hover:bg-gray-50 transition-colors">
+    Open source
+  </a>
+  {% else %}
+  <button disabled class="flex-1 text-center text-xs px-3 py-2 border border-gray-200 rounded text-gray-400 cursor-not-allowed">
+    Open source
+  </button>
+  {% endif %}
+
+  <!-- Delete button (admin only) -->
+  {% if request.user.is_staff %}
+  <form method="POST" action="{% url 'delete_album' album.id %}" class="flex-1" onsubmit="return confirm('Delete this album?');">
+    {% csrf_token %}
+    <button type="submit" class="w-full text-xs px-3 py-2 border border-red-200 rounded text-red-600 hover:bg-red-50 transition-colors">
+      Delete
+    </button>
+  </form>
+  {% endif %}
+</div>
+
+{% if request.user.is_staff %}
+<script>
+  (function() {
+    const albumId = {{ album.id }};
+    const editTagsBtn = document.getElementById('edit-tags-btn');
+    const tagsView = document.getElementById('tags-view');
+    const tagsEdit = document.getElementById('tags-edit');
+    const saveTagsBtn = document.getElementById('save-tags-btn');
+    const cancelTagsBtn = document.getElementById('cancel-tags-btn');
+    const tagsInput = document.getElementById('drawer-tags-input');
+    const tagsHidden = document.getElementById('drawer-tags-hidden');
+
+    // Notes
+    const notesTextarea = document.getElementById('notes-textarea');
+    const saveNotesBtn = document.getElementById('save-notes-btn');
+    let originalNotes = notesTextarea.value;
+
+    // Initialize Tagify for editing
+    let tagify = null;
+
+    editTagsBtn.addEventListener('click', async function() {
+      tagsView.classList.add('hidden');
+      tagsEdit.classList.remove('hidden');
+
+      if (!tagify) {
+        // Fetch all tags on first edit click
+        const response = await fetch('/api/tags/');
+        const allTags = await response.json();
+
+        // Initialize tagify with current tags
+        const currentTags = [{% for tag in album.tags.all %}"{{ tag.name }}"{% if not forloop.last %}, {% endif %}{% endfor %}];
+        tagify = new Tagify(tagsInput, {
+          whitelist: allTags.map(t => t.name),
+          enforceWhitelist: false,
+          dropdown: { enabled: 0, maxItems: 20, closeOnSelect: false }
+        });
+        tagify.addTags(currentTags);
+        tagify.on('change', () => { tagsHidden.value = JSON.stringify(tagify.value); });
+      }
+    });
+
+    cancelTagsBtn.addEventListener('click', function() {
+      tagsEdit.classList.add('hidden');
+      tagsView.classList.remove('hidden');
+    });
+
+    saveTagsBtn.addEventListener('click', async function() {
+      // Disable input and grey out button while saving
+      tagify.setDisabled(true);
+      saveTagsBtn.disabled = true;
+      saveTagsBtn.classList.add('opacity-50', 'cursor-not-allowed');
+      cancelTagsBtn.disabled = true;
+      cancelTagsBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+      const tagsData = JSON.stringify(tagify.value);
+      const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+      const response = await fetch(`/api/album/${albumId}/tags/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+        body: JSON.stringify({ tags: tagsData })
+      });
+
+      if (response.ok) {
+        // Update tags view with new tags
+        const newTagsHtml = tagify.value.length > 0
+          ? tagify.value.map(t => `<span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">${t.value}</span>`).join('')
+          : '<span class="text-xs text-gray-400">No tags</span>';
+        tagsView.innerHTML = newTagsHtml;
+
+        // Go back to view mode
+        tagsEdit.classList.add('hidden');
+        tagsView.classList.remove('hidden');
+      }
+
+      // Re-enable controls
+      tagify.setDisabled(false);
+      saveTagsBtn.disabled = false;
+      saveTagsBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      cancelTagsBtn.disabled = false;
+      cancelTagsBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+    });
+
+    // Notes editing
+    notesTextarea.addEventListener('input', function() {
+      if (this.value !== originalNotes) {
+        saveNotesBtn.classList.remove('hidden');
+      } else {
+        saveNotesBtn.classList.add('hidden');
+      }
+    });
+
+    saveNotesBtn.addEventListener('click', async function() {
+      const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+      const response = await fetch(`/api/album/${albumId}/notes/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+        body: JSON.stringify({ notes: notesTextarea.value })
+      });
+
+      if (response.ok) {
+        originalNotes = notesTextarea.value;
+        saveNotesBtn.classList.add('hidden');
+      }
+    });
+  })();
+</script>
+{% endif %}

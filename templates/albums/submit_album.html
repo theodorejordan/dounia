@@ -133,6 +133,8 @@
 
     <!-- Hidden fields for link mode -->
     {{ form.cover_url }}
+    {{ form.source_url }}
+    {{ form.source_type }}
 
     <!-- Tags (common to both modes) -->
     <div>
@@ -255,6 +257,14 @@
       document.getElementById('id_artist_name').value = data.artist;
       document.getElementById('id_year').value = data.year || '';
       document.getElementById('id_cover_url').value = data.cover_url;
+
+      // Populate source info
+      document.getElementById('id_source_url').value = url;
+      let sourceType = '';
+      if (url.includes('deezer.com')) sourceType = 'deezer';
+      else if (url.includes('discogs.com')) sourceType = 'discogs';
+      else if (url.includes('bandcamp.com')) sourceType = 'bandcamp';
+      document.getElementById('id_source_type').value = sourceType;
 
     } catch {
       linkLoading.classList.add('hidden');
