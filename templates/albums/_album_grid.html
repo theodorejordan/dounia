@@ -13,7 +13,7 @@
 </div>
 <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
   {% for album in albums %}
-  <div class="album-card bg-white border rounded overflow-hidden group cursor-pointer hover:border-gray-300 transition-colors" data-album-id="{{ album.id }}">
+  <div class="album-card bg-white border rounded overflow-hidden group cursor-pointer hover:border-gray-300 hover:shadow hover:scale-[1.01] transition-all duration-200" data-album-id="{{ album.id }}">
     <div class="aspect-square bg-gray-200 relative">
       {% if album.cover %}
       <img src="{{ album.cover.url }}" alt="{{ album.name }}" class="w-full h-full object-cover" loading="lazy">

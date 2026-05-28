@@ -10,7 +10,9 @@
       {{ album.submitted_by.username|first|upper }}
     </div>
   {% endif %}
-  <span class="text-sm text-gray-600">{{ album.submitted_by.username }}</span>
+  <span class="contributor-clickable text-sm text-gray-600 cursor-pointer hover:underline"
+        data-contributor-id="{{ album.submitted_by.id }}"
+        data-contributor-name="{{ album.submitted_by.username }}">{{ album.submitted_by.username }}</span>
   <span class="text-xs text-gray-400">{{ album.created_at|timesince }} ago</span>
 </div>
 {% endif %}
@@ -20,14 +22,17 @@
   <div class="flex items-center justify-between mb-2">
     <span class="text-sm font-medium text-gray-700">Tags</span>
     {% if request.user.is_staff %}
-    <button id="edit-tags-btn" class="text-xs text-gray-500 hover:text-gray-700">Edit</button>
+    <button id="edit-tags-btn" class="text-xs text-gray-500 hover:text-gray-700 hover:underline">Edit</button>
     {% endif %}
   </div>
 
   <!-- Tags display (view mode) -->
   <div id="tags-view" class="flex flex-wrap gap-1">
     {% for tag in album.tags.all %}
-    <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">{{ tag.name }}</span>
+    <span class="tag-clickable text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded cursor-pointer hover:bg-blue-200 transition-colors"
+          data-tag-id="{{ tag.id }}"
+          data-tag-name="{{ tag.name }}"
+          data-tag-category="{{ tag.get_category_display }}">{{ tag.name }}</span>
     {% empty %}
     <span class="text-xs text-gray-400">No tags</span>
     {% endfor %}
@@ -50,7 +55,7 @@
 <div class="mb-4">
   <span class="text-sm font-medium text-gray-700 block mb-2">Notes</span>
   {% if request.user.is_staff %}
-  <textarea id="notes-textarea" class="w-full px-3 py-2 border border-gray-200 rounded text-sm resize-none" rows="3" placeholder="Add notes...">{{ album.notes }}</textarea>
+  <textarea id="notes-textarea" class="w-full px-3 py-2 border border-gray-200 rounded text-sm resize-none focus:outline-none focus:ring-0" rows="3" placeholder="Add notes...">{{ album.notes }}</textarea>
   <button id="save-notes-btn" class="text-xs px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 mt-2 hidden">Save</button>
   {% else %}
   <p class="text-sm text-gray-600">{{ album.notes|default:"No notes" }}</p>
@@ -65,9 +70,9 @@
     Open source
   </a>
   {% else %}
-  <button disabled class="flex-1 text-center text-xs px-3 py-2 border border-gray-200 rounded text-gray-400 cursor-not-allowed">
-    Open source
-  </button>
+  <a href="https://www.deezer.com/search/{{ album.artist.name|urlencode }}%20{{ album.name|urlencode }}" target="_blank" rel="noopener" class="flex-1 text-center text-xs px-3 py-2 border border-gray-200 rounded text-gray-600 hover:bg-gray-50 transition-colors">
+    Search on Deezer
+  </a>
   {% endif %}
 
   <!-- Delete button (admin only) -->

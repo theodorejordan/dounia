@@ -554,12 +554,22 @@ def drawer_similar_view(request, album_id):
     # Albums by the same artist (excluding current)
     same_artist = Album.objects.filter(artist_id=album.artist_id).exclude(id=album_id).only('id', 'name', 'cover', 'year')[:2]
 
-    # Albums sharing at least one tag (excluding current)
-    # Use values_list to get IDs directly - avoids slow subquery
+    # Albums with exactly the same tags (excluding current)
     tag_ids = list(album.tags.values_list('id', flat=True))
+    tag_count = len(tag_ids)
     same_tags = []
     if tag_ids:
-        same_tags = Album.objects.filter(tags__id__in=tag_ids).exclude(id=album_id).distinct().select_related('artist').only('id', 'name', 'cover', 'artist')[:2]
+        same_tags = (
+            Album.objects
+            .exclude(id=album_id)
+            .annotate(
+                matching_tags=Count('tags', filter=Q(tags__id__in=tag_ids)),
+                total_tags=Count('tags')
+            )
+            .filter(matching_tags=tag_count, total_tags=tag_count)
+            .select_related('artist')
+            .only('id', 'name', 'cover', 'artist')[:2]
+        )
 
     return render(request, 'albums/_drawer_similar.html', {
         'album': album,
