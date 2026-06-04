@@ -16,7 +16,7 @@
   <div class="album-card bg-white border rounded overflow-hidden group cursor-pointer hover:border-gray-300 hover:shadow hover:scale-[1.01] transition-all duration-200" data-album-id="{{ album.id }}">
     <div class="aspect-square bg-gray-200 relative">
       {% if album.cover %}
-      <img src="{{ album.cover.url }}" alt="{{ album.name }}" class="w-full h-full object-cover" loading="lazy">
+      <img src="{{ album.cover_thumbnail.url }}" alt="{{ album.name }}" class="w-full h-full object-cover" loading="lazy">
       {% else %}
       <div class="w-full h-full flex items-center justify-center text-gray-400">
         No cover
@@ -87,7 +87,7 @@
 
 <!-- Load More Button -->
 {% if has_more %}
-<div class="mt-8 text-center">
+<div class="mt-8 text-center flex justify-center">
   <button id="load-more-btn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors">
     Load More
   </button>

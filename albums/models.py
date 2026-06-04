@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.text import slugify
+from imagekit.models import ImageSpecField
+from imagekit.processors import ResizeToFill
 
 
 class AlbumQuerySet(models.QuerySet):
@@ -120,6 +122,12 @@ class Album(models.Model):
     artist = models.ForeignKey(Artist, on_delete=models.PROTECT,
                                related_name='albums')
     cover = models.ImageField(upload_to='covers/%Y/%m/')
+    cover_thumbnail = ImageSpecField(
+        source='cover',
+        processors=[ResizeToFill(300, 300)],
+        format='JPEG',
+        options={'quality': 85}
+    )
 
     # Champs optionnels
     year = models.PositiveIntegerField(null=True, blank=True)

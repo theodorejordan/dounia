@@ -17,3 +17,4 @@ urllib3==2.6.3
 whitenoise==6.6.0
 django-heroicons==0.0.8
 beautifulsoup4==4.13.3
+django-imagekit==6.0.0

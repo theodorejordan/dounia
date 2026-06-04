@@ -1027,12 +1027,16 @@
     }
   });
 
-  // Close when clicking outside the drawer (but not on album cards or filter)
+  // Close when clicking outside the drawer (but not on album cards, filter, or UI controls)
   document.addEventListener('click', function(e) {
     if (activeAlbumId === null) return;
     if (e.target.closest('#album-drawer')) return;
     if (e.target.closest('.album-card')) return;
     if (e.target.closest('#filter-form')) return;
+    if (e.target.closest('#load-more-btn')) return;
+    if (e.target.closest('#loading-indicator')) return;
+    if (e.target.closest('#toggle-sidebar')) return;
+    if (e.target.closest('#sidebar')) return;
     closeDrawer();
   });
 </script>

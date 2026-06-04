@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'albums',
     'heroicons',
+    'imagekit',
 ]
 
 MIDDLEWARE = [
@@ -157,3 +158,6 @@ WHITENOISE_MIMETYPES = {
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
+# django-imagekit: generate thumbnails eagerly on first access
+IMAGEKIT_DEFAULT_CACHEFILE_STRATEGY = 'imagekit.cachefiles.strategies.Optimistic'
