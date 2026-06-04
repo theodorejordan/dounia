@@ -7,7 +7,7 @@
 <div class="sticky top-0 z-10 bg-white border-b p-4">
   <form method="GET" action="{% url 'collection' %}" id="filter-form">
     <!-- Single unified filter input -->
-    <div class="relative mb-2">
+    <div class="relative mb-1">
       <input id="unified-filter" placeholder="Filter by artist, contributor, or tags..." class="w-full">
       <button type="button" id="clear-filters" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 hidden z-10">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -32,8 +32,8 @@
       {% endfor %}
     </div>
 
-    <!-- Second row for child tags (initially hidden) -->
-    <div id="tags-row" class="mt-2 hidden transition-all">
+    <!-- Second row for child tags (initially collapsed) -->
+    <div id="tags-row">
       <div id="tags-row-buttons" class="flex flex-wrap gap-1"></div>
     </div>
   </form>
@@ -59,6 +59,25 @@
 <style>
   @keyframes spin {
     to { transform: rotate(360deg); }
+  }
+
+  /* Subcategory row expand/collapse transition */
+  #tags-row {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition: grid-template-rows 0.20s ease-in, opacity 0.20s ease-in; /* collapse */
+  }
+
+  #tags-row.expanded {
+    grid-template-rows: 1fr;
+    opacity: 1;
+    transition: grid-template-rows 0.20s ease-out, opacity 0.20s ease-out; /* expand */
+  }
+
+  #tags-row-buttons {
+    overflow: hidden;
+    padding-top: 0.25rem;
   }
 
   /* Disabled filter form state */
@@ -616,8 +635,9 @@
         // Collapse row
         const wasAllSelected = categoryInput.value === category;
         selectedCategory = null;
-        tagsRow.classList.add('hidden');
-        updateFilterBarHeight();
+        tagsRow.classList.remove('expanded');
+        // Update height after transition completes
+        setTimeout(updateFilterBarHeight, 250);
         // Remove ring from button
         this.classList.remove('ring-1', 'ring-blue-500');
         // Only trigger update if "All" was selected (tags stay in Tagify)
@@ -645,8 +665,9 @@
     const highlightAll = isAllButtonActive(category);
 
     renderTagButtons(category, tags, highlightAll, selectedTagsInCategory);
-    tagsRow.classList.remove('hidden');
-    updateFilterBarHeight();
+    tagsRow.classList.add('expanded');
+    // Update height after transition completes
+    setTimeout(updateFilterBarHeight, 250);
   }
 
   // Render "All" + individual tag buttons
