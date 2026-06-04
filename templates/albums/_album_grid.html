@@ -66,6 +66,7 @@
       </div>
       {% endif %}
       <!-- Submitted by -->
+      {% comment %}
       {% if album.submitted_by %}
       <div class="mt-2 pt-2 border-t border-gray-200 flex items-center gap-1.5">
         {% if album.submitted_by.userprofile.avatar %}
@@ -78,6 +79,7 @@
               data-contributor-name="{{ album.submitted_by.username }}">{{ album.submitted_by.username }}</span>
       </div>
       {% endif %}
+      {% endcomment %}
     </div>
   </div>
   {% endfor %}

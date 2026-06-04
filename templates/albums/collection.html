@@ -51,7 +51,7 @@
 </div>
 
 <!-- Album Drawer -->
-<div id="album-drawer" class="fixed right-0 w-[380px] bg-white border-l transition-transform duration-300 overflow-y-auto z-30">
+<div id="album-drawer" class="fixed right-0 top-32 w-[380px] h-[calc(100vh-8rem)] bg-white border-l transition-transform duration-300 overflow-y-auto z-5">
   <div id="drawer-content">
   </div>
 </div>
@@ -144,8 +144,6 @@
 
   /* Drawer positioning */
   #album-drawer {
-    top: 0;
-    height: 100vh;
     transform: translateX(100%);
   }
 
@@ -157,31 +155,6 @@
   /* Grid shrinks when drawer is open */
   #main-content.drawer-open {
     margin-right: 380px;
-  }
-
-  /* Reduce grid columns when drawer is open */
-  #main-content.drawer-open .grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-  @media (min-width: 768px) {
-    #main-content.drawer-open .grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-  }
-  @media (min-width: 1024px) {
-    #main-content.drawer-open .grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-  }
-  @media (min-width: 1280px) {
-    #main-content.drawer-open .grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-  }
-  @media (min-width: 1536px) {
-    #main-content.drawer-open .grid {
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-    }
   }
 
   /* Remove default focus outline and set base outline for smooth transition */
