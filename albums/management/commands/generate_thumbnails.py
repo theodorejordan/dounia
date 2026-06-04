@@ -16,8 +16,8 @@ class Command(BaseCommand):
 
         for i, album in enumerate(albums, 1):
             try:
-                # Accessing .url triggers thumbnail generation
-                _ = album.cover_thumbnail.url
+                # Force generate the thumbnail file
+                album.cover_thumbnail.generate()
                 success += 1
                 if i % 50 == 0:
                     self.stdout.write(f'  Processed {i}/{total}...')
