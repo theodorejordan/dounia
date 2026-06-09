@@ -150,11 +150,58 @@
       });
 
       if (response.ok) {
-        // Update tags view with new tags
-        const newTagsHtml = tagify.value.length > 0
-          ? tagify.value.map(t => `<span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">${t.value}</span>`).join('')
+        const data = await response.json();
+
+        // Update tags view in drawer
+        const newTagsHtml = data.tags.length > 0
+          ? data.tags.map(t => `<span class="tag-clickable text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded cursor-pointer hover:bg-blue-200 transition-colors" data-tag-id="${t.id}" data-tag-name="${t.name}" data-tag-category="${t.category}">${t.name}</span>`).join('')
           : '<span class="text-xs text-gray-400">No tags</span>';
         tagsView.innerHTML = newTagsHtml;
+
+        // Update album card in collection grid
+        const albumCard = document.querySelector(`.album-card[data-album-id="${albumId}"]`);
+        if (albumCard) {
+          const cardContent = albumCard.querySelector('.p-2');
+          let tagsContainer = cardContent.querySelector('.mt-2.flex.flex-wrap.gap-1');
+
+          if (data.tags.length > 0) {
+            // Build tags HTML matching grid template structure
+            const visibleTags = data.tags.slice(0, 2);
+            const remainingCount = data.tags.length - 2;
+
+            const defaultViewTags = visibleTags.map(t =>
+              `<span class="tag-clickable text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded cursor-pointer hover:bg-blue-200 transition-colors" data-tag-id="${t.id}" data-tag-name="${t.name}" data-tag-category="${t.category}">${t.name}</span>`
+            ).join('');
+
+            const remainingBadge = remainingCount > 0
+              ? `<span class="text-xs px-2 py-1 bg-blue-100 text-gray-600 rounded">+${remainingCount}</span>`
+              : '';
+
+            const hoverViewTags = data.tags.map(t =>
+              `<span class="tag-clickable text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded cursor-pointer hover:bg-blue-200 transition-colors" data-tag-id="${t.id}" data-tag-name="${t.name}" data-tag-category="${t.category}">${t.name}</span>`
+            ).join('');
+
+            const tagsHtml = `
+              <div class="flex flex-wrap gap-1 group-hover:hidden">${defaultViewTags}${remainingBadge}</div>
+              <div class="hidden group-hover:flex flex-wrap gap-1">${hoverViewTags}</div>
+            `;
+
+            if (tagsContainer) {
+              tagsContainer.innerHTML = tagsHtml;
+            } else {
+              // Create tags container if it doesn't exist
+              tagsContainer = document.createElement('div');
+              tagsContainer.className = 'mt-2 flex flex-wrap gap-1';
+              tagsContainer.innerHTML = tagsHtml;
+              cardContent.appendChild(tagsContainer);
+            }
+          } else {
+            // No tags - remove container if exists
+            if (tagsContainer) {
+              tagsContainer.remove();
+            }
+          }
+        }
 
         // Go back to view mode
         tagsEdit.classList.add('hidden');

@@ -620,7 +620,13 @@ def update_album_tags(request, album_id):
         data = json.loads(request.body)
         tags_json = data.get('tags', '[]')
         sync_album_tags(album, tags_json)
-        return JsonResponse({'success': True})
+
+        # Return the updated tags for grid sync
+        tags = [
+            {'id': tag.id, 'name': tag.name, 'category': tag.get_category_display()}
+            for tag in album.tags.all()
+        ]
+        return JsonResponse({'success': True, 'tags': tags})
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
 
