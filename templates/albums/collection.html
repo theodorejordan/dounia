@@ -927,7 +927,8 @@
       </div>`;
     }
 
-    // Build submitted by HTML
+    // Build submitted by HTML (commented out for now)
+    /*
     let submittedByHtml = '';
     if (album.submitted_by) {
       const avatarHtml = album.submitted_by.avatar_url
@@ -942,6 +943,7 @@
         </div>
       `;
     }
+    */
 
     card.innerHTML = `
       <div class="aspect-square bg-gray-200 relative">
@@ -949,12 +951,13 @@
       </div>
       <div class="p-2">
         <h3 class="font-semibold text-gray-800 truncate">${escapeHtml(album.name)}</h3>
-        <p class="artist-clickable text-sm text-gray-600 truncate cursor-pointer hover:underline"
-           data-artist-id="${album.artist.id}"
-           data-artist-name="${escapeHtml(album.artist.name)}">${escapeHtml(album.artist.name)}</p>
-        ${album.year ? `<p class="text-xs text-gray-500">${album.year}</p>` : ''}
+        <div class="flex justify-between items-center gap-x-2">
+          <p class="artist-clickable text-sm text-gray-600 truncate cursor-pointer hover:underline"
+             data-artist-id="${album.artist.id}"
+             data-artist-name="${escapeHtml(album.artist.name)}">${escapeHtml(album.artist.name)}</p>
+          ${album.year ? `<p class="text-xs text-gray-500">${album.year}</p>` : ''}
+        </div>
         ${tagsHtml}
-        ${submittedByHtml}
       </div>
     `;
 
