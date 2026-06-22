@@ -32,7 +32,8 @@
     <span class="text-xs px-2 py-0.5 rounded
       {% if album.source_type == 'deezer' %}bg-purple-100 text-purple-700
       {% elif album.source_type == 'discogs' %}bg-orange-100 text-orange-700
-      {% elif album.source_type == 'bandcamp' %}bg-cyan-100 text-cyan-700
+      {% elif album.source_type == 'bandcamp' %}bg-teal-100 text-teal-700
+      {% elif album.source_type == 'rateyourmusic' %}bg-blue-100 text-blue-700
       {% endif %}">
       {{ album.get_source_type_display }}
     </span>

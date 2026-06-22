@@ -138,6 +138,7 @@ class Album(models.Model):
         ('deezer', 'Deezer'),
         ('discogs', 'Discogs'),
         ('bandcamp', 'Bandcamp'),
+        ('rateyourmusic', 'RateYourMusic'),
     ]
     source_url = models.URLField(max_length=500, blank=True)
     source_type = models.CharField(max_length=20, choices=SOURCE_CHOICES, blank=True)
@@ -212,6 +213,7 @@ class Submission(models.Model):
         ('deezer', 'Deezer'),
         ('discogs', 'Discogs'),
         ('bandcamp', 'Bandcamp'),
+        ('rateyourmusic', 'RateYourMusic'),
     ]
     source_url = models.URLField(max_length=500, blank=True)
     source_type = models.CharField(max_length=20, choices=SOURCE_CHOICES, blank=True)

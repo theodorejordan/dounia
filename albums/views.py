@@ -15,6 +15,7 @@ import json
 from .deezer_api import extract_deezer_album_id, fetch_album_from_deezer
 from .discogs_api import fetch_from_discogs
 from .bandcamp_api import fetch_album_from_bandcamp
+from .rateyourmusic_api import fetch_album_from_rateyourmusic
 
 
 def collection_view(request):
@@ -156,8 +157,10 @@ def fetch_album_from_link(request):
         result = fetch_from_discogs(url)
     elif 'bandcamp.com' in url:
         result = fetch_album_from_bandcamp(url)
+    elif 'rateyourmusic.com' in url:
+        result = fetch_album_from_rateyourmusic(url)
     else:
-        return JsonResponse({'error': 'Unrecognised link — paste a Deezer, Discogs or Bandcamp URL'}, status=400)
+        return JsonResponse({'error': 'Unrecognised link — paste a Deezer, Discogs, Bandcamp or RateYourMusic URL'}, status=400)
 
     if 'error' in result:
         return JsonResponse(result, status=400)

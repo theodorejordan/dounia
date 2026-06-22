@@ -36,16 +36,16 @@
           Link *
         </label>
         <div class="flex gap-2">
-          <input type="text" id="link-url-input" class="flex-1 px-4 py-2 border border-gray-300 rounded outline-none" placeholder="Deezer, Discogs or Bandcamp...">
-          <button type="button" id="btn-fetch-link" class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-medium transition">
-            Import
+          <input type="text" id="link-url-input" class="flex-1 px-4 py-2 border border-gray-300 rounded outline-none" placeholder="Deezer, Discogs, Bandcamp or RateYourMusic...">
+          <button type="button" id="btn-fetch-link" class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-medium transition flex items-center gap-2">
+            <svg id="import-spinner" class="hidden animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span id="import-label">Import</span>
           </button>
         </div>
         <div id="link-error" class="mt-2 text-sm text-red-600 hidden"></div>
-        <div id="link-loading" class="mt-2 text-sm text-blue-600 hidden flex items-center gap-1">
-          {% hi "refresh" css_class="h-4 w-4 animate-spin" %}
-          Loading...
-        </div>
       </div>
 
       <!-- Preview après import -->
@@ -55,7 +55,10 @@
           Album found!
         </h3>
         <div class="flex gap-4">
-          <img id="link-preview-cover" src="" alt="Cover" class="w-32 h-32 object-cover rounded">
+          <img id="link-preview-cover" src="" alt="Cover" class="w-32 h-32 object-cover rounded hidden">
+          <div id="link-preview-no-cover" class="w-32 h-32 rounded bg-gray-200 flex items-center justify-center text-gray-400 text-xs text-center leading-tight hidden">
+            No cover found<br>upload below
+          </div>
           <div class="flex-1">
             <p class="text-sm text-gray-600">Album</p>
             <p id="link-preview-name" class="font-bold text-lg text-gray-800"></p>
@@ -157,8 +160,12 @@
     
     <!-- Boutons -->
     <div class="flex gap-2">
-      <button type="submit" id="btn-submit" disabled class="flex-1 px-6 py-3 bg-gray-300 text-gray-500 font-medium rounded cursor-not-allowed transition">
-        Add album
+      <button type="submit" id="btn-submit" disabled class="flex-1 px-6 py-3 bg-gray-300 text-gray-500 font-medium rounded cursor-not-allowed transition flex items-center justify-center gap-2">
+        <svg id="submit-spinner" class="hidden animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span id="submit-label">Add album</span>
       </button>
       <a href="{% url 'collection' %}" class="px-6 py-3 bg-gray-200 text-gray-700 font-medium rounded hover:bg-gray-300 transition">
         Cancel
@@ -234,12 +241,29 @@
   btnModeLink.addEventListener('click', () => switchMode('link'));
   btnModeManual.addEventListener('click', () => switchMode('manual'));
 
-  // === Fetch from link (Deezer / Discogs / Bandcamp) ===
+  // === Fetch from link (Deezer / Discogs / Bandcamp / RateYourMusic) ===
   const btnFetchLink = document.getElementById('btn-fetch-link');
   const linkUrlInput = document.getElementById('link-url-input');
   const linkError = document.getElementById('link-error');
-  const linkLoading = document.getElementById('link-loading');
   const linkPreview = document.getElementById('link-preview');
+  const importSpinner = document.getElementById('import-spinner');
+  const importLabel = document.getElementById('import-label');
+
+  function setImportLoading(loading) {
+    if (loading) {
+      btnFetchLink.disabled = true;
+      btnFetchLink.classList.remove('hover:bg-blue-700');
+      btnFetchLink.classList.add('opacity-70', 'cursor-not-allowed');
+      importSpinner.classList.remove('hidden');
+      importLabel.textContent = 'Importing...';
+    } else {
+      btnFetchLink.disabled = false;
+      btnFetchLink.classList.add('hover:bg-blue-700');
+      btnFetchLink.classList.remove('opacity-70', 'cursor-not-allowed');
+      importSpinner.classList.add('hidden');
+      importLabel.textContent = 'Import';
+    }
+  }
 
   btnFetchLink.addEventListener('click', async () => {
     const url = linkUrlInput.value.trim();
@@ -252,12 +276,12 @@
 
     linkError.classList.add('hidden');
     linkPreview.classList.add('hidden');
-    linkLoading.classList.remove('hidden');
+    setImportLoading(true);
 
     try {
       const response = await fetch(`{% url 'fetch_album_from_link' %}?url=${encodeURIComponent(url)}`);
       const data = await response.json();
-      linkLoading.classList.add('hidden');
+      setImportLoading(false);
 
       if (data.error) {
         linkError.textContent = data.error;
@@ -266,7 +290,16 @@
       }
 
       // Afficher la preview
-      document.getElementById('link-preview-cover').src = data.cover_url;
+      const previewCover = document.getElementById('link-preview-cover');
+      const previewNoCover = document.getElementById('link-preview-no-cover');
+      if (data.cover_url) {
+        previewCover.src = data.cover_url;
+        previewCover.classList.remove('hidden');
+        previewNoCover.classList.add('hidden');
+      } else {
+        previewCover.classList.add('hidden');
+        previewNoCover.classList.remove('hidden');
+      }
       document.getElementById('link-preview-name').textContent = data.name;
       document.getElementById('link-preview-artist').textContent = data.artist;
       document.getElementById('link-preview-year').textContent = data.year || 'Unknown';
@@ -284,10 +317,11 @@
       if (url.includes('deezer.com')) sourceType = 'deezer';
       else if (url.includes('discogs.com')) sourceType = 'discogs';
       else if (url.includes('bandcamp.com')) sourceType = 'bandcamp';
+      else if (url.includes('rateyourmusic.com')) sourceType = 'rateyourmusic';
       document.getElementById('id_source_type').value = sourceType;
 
     } catch {
-      linkLoading.classList.add('hidden');
+      setImportLoading(false);
       linkError.textContent = 'Connection error';
       linkError.classList.remove('hidden');
     }
@@ -383,18 +417,34 @@
   });
 
   const btnSubmit = document.getElementById('btn-submit');
+  const submitSpinner = document.getElementById('submit-spinner');
+  const submitLabel = document.getElementById('submit-label');
 
   function updateSubmitBtn() {
     tagsHidden.value = JSON.stringify(tagify.value);
     const hasTags = tagify.value.length > 0;
     btnSubmit.disabled = !hasTags;
     btnSubmit.className = hasTags
-      ? 'flex-1 px-6 py-3 bg-blue-600 text-white font-medium rounded hover:bg-blue-700 transition'
-      : 'flex-1 px-6 py-3 bg-gray-300 text-gray-500 font-medium rounded cursor-not-allowed transition';
+      ? 'flex-1 px-6 py-3 bg-blue-600 text-white font-medium rounded hover:bg-blue-700 transition flex items-center justify-center gap-2'
+      : 'flex-1 px-6 py-3 bg-gray-300 text-gray-500 font-medium rounded cursor-not-allowed transition flex items-center justify-center gap-2';
   }
 
   tagify.on('add', updateSubmitBtn);
   tagify.on('remove', updateSubmitBtn);
+
+  function setSubmitLoading(loading) {
+    if (loading) {
+      btnSubmit.disabled = true;
+      btnSubmit.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+      btnSubmit.classList.add('bg-gray-400', 'cursor-not-allowed');
+      submitSpinner.classList.remove('hidden');
+      submitLabel.textContent = 'Adding...';
+    } else {
+      updateSubmitBtn();
+      submitSpinner.classList.add('hidden');
+      submitLabel.textContent = 'Add album';
+    }
+  }
 
   // === Duplicate check on submit ===
   const albumForm = document.getElementById('album-form');
@@ -410,6 +460,7 @@
     if (!name || !artist) return; // let the backend handle validation
 
     e.preventDefault();
+    setSubmitLoading(true);
 
     try {
       const params = new URLSearchParams({ name, artist });
@@ -417,6 +468,7 @@
       const data = await response.json();
 
       if (data.exists) {
+        setSubmitLoading(false);
         duplicateModal.classList.remove('hidden');
       } else {
         skipDuplicateCheck = true;
