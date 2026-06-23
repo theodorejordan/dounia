@@ -25,7 +25,7 @@
         type="button"
         data-category="{{ category_key }}"
         data-label="{{ category_label }}"
-        class="category-btn px-2 py-1 text-xs rounded-sm transition-colors text-blue-800 hover:bg-blue-200"
+        class="category-btn px-2 py-1 text-xs rounded-md transition-colors text-blue-800 hover:bg-blue-200"
       >
         {{ category_label }}
       </button>
@@ -55,145 +55,6 @@
   <div id="drawer-content">
   </div>
 </div>
-
-<style>
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-
-  /* Subcategory row expand/collapse transition */
-  #tags-row {
-    display: grid;
-    grid-template-rows: 0fr;
-    opacity: 0;
-    transition: grid-template-rows 0.20s ease-in, opacity 0.20s ease-in; /* collapse */
-  }
-
-  #tags-row.expanded {
-    grid-template-rows: 1fr;
-    opacity: 1;
-    transition: grid-template-rows 0.20s ease-out, opacity 0.20s ease-out; /* expand */
-  }
-
-  #tags-row-buttons {
-    overflow: hidden;
-    padding-top: 0.25rem;
-  }
-
-  /* Disabled filter form state */
-  #filter-form.loading {
-    pointer-events: none;
-  }
-
-  #filter-form.loading input,
-  #filter-form.loading .tagify {
-    background-color: #f3f4f6 !important;
-    cursor: not-allowed !important;
-  }
-
-  #filter-form.loading .tag-filter-btn {
-    background-color: #f3f4f6 !important;
-    color: #9ca3af !important;
-    border-color: #d1d5db !important;
-    cursor: not-allowed !important;
-  }
-
-  #filter-form.loading .category-btn {
-    color: #9ca3af !important;
-    border-color: #d1d5db !important;
-    --tw-ring-color: #d1d5db !important;
-    cursor: not-allowed !important;
-  }
-
-  /* Loading state for grid wrapper */
-  #album-grid-wrapper.loading #album-grid-container .grid {
-    position: relative;
-    opacity: 0.5;
-  }
-
-  /* Overlay only on the grid, not the count */
-  #album-grid-wrapper.loading #album-grid-container .grid::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: rgba(195, 195, 195, 0.4);
-    z-index: 10;
-    border-radius: 6px;
-  }
-
-  /* Spinner centered on grid */
-  #album-grid-wrapper.loading #album-grid-container .grid::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    margin: auto;
-    width: 40px;
-    height: 40px;
-    border: 3px solid #e5e7eb;
-    border-top-color: #3b82f6;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    z-index: 11;
-  }
-
-  .tagify {
-    display: flex;
-    align-items: center;
-    min-height: 43.39px;
-  }
-
-  .tagify__tag {
-    margin: 0.2rem;
-    display: inline-flex;
-    align-items: center;
-  }
-
-  /* Dropdown as inline chips */
-  .tagify__dropdown__wrapper {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    padding: 10px;
-  }
-
-  .tagify__dropdown__item {
-    display: inline-block !important;
-    width: auto !important;
-  }
-
-  /* Drawer positioning */
-  #album-drawer {
-    transform: translateX(100%);
-  }
-
-  /* Drawer open state */
-  #album-drawer.open {
-    transform: translateX(0);
-  }
-
-  /* Grid shrinks when drawer is open */
-  #main-content.drawer-open {
-    margin-right: 380px;
-  }
-
-  /* Remove default focus outline and set base outline for smooth transition */
-  .album-card {
-    outline: 1px solid transparent;
-    outline-offset: -1px;
-  }
-
-  .album-card:focus {
-    outline: 1px solid transparent;
-  }
-
-  /* Active album card highlight */
-  .album-card.active {
-    outline: 1px solid #3b82f6;
-    outline-offset: -1px;
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-    transform: scale(1.01);
-  }
-</style>
 
 <script>
   const IS_STAFF = {{ request.user.is_staff|yesno:"true,false" }};
@@ -902,7 +763,7 @@
   // Create album card HTML element
   function createAlbumCard(album) {
     const card = document.createElement('div');
-    card.className = 'album-card bg-white border rounded-sm overflow-hidden group cursor-pointer hover:border-gray-300 hover:shadow hover:scale-[1.01] transition-all duration-200';
+    card.className = 'album-card bg-white border rounded-md overflow-hidden group cursor-pointer hover:border-gray-300 hover:shadow hover:scale-[1.01] transition-all duration-200';
     card.dataset.albumId = album.id;
 
     // Build cover image HTML

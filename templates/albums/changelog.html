@@ -414,33 +414,6 @@
 
 </div>
 
-<style>
-  .changelog-content {
-    display: grid;
-    grid-template-rows: 0fr;
-    overflow: hidden;
-    transition: grid-template-rows 0.2s ease-out;
-  }
-
-  .changelog-content > div {
-    overflow: hidden;
-    min-height: 0;
-    visibility: hidden;
-  }
-
-  .changelog-entry[data-open="true"] .changelog-content {
-    grid-template-rows: 1fr;
-  }
-
-  .changelog-entry[data-open="true"] .changelog-content > div {
-    visibility: visible;
-  }
-
-  .changelog-entry[data-open="true"] .changelog-chevron {
-    transform: rotate(180deg);
-  }
-</style>
-
 <script>
   document.querySelectorAll('.changelog-entry').forEach(entry => {
     const header = entry.querySelector('.changelog-header');

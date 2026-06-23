@@ -1,0 +1,318 @@
+/* ============================================================
+   Font
+   ============================================================ */
+@font-face {
+  font-family: 'Retropix';
+  src: url('fonts/retropix.otf') format('opentype');
+}
+
+.font-retropix {
+  font-family: 'Retropix', sans-serif;
+}
+
+/* ============================================================
+   CSS Variables
+   ============================================================ */
+:root {
+  --tag-radius: 0.5rem;
+}
+
+/* ============================================================
+   Sidebar
+   ============================================================ */
+.sidebar-collapsed-initial #sidebar {
+  width: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.sidebar-collapsed-initial #toggle-sidebar {
+  left: 0.5rem;
+}
+
+#sidebar.collapsed {
+  width: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.sidebar-text {
+  font-size: 1rem;
+}
+
+#sidebar.collapsed .sidebar-text {
+  display: none;
+}
+
+#toggle-sidebar {
+  transition: left 0.4s ease, opacity 0.05s ease;
+  opacity: 0;
+}
+
+#sidebar:hover ~ main #toggle-sidebar,
+#toggle-sidebar:hover {
+  opacity: 1;
+}
+
+body.sidebar-collapsed #toggle-sidebar {
+  left: 0.5rem;
+  opacity: 1;
+}
+
+body:not(.sidebar-collapsed) #toggle-sidebar {
+  left: 13.15rem;
+}
+
+/* ============================================================
+   Sidebar icons
+   ============================================================ */
+#sidebar svg path {
+  stroke-width: 1.5;
+}
+
+/* ============================================================
+   Shared tag/badge shapes
+   ============================================================ */
+.tag, .source-badge, .user-avatar {
+  border-radius: var(--tag-radius);
+}
+
+/* ============================================================
+   Tagify
+   ============================================================ */
+.tagify {
+  display: flex;
+  align-items: center;
+  border: 1px solid #d1d5db;
+  border-radius: 0.25rem;
+  padding: 0.375rem;
+  min-height: 43.39px;
+  background: white;
+}
+
+.tagify__input {
+  margin: 0;
+  min-width: 120px;
+}
+
+.tagify__tag {
+  --tag-bg: #DBEAFE;
+  --tag-text-color: #1E40AF;
+  --tag-remove-btn-color: #1E40AF;
+  margin: 0.2rem 0.2rem 0.2rem 0;
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--tag-radius);
+  padding: 0;
+}
+
+.tagify__tag > div {
+  padding: 0.25rem 0.5rem;
+}
+
+.tagify__tag-text {
+  font-size: 0.75rem;
+}
+
+.tagify__tag__removeBtn {
+  width: 14px;
+  height: 14px;
+  margin-right: 0.25rem;
+}
+
+.tagify__dropdown {
+  border-radius: 0.4rem;
+  box-shadow: none;
+  z-index: 1000;
+  background: white;
+}
+
+.tagify__dropdown__wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px;
+}
+
+.tagify__dropdown__item {
+  display: inline-block !important;
+  width: auto !important;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.25rem;
+  margin: 0.125rem 0;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: #374151;
+}
+
+.tagify__dropdown__item:hover {
+  background-color: #F3F4F6;
+  color: rgb(88, 113, 152);
+}
+
+.tagify__dropdown__item--active {
+  background-color: #DBEAFE;
+  color: #1E40AF;
+}
+
+.tagify__dropdown__item--active:hover {
+  background-color: #BFDBFE;
+  color: #1E40AF;
+}
+
+/* ============================================================
+   Forms — file input (submit & add album pages)
+   ============================================================ */
+#id_cover {
+  display: none;
+}
+
+/* ============================================================
+   Collection — subcategory row expand/collapse
+   ============================================================ */
+#tags-row {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows 0.20s ease-in, opacity 0.20s ease-in;
+}
+
+#tags-row.expanded {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  transition: grid-template-rows 0.20s ease-out, opacity 0.20s ease-out;
+}
+
+#tags-row-buttons {
+  overflow: hidden;
+  padding-top: 0.25rem;
+}
+
+/* ============================================================
+   Collection — filter loading state
+   ============================================================ */
+#filter-form.loading {
+  pointer-events: none;
+}
+
+#filter-form.loading input,
+#filter-form.loading .tagify {
+  background-color: #f3f4f6 !important;
+  cursor: not-allowed !important;
+}
+
+#filter-form.loading .tag-filter-btn {
+  background-color: #f3f4f6 !important;
+  color: #9ca3af !important;
+  border-color: #d1d5db !important;
+  cursor: not-allowed !important;
+}
+
+#filter-form.loading .category-btn {
+  color: #9ca3af !important;
+  border-color: #d1d5db !important;
+  --tw-ring-color: #d1d5db !important;
+  cursor: not-allowed !important;
+}
+
+/* ============================================================
+   Collection — grid loading overlay + spinner
+   ============================================================ */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+#album-grid-wrapper.loading #album-grid-container .grid {
+  position: relative;
+  opacity: 0.5;
+}
+
+#album-grid-wrapper.loading #album-grid-container .grid::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(195, 195, 195, 0.4);
+  z-index: 10;
+  border-radius: 6px;
+}
+
+#album-grid-wrapper.loading #album-grid-container .grid::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  z-index: 11;
+}
+
+/* ============================================================
+   Collection — album drawer
+   ============================================================ */
+#album-drawer {
+  transform: translateX(100%);
+}
+
+#album-drawer.open {
+  transform: translateX(0);
+}
+
+#main-content.drawer-open {
+  margin-right: 380px;
+}
+
+/* ============================================================
+   Collection — album card
+   ============================================================ */
+.album-card {
+  outline: 1px solid transparent;
+  outline-offset: -1px;
+}
+
+.album-card:focus {
+  outline: 1px solid transparent;
+}
+
+.album-card.active {
+  outline: 1px solid #93c5fd;
+  outline-offset: -1px;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  transform: scale(1.01);
+}
+
+/* ============================================================
+   Changelog — collapsible entries
+   ============================================================ */
+.changelog-content {
+  display: grid;
+  grid-template-rows: 0fr;
+  overflow: hidden;
+  transition: grid-template-rows 0.2s ease-out;
+}
+
+.changelog-content > div {
+  overflow: hidden;
+  min-height: 0;
+  visibility: hidden;
+  padding-bottom: 0;
+}
+
+.changelog-entry[data-open="true"] .changelog-content > div {
+  padding-bottom: 1.5rem;
+}
+
+.changelog-entry[data-open="true"] .changelog-content {
+  grid-template-rows: 1fr;
+}
+
+.changelog-entry[data-open="true"] .changelog-content > div {
+  visibility: visible;
+}
+
+.changelog-entry[data-open="true"] .changelog-chevron {
+  transform: rotate(180deg);
+}

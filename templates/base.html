@@ -7,93 +7,9 @@
   <title>{% block title %}Dounia{% endblock %}</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
+  <link rel="stylesheet" href="{% static 'app.css' %}">
   <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
   <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-  <style>
-    @font-face {
-      font-family: 'Retropix';
-      src: url("{% static 'fonts/retropix.otf' %}") format('opentype');
-    }
-    .font-retropix {
-      font-family: 'Retropix', sans-serif;
-    }
-  </style>
-  <style>
-    /* Tagify base styling */
-    .tagify {
-      border: 1px solid #d1d5db;
-      border-radius: 0.25rem;
-      padding: 0.375rem;
-      min-height: 42px;
-      background: white;
-    }
-
-    .tagify__input {
-      margin: 0;
-      min-width: 120px;
-    }
-
-    /* Tags inside input - match album collection style */
-    .tagify__tag {
-      --tag-bg: #DBEAFE;
-      --tag-text-color: #1E40AF;
-      --tag-remove-btn-color: #1E40AF;
-      margin: 0.125rem;
-      border-radius: var(--tag-radius);
-      padding: 0;
-    }
-
-    .tagify__tag > div {
-      padding: 0.25rem 0.5rem;
-    }
-
-    .tagify__tag-text {
-      font-size: 0.75rem;
-    }
-
-    .tagify__tag__removeBtn {
-      width: 14px;
-      height: 14px;
-      margin-right: 0.25rem;
-    }
-
-    /* Dropdown styling */
-    .tagify__dropdown {
-      {% comment %} border: 0px solid #e5e7eb; {% endcomment %}
-      border-radius: 0.4rem;
-      box-shadow: none;
-      z-index: 1000;
-      background: white;
-    }
-
-    .tagify__dropdown__wrapper {
-      padding: 0.25rem;
-    }
-
-    .tagify__dropdown__item {
-      padding: 0.5rem 0.75rem;
-      border-radius: 0.25rem;
-      margin: 0.125rem 0;
-      cursor: pointer;
-      font-size: 0.875rem;
-      color: #374151;
-    }
-
-    .tagify__dropdown__item:hover {
-      background-color: #F3F4F6;
-      color:rgb(88, 113, 152);
-    }
-
-    .tagify__dropdown__item--active {
-      background-color: #DBEAFE;
-      color: #1E40AF;
-    }
-
-    .tagify__dropdown__item--active:hover {
-      background-color: #BFDBFE;
-      color: #1E40AF;
-    }
-  </style>
   <script>
     // Apply sidebar state immediately to prevent flash
     (function() {
@@ -103,16 +19,6 @@
       }
     })();
   </script>
-  <style>
-    .sidebar-collapsed-initial #sidebar {
-      width: 0;
-      padding: 0;
-      overflow: hidden;
-    }
-    .sidebar-collapsed-initial #toggle-sidebar {
-      left: 0.5rem;
-    }
-  </style>
 </head>
 <body class="bg-gray-50">
   <div class="flex h-screen overflow-hidden">
@@ -150,13 +56,13 @@
       </div>
       <div class="p-1 border-t">
         {% if request.user.is_authenticated %}
-          <a href="{% url 'profile' %}" class="flex items-center p-1 rounded-md hover:bg-blue-100 hover:text-blue-800 gap-2
-            {% if request.resolver_match.url_name == 'profile' %}bg-blue-100 text-blue-800
+          <a href="{% url 'profile' %}" class="flex items-center p-1 rounded-md hover:bg-blue-50 hover:text-blue-800 gap-2
+            {% if request.resolver_match.url_name == 'profile' %}bg-blue-50 text-blue-800
             {% else %}text-gray-700{% endif %}">
             {% if request.user.userprofile.avatar %}
               <img src="{{ request.user.userprofile.avatar.url }}" alt="" class="w-8 h-8 rounded-md object-cover flex-shrink-0">
             {% else %}
-              <div class="w-8 h-8 rounded-md bg-blue-100 text-blue-700 flex items-center justify-center text-sm font-bold flex-shrink-0">
+              <div class="w-8 h-8 rounded-md bg-blue-50 text-blue-700 flex items-center justify-center text-sm font-bold flex-shrink-0">
                 {{ request.user.username|first|upper }}
               </div>
             {% endif %}
@@ -164,11 +70,11 @@
           </a>
         {% else %}
           <div class="space-y-2">
-            <a href="{% url 'login' %}" class="flex items-center pl-2.5 py-2 gap-x-2 text-gray-700 rounded-md hover:bg-blue-100 hover:text-blue-700">
+            <a href="{% url 'login' %}" class="flex items-center pl-2.5 py-2 gap-x-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-700">
               {% hi "login" css_class="h-5 w-5 flex-shrink-0" %}
               <span class="sidebar-text">Log in</span>
             </a>
-            <a href="{% url 'register' %}" class="flex items-center pl-2.5 py-2 gap-x-2 text-gray-700 rounded-md hover:bg-blue-100 hover:text-blue-700">
+            <a href="{% url 'register' %}" class="flex items-center pl-2.5 py-2 gap-x-2 text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-700">
               {% hi "user-add" css_class="h-5 w-5 flex-shrink-0" %}
               <span class="sidebar-text">Register</span>
             </a>
@@ -190,48 +96,6 @@
     </main>
   </div>
 
-<style>
-  #sidebar.collapsed {
-    width: 0;
-    padding: 0;
-    overflow: hidden;
-  }
-  
-  .sidebar-text {
-    font-size: 1rem;
-  }
-
-  #sidebar.collapsed .sidebar-text {
-    display: none;
-  }
-  
-  #toggle-sidebar {
-    transition: left 0.4s ease, opacity 0.05s ease;
-    opacity: 0;
-  }
-
-  #sidebar:hover ~ main #toggle-sidebar,
-  #toggle-sidebar:hover {
-    opacity: 1;
-  }
-
-  body.sidebar-collapsed #toggle-sidebar {
-    left: 0.5rem;
-    opacity: 1;
-  }
-
-  body:not(.sidebar-collapsed) #toggle-sidebar {
-    left: 13.15rem;
-  }
-
-  :root {
-    --tag-radius: 0.5rem;
-  }
-
-  .tag, .source-badge, .user-avatar {
-    border-radius: var(--tag-radius);
-  }
-</style>
 
 <script type="module">
   import { initSidebar } from "{% static 'js/core/sidebar.js' %}";
