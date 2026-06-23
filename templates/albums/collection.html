@@ -25,7 +25,7 @@
         type="button"
         data-category="{{ category_key }}"
         data-label="{{ category_label }}"
-        class="category-btn px-2 py-1 text-xs rounded transition-colors text-blue-800 hover:bg-blue-200"
+        class="category-btn px-2 py-1 text-xs rounded-sm transition-colors text-blue-800 hover:bg-blue-200"
       >
         {{ category_label }}
       </button>
@@ -476,7 +476,7 @@
     categoryInput.value = '';
     selectedCategory = null;
     tagsRow.classList.add('hidden');
-    categoryBtns.forEach(b => b.classList.remove('ring-1', 'ring-blue-500'));
+    categoryBtns.forEach(b => b.classList.remove('ring-1', 'ring-blue-700/50'));
     triggerFilterUpdate();
   });
 
@@ -539,8 +539,8 @@
 
   // CSS classes for filter buttons (DRY)
   const BUTTON_CLASSES = {
-    active: "tag-filter-btn px-2 py-1 text-xs rounded bg-blue-200 text-blue-800 transition-colors flex items-center gap-1",
-    inactive: "tag-filter-btn px-2 py-1 text-xs rounded bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors"
+    active: "tag-filter-btn px-2 py-1 text-xs tag bg-blue-200 text-blue-800 transition-colors flex items-center gap-1",
+    inactive: "tag-filter-btn px-2 py-1 text-xs tag bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors"
   };
 
   // Check icon SVG for selected state
@@ -639,7 +639,7 @@
         // Update height after transition completes
         setTimeout(updateFilterBarHeight, 250);
         // Remove ring from button
-        this.classList.remove('ring-1', 'ring-blue-500');
+        this.classList.remove('ring-1', 'ring-blue-700/50');
         // Only trigger update if "All" was selected (tags stay in Tagify)
         if (wasAllSelected) {
           categoryInput.value = '';
@@ -650,8 +650,8 @@
         // Expand row for this category
         selectedCategory = category;
         // Remove ring from all buttons, then add to current
-        categoryBtns.forEach(b => b.classList.remove('ring-1', 'ring-blue-500'));
-        this.classList.add('ring-1', 'ring-blue-500');
+        categoryBtns.forEach(b => b.classList.remove('ring-1', 'ring-blue-700/50'));
+        this.classList.add('ring-1', 'ring-blue-700/50');
         expandCategoryRow(category);
       }
     });
@@ -902,7 +902,7 @@
   // Create album card HTML element
   function createAlbumCard(album) {
     const card = document.createElement('div');
-    card.className = 'album-card bg-white border rounded overflow-hidden group cursor-pointer hover:border-gray-300 hover:shadow hover:scale-[1.01] transition-all duration-200';
+    card.className = 'album-card bg-white border rounded-sm overflow-hidden group cursor-pointer hover:border-gray-300 hover:shadow hover:scale-[1.01] transition-all duration-200';
     card.dataset.albumId = album.id;
 
     // Build cover image HTML
@@ -918,11 +918,11 @@
 
       tagsHtml = `<div class="mt-2 flex flex-wrap gap-1">
         <div class="flex flex-wrap gap-1 group-hover:hidden">
-          ${visibleTags.map(tag => `<span class="tag-clickable text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded cursor-pointer hover:bg-blue-200 transition-colors" data-tag-id="${tag.id}" data-tag-name="${escapeHtml(tag.name)}" data-tag-category="${escapeHtml(tag.category)}">${escapeHtml(tag.name)}</span>`).join('')}
-          ${remainingCount > 0 ? `<span class="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded">+${remainingCount}</span>` : ''}
+          ${visibleTags.map(tag => `<span class="tag-clickable text-xs px-2 py-1 bg-blue-100 text-blue-800 tag cursor-pointer hover:bg-blue-200 transition-colors" data-tag-id="${tag.id}" data-tag-name="${escapeHtml(tag.name)}" data-tag-category="${escapeHtml(tag.category)}">${escapeHtml(tag.name)}</span>`).join('')}
+          ${remainingCount > 0 ? `<span class="text-xs px-2 py-1 bg-gray-100 text-gray-600 tag">+${remainingCount}</span>` : ''}
         </div>
         <div class="hidden group-hover:flex flex-wrap gap-1">
-          ${album.tags.map(tag => `<span class="tag-clickable text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded cursor-pointer hover:bg-blue-200 transition-colors" data-tag-id="${tag.id}" data-tag-name="${escapeHtml(tag.name)}" data-tag-category="${escapeHtml(tag.category)}">${escapeHtml(tag.name)}</span>`).join('')}
+          ${album.tags.map(tag => `<span class="tag-clickable text-xs px-2 py-1 bg-blue-100 text-blue-800 tag cursor-pointer hover:bg-blue-200 transition-colors" data-tag-id="${tag.id}" data-tag-name="${escapeHtml(tag.name)}" data-tag-category="${escapeHtml(tag.category)}">${escapeHtml(tag.name)}</span>`).join('')}
         </div>
       </div>`;
     }
@@ -932,8 +932,8 @@
     let submittedByHtml = '';
     if (album.submitted_by) {
       const avatarHtml = album.submitted_by.avatar_url
-        ? `<img src="${album.submitted_by.avatar_url}" alt="" class="w-4 h-4 rounded object-cover flex-shrink-0">`
-        : `<div class="w-4 h-4 rounded bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold flex-shrink-0">${album.submitted_by.username.charAt(0).toUpperCase()}</div>`;
+        ? `<img src="${album.submitted_by.avatar_url}" alt="" class="w-4 h-4 rounded-sm object-cover flex-shrink-0">`
+        : `<div class="w-4 h-4 rounded-sm bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold flex-shrink-0">${album.submitted_by.username.charAt(0).toUpperCase()}</div>`;
       submittedByHtml = `
         <div class="mt-2 pt-2 border-t border-gray-200 flex items-center gap-1.5">
           ${avatarHtml}

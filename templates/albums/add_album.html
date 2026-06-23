@@ -5,20 +5,7 @@
 
 {% block content %}
 <!-- Sticky header -->
-<div class="sticky top-0 z-10 bg-white border-b p-4 flex items-center justify-between">
-  <h1 class="text-2xl font-bold text-gray-800">Add album</h1>
-  <!-- Toggle entre les 2 modes -->
-  <div class="flex gap-2">
-    <button id="btn-mode-link" type="button" class="p-2 rounded font-medium transition bg-blue-600 text-white flex items-center gap-2">
-      {% hi "link" css_class="h-4 w-4" %}
-      Link
-    </button>
-    <button id="btn-mode-manual" type="button" class="p-2 rounded font-medium transition bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center gap-2">
-      {% hi "pencil-alt" css_class="h-4 w-4" %}
-      Manual
-    </button>
-  </div>
-</div>
+{% include "albums/_page_header.html" with page_title="Add album" page_show_mode_toggle=True %}
 
 <!-- Content -->
 <div class="max-w-2xl mx-auto flex flex-col justify-center p-8">
@@ -36,8 +23,8 @@
           Link *
         </label>
         <div class="flex gap-2">
-          <input type="text" id="link-url-input" class="flex-1 px-4 py-2 border border-gray-300 rounded outline-none" placeholder="Deezer, Discogs, Bandcamp or RateYourMusic...">
-          <button type="button" id="btn-fetch-link" class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-medium transition flex items-center gap-2">
+          <input type="text" id="link-url-input" class="flex-1 px-4 py-2 border border-gray-300 rounded-sm outline-none" placeholder="Deezer, Discogs, Bandcamp or RateYourMusic...">
+          <button type="button" id="btn-fetch-link" class="px-6 py-2 bg-blue-600 text-white rounded-sm hover:bg-blue-700 font-medium transition flex items-center gap-2">
             <svg id="import-spinner" class="hidden animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -49,14 +36,14 @@
       </div>
 
       <!-- Preview après import -->
-      <div id="link-preview" class="hidden border-2 border-blue-200 rounded p-6 bg-blue-50 mt-4">
+      <div id="link-preview" class="hidden border-2 border-blue-200 rounded-sm p-6 bg-blue-100 mt-4">
         <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
           {% hi "check" css_class="h-5 w-5 text-green-600" %}
           Album found!
         </h3>
         <div class="flex gap-4">
-          <img id="link-preview-cover" src="" alt="Cover" class="w-32 h-32 object-cover rounded hidden">
-          <div id="link-preview-no-cover" class="w-32 h-32 rounded bg-gray-200 flex items-center justify-center text-gray-400 text-xs text-center leading-tight hidden">
+          <img id="link-preview-cover" src="" alt="Cover" class="w-32 h-32 object-cover rounded-sm hidden">
+          <div id="link-preview-no-cover" class="w-32 h-32 rounded-sm bg-gray-200 flex items-center justify-center text-gray-400 text-xs text-center leading-tight hidden">
             No cover found<br>upload below
           </div>
           <div class="flex-1">
@@ -95,7 +82,7 @@
           {{ form.cover.label }} *
         </label>
         
-        <div id="drop-zone" class="border-2 border-dashed border-gray-300 rounded p-8 text-center cursor-pointer hover:border-blue-500 transition">
+        <div id="drop-zone" class="border-2 border-dashed border-gray-300 rounded-sm p-8 text-center cursor-pointer hover:border-blue-600 transition">
           <div id="drop-zone-content">
             <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
               <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
@@ -107,8 +94,8 @@
           </div>
           
           <div id="preview-container" class="hidden">
-            <img id="preview-image" src="" alt="Preview" class="max-h-64 mx-auto rounded">
-            <button type="button" id="remove-image" class="mt-4 px-4 py-2 bg-red-100 text-red-700 rounded hover:bg-red-200">
+            <img id="preview-image" src="" alt="Preview" class="max-h-64 mx-auto rounded-sm">
+            <button type="button" id="remove-image" class="mt-4 px-4 py-2 bg-red-100 text-red-700 rounded-sm hover:bg-red-200">
               Remove image
             </button>
           </div>
@@ -160,14 +147,14 @@
     
     <!-- Boutons -->
     <div class="flex gap-2">
-      <button type="submit" id="btn-submit" disabled class="flex-1 px-6 py-3 bg-gray-300 text-gray-500 font-medium rounded cursor-not-allowed transition flex items-center justify-center gap-2">
+      <button type="submit" id="btn-submit" disabled class="flex-1 px-6 py-3 bg-gray-300 text-gray-500 font-medium rounded-sm cursor-not-allowed transition flex items-center justify-center gap-2">
         <svg id="submit-spinner" class="hidden animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
         <span id="submit-label">Add album</span>
       </button>
-      <a href="{% url 'collection' %}" class="px-6 py-3 bg-gray-200 text-gray-700 font-medium rounded hover:bg-gray-300 transition">
+      <a href="{% url 'collection' %}" class="px-6 py-3 bg-gray-200 text-gray-700 font-medium rounded-sm hover:bg-gray-300 transition">
         Cancel
       </a>
     </div>
@@ -183,10 +170,10 @@
     </div>
     <p class="text-gray-600 mb-6">This album is already in your collection.</p>
     <div class="flex flex-col gap-3">
-      <button id="btn-go-collection" type="button" class="w-full px-4 py-2 bg-blue-600 text-white font-medium rounded hover:bg-blue-700 transition">
+      <button id="btn-go-collection" type="button" class="w-full px-4 py-2 bg-blue-600 text-white font-medium rounded-sm hover:bg-blue-700 transition">
         View collection
       </button>
-      <button id="btn-cancel-modal" type="button" class="w-full bg-gray-200 px-4 py-2 rounded text-gray-500 hover:text-gray-700 transition text-sm hover:bg-gray-300">
+      <button id="btn-cancel-modal" type="button" class="w-full bg-gray-200 px-4 py-2 rounded-sm text-gray-500 hover:text-gray-700 transition text-sm hover:bg-gray-300">
         Cancel
       </button>
     </div>
@@ -226,8 +213,8 @@
   const modeManual = document.getElementById('mode-manual');
   const hiddenMode = document.getElementById('hidden-mode');
 
-  const activeTabClass = 'px-4 py-2 rounded font-medium transition bg-blue-600 text-white flex items-center gap-2';
-  const inactiveTabClass = 'px-4 py-2 rounded font-medium transition bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center gap-2';
+  const activeTabClass = 'px-4 py-2 rounded-sm font-medium transition bg-blue-600 text-white flex items-center gap-2';
+  const inactiveTabClass = 'px-4 py-2 rounded-sm font-medium transition bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center gap-2';
 
   function switchMode(mode) {
     currentMode = mode;
@@ -347,16 +334,16 @@
 
   dropZone.addEventListener('dragover', (e) => {
     e.preventDefault();
-    dropZone.classList.add('border-blue-500', 'bg-blue-50');
+    dropZone.classList.add('border-blue-600', 'bg-blue-100');
   });
 
   dropZone.addEventListener('dragleave', () => {
-    dropZone.classList.remove('border-blue-500', 'bg-blue-50');
+    dropZone.classList.remove('border-blue-600', 'bg-blue-100');
   });
 
   dropZone.addEventListener('drop', (e) => {
     e.preventDefault();
-    dropZone.classList.remove('border-blue-500', 'bg-blue-50');
+    dropZone.classList.remove('border-blue-600', 'bg-blue-100');
     const files = e.dataTransfer.files;
     if (files.length > 0) {
       fileInput.files = files;
@@ -425,8 +412,8 @@
     const hasTags = tagify.value.length > 0;
     btnSubmit.disabled = !hasTags;
     btnSubmit.className = hasTags
-      ? 'flex-1 px-6 py-3 bg-blue-600 text-white font-medium rounded hover:bg-blue-700 transition flex items-center justify-center gap-2'
-      : 'flex-1 px-6 py-3 bg-gray-300 text-gray-500 font-medium rounded cursor-not-allowed transition flex items-center justify-center gap-2';
+      ? 'flex-1 px-6 py-3 bg-blue-600 text-white font-medium rounded-sm hover:bg-blue-700 transition flex items-center justify-center gap-2'
+      : 'flex-1 px-6 py-3 bg-gray-300 text-gray-500 font-medium rounded-sm cursor-not-allowed transition flex items-center justify-center gap-2';
   }
 
   tagify.on('add', updateSubmitBtn);

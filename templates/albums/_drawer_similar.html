@@ -4,21 +4,7 @@
   <h3 class="text-sm font-medium text-gray-700 mb-3">Same artist</h3>
   <div class="grid grid-cols-2 gap-2">
     {% for album in same_artist %}
-    <div class="album-card border rounded overflow-hidden cursor-pointer hover:border-gray-300 hover:shadow hover:scale-[1.01] transition-all duration-200" data-album-id="{{ album.id }}">
-      <div class="aspect-square bg-gray-200">
-        {% if album.cover %}
-        <img src="{{ album.cover.url }}" alt="{{ album.name }}" class="w-full h-full object-cover" loading="lazy">
-        {% else %}
-        <div class="w-full h-full flex items-center justify-center text-gray-400 text-xs">No cover</div>
-        {% endif %}
-      </div>
-      <div class="p-2">
-        <p class="text-xs font-medium text-gray-800 truncate">{{ album.name }}</p>
-        {% if album.year %}
-        <p class="text-xs text-gray-500">{{ album.year }}</p>
-        {% endif %}
-      </div>
-    </div>
+    {% include "albums/_album_tile.html" with tile_album=album tile_size="sm" tile_id=album.id %}
     {% endfor %}
   </div>
 </div>
@@ -30,19 +16,7 @@
   <h3 class="text-sm font-medium text-gray-700 mb-3">Same tags</h3>
   <div class="grid grid-cols-2 gap-2">
     {% for album in same_tags %}
-    <div class="album-card border rounded overflow-hidden cursor-pointer hover:border-gray-300 hover:shadow hover:scale-[1.01] transition-all duration-200" data-album-id="{{ album.id }}">
-      <div class="aspect-square bg-gray-200">
-        {% if album.cover %}
-        <img src="{{ album.cover.url }}" alt="{{ album.name }}" class="w-full h-full object-cover" loading="lazy">
-        {% else %}
-        <div class="w-full h-full flex items-center justify-center text-gray-400 text-xs">No cover</div>
-        {% endif %}
-      </div>
-      <div class="p-2">
-        <p class="text-xs font-medium text-gray-800 truncate">{{ album.name }}</p>
-        <p class="text-xs text-gray-500 truncate">{{ album.artist.name }}</p>
-      </div>
-    </div>
+    {% include "albums/_album_tile.html" with tile_album=album tile_size="sm" tile_id=album.id tile_artist_name=album.artist.name %}
     {% endfor %}
   </div>
 </div>

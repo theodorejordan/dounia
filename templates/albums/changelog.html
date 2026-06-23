@@ -4,15 +4,13 @@
 
 {% block content %}
 <!-- Sticky header -->
-<div class="sticky top-0 z-10 bg-white border-b p-4">
-  <h1 class="text-2xl font-bold text-gray-800">Changelog</h1>
-</div>
+{% include "albums/_page_header.html" with page_title="Changelog" %}
 
 <!-- Content -->
 <div class="max-w-2xl mx-auto p-8 space-y-1">
 
   <article class="changelog-entry" data-open="true">
-    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded transition-colors">
+    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded-md transition-colors">
       <div class="flex items-center gap-3">
         <h2 class="text-lg font-semibold text-gray-900">v0.5.4</h2>
         <span class="text-sm text-gray-500">June 22, 2026</span>
@@ -47,7 +45,7 @@
   </article>
 
   <article class="changelog-entry">
-    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded transition-colors">
+    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded-md transition-colors">
       <div class="flex items-center gap-3">
         <h2 class="text-lg font-semibold text-gray-900">v0.5.3</h2>
         <span class="text-sm text-gray-500">June 4, 2026</span>
@@ -73,7 +71,7 @@
   </article>
 
   <article class="changelog-entry">
-    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded transition-colors">
+    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded-md transition-colors">
       <div class="flex items-center gap-3">
         <h2 class="text-lg font-semibold text-gray-900">v0.5.2</h2>
         <span class="text-sm text-gray-500">June 4, 2026</span>
@@ -100,7 +98,7 @@
   </article>
 
   <article class="changelog-entry">
-    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded transition-colors">
+    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded-md transition-colors">
       <div class="flex items-center gap-3">
         <h2 class="text-lg font-semibold text-gray-900">v0.5.1</h2>
         <span class="text-sm text-gray-500">May 28, 2026</span>
@@ -132,7 +130,7 @@
   </article>
 
   <article class="changelog-entry">
-    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded transition-colors">
+    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded-md transition-colors">
       <div class="flex items-center gap-3">
         <h2 class="text-lg font-semibold text-gray-900">v0.5.0</h2>
         <span class="text-sm text-gray-500">May 26, 2026</span>
@@ -163,7 +161,7 @@
   </article>
 
   <article class="changelog-entry">
-    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded transition-colors">
+    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded-md transition-colors">
       <div class="flex items-center gap-3">
         <h2 class="text-lg font-semibold text-gray-900">v0.4.5</h2>
         <span class="text-sm text-gray-500">May 19, 2026</span>
@@ -194,7 +192,7 @@
   </article>
 
   <article class="changelog-entry">
-    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded transition-colors">
+    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded-md transition-colors">
       <div class="flex items-center gap-3">
         <h2 class="text-lg font-semibold text-gray-900">v0.4.4</h2>
         <span class="text-sm text-gray-500">May 18, 2026</span>
@@ -224,7 +222,7 @@
   </article>
 
   <article class="changelog-entry">
-    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded transition-colors">
+    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded-md transition-colors">
       <div class="flex items-center gap-3">
         <h2 class="text-lg font-semibold text-gray-900">v0.4.3</h2>
         <span class="text-sm text-gray-500">May 17, 2026</span>
@@ -252,7 +250,7 @@
   </article>
 
   <article class="changelog-entry">
-    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded transition-colors">
+    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded-md transition-colors">
       <div class="flex items-center gap-3">
         <h2 class="text-lg font-semibold text-gray-900">v0.4.2</h2>
         <span class="text-sm text-gray-500">May 15, 2026</span>
@@ -276,7 +274,7 @@
   </article>
 
   <article class="changelog-entry">
-    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded transition-colors">
+    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded-md transition-colors">
       <div class="flex items-center gap-3">
         <h2 class="text-lg font-semibold text-gray-900">v0.4.1</h2>
         <span class="text-sm text-gray-500">May 14, 2026</span>
@@ -303,7 +301,7 @@
   </article>
 
   <article class="changelog-entry">
-    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded transition-colors">
+    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded-md transition-colors">
       <div class="flex items-center gap-3">
         <h2 class="text-lg font-semibold text-gray-900">v0.4.0</h2>
         <span class="text-sm text-gray-500">May 13, 2026</span>
@@ -331,7 +329,7 @@
   </article>
 
   <article class="changelog-entry">
-    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded transition-colors">
+    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded-md transition-colors">
       <div class="flex items-center gap-3">
         <h2 class="text-lg font-semibold text-gray-900">v0.3.3</h2>
         <span class="text-sm text-gray-500">May 11, 2026</span>
@@ -353,7 +351,7 @@
   </article>
 
   <article class="changelog-entry">
-    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded transition-colors">
+    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded-md transition-colors">
       <div class="flex items-center gap-3">
         <h2 class="text-lg font-semibold text-gray-900">v0.3.2</h2>
         <span class="text-sm text-gray-500">May 6, 2026</span>
@@ -375,7 +373,7 @@
   </article>
 
   <article class="changelog-entry">
-    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded transition-colors">
+    <button type="button" class="changelog-header w-full flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 rounded-md transition-colors">
       <div class="flex items-center gap-3">
         <h2 class="text-lg font-semibold text-gray-900">v0.3.1</h2>
         <span class="text-sm text-gray-500">May 6, 2026</span>
