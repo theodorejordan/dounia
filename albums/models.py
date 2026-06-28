@@ -167,23 +167,6 @@ class Album(models.Model):
         return f"{self.artist.name} - {self.name}"
 
 
-class Comment(models.Model):
-    """Comment on an album"""
-    album = models.ForeignKey(Album, on_delete=models.CASCADE, related_name='comments')
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
-    text = models.TextField()
-    parent = models.ForeignKey(
-        'self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies'
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ['created_at']
-
-    def __str__(self):
-        return f"{self.author.username} on {self.album.name}"
-
-
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='userprofile')
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)

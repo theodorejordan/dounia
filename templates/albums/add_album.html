@@ -3,10 +3,22 @@
 
 {% block title %}Add album — Dounia{% endblock %}
 
-{% block content %}
-<!-- Sticky header -->
-{% include "albums/_page_header.html" with page_title="Add album" page_show_mode_toggle=True %}
+{% block page_header_title %}Add album{% endblock %}
 
+{% block page_header_actions %}
+<div class="flex gap-2">
+  <button id="btn-mode-link" type="button" class="p-2 rounded-md text-sm font-medium transition bg-blue-600 text-white flex items-center gap-1">
+    {% hi "link" css_class="h-4 w-4" %}
+    Link
+  </button>
+  <button id="btn-mode-manual" type="button" class="p-2 rounded-md text-sm font-medium transition bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center gap-1">
+    {% hi "pencil-alt" css_class="h-4 w-4" %}
+    Manual
+  </button>
+</div>
+{% endblock %}
+
+{% block content %}
 <!-- Content -->
 <div class="max-w-2xl mx-auto flex flex-col justify-center p-8">
   
@@ -23,8 +35,8 @@
           Link *
         </label>
         <div class="flex gap-2">
-          <input type="text" id="link-url-input" class="flex-1 px-4 py-2 border border-gray-300 rounded-md outline-none" placeholder="Deezer, Discogs, Bandcamp or RateYourMusic...">
-          <button type="button" id="btn-fetch-link" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium transition flex items-center gap-2">
+          <input type="text" id="link-url-input" class="flex-1 field-input" placeholder="Deezer, Discogs, Bandcamp or RateYourMusic...">
+          <button type="button" id="btn-fetch-link" disabled class="px-6 py-2 bg-gray-200 text-gray-400 rounded-md font-medium transition flex items-center gap-2 cursor-not-allowed">
             <svg id="import-spinner" class="hidden animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -144,14 +156,14 @@
     
     <!-- Boutons -->
     <div class="flex gap-2">
-      <button type="submit" id="btn-submit" disabled class="flex-1 px-6 py-3 bg-gray-300 text-gray-500 font-medium rounded-md cursor-not-allowed transition flex items-center justify-center gap-2">
+      <button type="submit" id="btn-submit" disabled class="flex-1 px-6 py-2 bg-gray-300 text-gray-500 font-medium rounded-md cursor-not-allowed transition flex items-center justify-center gap-2">
         <svg id="submit-spinner" class="hidden animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
         <span id="submit-label">Add album</span>
       </button>
-      <a href="{% url 'collection' %}" class="px-6 py-3 bg-gray-200 text-gray-700 font-medium rounded-md hover:bg-gray-300 transition">
+      <a href="{% url 'collection' %}" class="px-6 py-2 bg-gray-200 text-gray-700 font-medium rounded-md hover:bg-gray-300 transition">
         Cancel
       </a>
     </div>
@@ -161,12 +173,12 @@
 <!-- Duplicate album modal -->
 <div id="duplicate-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
   <div class="bg-white rounded-xl p-8 max-w-sm w-full mx-4">
-    <div class="flex items-center gap-3 mb-4">
+    <div class="flex items-center gap-2 mb-4">
       {% hi "exclamation" css_class="h-5 w-5 text-amber-500 flex-shrink-0" %}
       <h3 class="text-lg font-bold text-gray-800">Album already in collection</h3>
     </div>
     <p class="text-gray-600 mb-6">This album is already in your collection.</p>
-    <div class="flex flex-col gap-3">
+    <div class="flex flex-col gap-2">
       <button id="btn-go-collection" type="button" class="w-full px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition">
         View collection
       </button>
@@ -211,6 +223,19 @@
   const importSpinner = document.getElementById('import-spinner');
   const importLabel = document.getElementById('import-label');
 
+  function updateImportBtn() {
+    const hasValue = linkUrlInput.value.trim().length > 0;
+    btnFetchLink.disabled = !hasValue;
+    btnFetchLink.classList.toggle('bg-blue-600', hasValue);
+    btnFetchLink.classList.toggle('text-white', hasValue);
+    btnFetchLink.classList.toggle('hover:bg-blue-700', hasValue);
+    btnFetchLink.classList.toggle('bg-gray-200', !hasValue);
+    btnFetchLink.classList.toggle('text-gray-400', !hasValue);
+    btnFetchLink.classList.toggle('cursor-not-allowed', !hasValue);
+  }
+  linkUrlInput.addEventListener('input', updateImportBtn);
+  updateImportBtn();
+
   function setImportLoading(loading) {
     if (loading) {
       btnFetchLink.disabled = true;
@@ -219,11 +244,10 @@
       importSpinner.classList.remove('hidden');
       importLabel.textContent = 'Importing...';
     } else {
-      btnFetchLink.disabled = false;
-      btnFetchLink.classList.add('hover:bg-blue-700');
-      btnFetchLink.classList.remove('opacity-70', 'cursor-not-allowed');
+      btnFetchLink.classList.remove('opacity-70');
       importSpinner.classList.add('hidden');
       importLabel.textContent = 'Import';
+      updateImportBtn();
     }
   }
 
@@ -387,8 +411,8 @@
     const hasTags = tagify.value.length > 0;
     btnSubmit.disabled = !hasTags;
     btnSubmit.className = hasTags
-      ? 'flex-1 px-6 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition flex items-center justify-center gap-2'
-      : 'flex-1 px-6 py-3 bg-gray-300 text-gray-500 font-medium rounded-md cursor-not-allowed transition flex items-center justify-center gap-2';
+      ? 'flex-1 px-6 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition flex items-center justify-center gap-2'
+      : 'flex-1 px-6 py-2 bg-gray-300 text-gray-500 font-medium rounded-md cursor-not-allowed transition flex items-center justify-center gap-2';
   }
 
   tagify.on('add', updateSubmitBtn);

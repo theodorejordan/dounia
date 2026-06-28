@@ -161,6 +161,17 @@ body:not(.sidebar-collapsed) #toggle-sidebar {
 }
 
 /* ============================================================
+   Forms — single-line inputs
+   ============================================================ */
+.field-input {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  outline: none;
+  font-size: 0.875rem;
+}
+
+/* ============================================================
    Forms — file input (submit & add album pages)
    ============================================================ */
 #id_cover {

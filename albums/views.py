@@ -8,7 +8,7 @@ from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User
-from .models import Album, Artist, Tag, UserProfile, Submission, Comment
+from .models import Album, Artist, Tag, UserProfile, Submission
 from .forms import AlbumForm, RegisterForm, ProfileForm, AvatarForm, SubmissionForm
 from .services import create_album_from_submission, sync_album_tags
 import json
@@ -433,13 +433,6 @@ def profile_view(request):
     })
 
 
-def public_profile_view(request, username):
-    profile_user = get_object_or_404(User, username=username)
-    return render(request, 'albums/public_profile.html', {
-        'profile_user': profile_user,
-    })
-
-
 @login_required
 def delete_account_view(request):
     if request.method == 'POST':
@@ -578,33 +571,6 @@ def drawer_similar_view(request, album_id):
         'album': album,
         'same_artist': same_artist,
         'same_tags': same_tags,
-    })
-
-
-def drawer_comments_view(request, album_id):
-    """Comments tab content"""
-    album = get_object_or_404(Album, id=album_id)
-
-    if request.method == 'POST' and request.user.is_authenticated:
-        text = request.POST.get('text', '').strip()
-        parent_id = request.POST.get('parent_id')
-        if text:
-            parent = None
-            if parent_id:
-                parent = Comment.objects.filter(id=parent_id, album=album).first()
-            Comment.objects.create(
-                album=album,
-                author=request.user,
-                text=text,
-                parent=parent
-            )
-
-    # Get top-level comments with replies
-    comments = Comment.objects.filter(album=album, parent__isnull=True).select_related('author__userprofile').prefetch_related('replies__author__userprofile')
-
-    return render(request, 'albums/_drawer_comments.html', {
-        'album': album,
-        'comments': comments,
     })
 
 

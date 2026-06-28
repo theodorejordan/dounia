@@ -3,10 +3,9 @@
 
 {% block title %}Submissions — Dounia{% endblock %}
 
-{% block content %}
-<!-- Sticky header -->
-{% include "albums/_page_header.html" with page_title="Pending Submissions" %}
+{% block page_header_title %}Pending Submissions{% endblock %}
 
+{% block content %}
 <!-- Content -->
 <div class="max-w-7xl mx-auto p-4">
   {% if submissions %}

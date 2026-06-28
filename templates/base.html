@@ -91,7 +91,19 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
         </svg>
       </button>
-      
+
+      {% block page_header %}
+      <div class="sticky top-0 z-10 bg-white border-b h-16 flex items-center justify-between px-4 flex-shrink-0">
+        <div class="flex items-center gap-2">
+          {% block page_header_back %}{% endblock %}
+          <h1 class="text-2xl font-bold text-gray-800">{% block page_header_title %}{% endblock %}</h1>
+        </div>
+        <div class="flex items-center gap-2">
+          {% block page_header_actions %}{% endblock %}
+        </div>
+      </div>
+      {% endblock %}
+
       {% block content %}{% endblock %}
     </main>
   </div>
